@@ -6,6 +6,5 @@ export default defineConfig({
   plugins: [react()],
   base: './', // Ensures relative paths for assets, good for GitHub Pages subdirectory hosting.
   build: {
-    chunkSizeWarningLimit: 1000, // Optional: Increase chunk size warning limit if needed
-  }
-});
+    outDir: 'docs', // Changed output directory to 'docs'
+    chunkSizeWarningLimit: 1000, // Optional: Increase
