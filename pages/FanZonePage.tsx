@@ -38,13 +38,15 @@ const FanZonePage: React.FC = () => {
       console.error("Failed to initialize chat:", e);
       let specificError = "Sorry, I'm having a bit of trouble starting up. Please try again later.";
       if (e instanceof Error) {
-        if (e.message.includes("API_KEY") || e.message.includes("VITE_API_KEY")) {
-          specificError = "Gemini API Key not configured. Please ensure the API_KEY environment variable is set and you have restarted the server.";
+        if (e.message.includes("API_KEY not configured") || e.message.includes("Chat session cannot be started") || e.message.includes("client failed to initialize")) {
+          specificError = `Toasty Bot is currently napping! 😴 This feature requires a connection to Gemini, which isn't available right now. If you're the site admin, please check the API key configuration.`;
         } else if (e.message.includes("Could not initialize chat")) {
           specificError = e.message; // Use the more specific error from geminiService
         }
       }
       setError(specificError);
+      // Ensure chat features are disabled visually if initialization fails
+      setUserInput(''); // Clear input
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +70,7 @@ const FanZonePage: React.FC = () => {
     setMessages(prev => [...prev, userMessage]);
     setUserInput('');
     setIsLoading(true);
-    setError(null);
+    setError(null); // Clear previous errors on new send attempt
 
     try {
       const botResponseText = await geminiService.sendMessageToChat(chatInstanceRef.current, userMessage.text);
@@ -81,14 +83,19 @@ const FanZonePage: React.FC = () => {
       setMessages(prev => [...prev, botMessage]);
     } catch (err) {
       console.error("Error sending message:", err);
-      setError("Oops! Something went wrong trying to get a response. Please try again.");
-      const errorMessage: ChatMessage = {
+      let displayError = "Oops! Something went wrong trying to get a response. Please try again.";
+      if (err instanceof Error && (err.message.includes("API_KEY not configured") || err.message.includes("client not initialized"))) {
+        displayError = "Toasty Bot is having trouble connecting. Please ensure API configuration is correct or try again later.";
+      }
+      setError(displayError);
+      // Optionally, add a bot message indicating failure
+      const errorMessageUi: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: "I'm sorry, I couldn't process that. Let's try something else!",
+        text: "I'm sorry, I couldn't process that right now. Let's try something else later!",
         sender: 'bot',
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, errorMessageUi]);
     } finally {
       setIsLoading(false);
     }
@@ -127,13 +134,13 @@ const FanZonePage: React.FC = () => {
             type="text"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
-            placeholder={isLoading ? "Toasty is replying..." : (error && !chatInstanceRef.current ? "Chat is unavailable." : `Ask ${TEAM_NAME} Bot anything...`)}
+            placeholder={isLoading ? "Toasty is replying..." : (!chatInstanceRef.current || error ? "Chat is currently unavailable." : `Ask ${TEAM_NAME} Bot anything...`)}
             className={`flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[${ACCENT_COLOR}] focus:border-[${ACCENT_COLOR}] transition-shadow`}
-            disabled={isLoading || !chatInstanceRef.current || !!error}
+            disabled={isLoading || !chatInstanceRef.current || !!error} // Disable if no chat instance or if there's an error
           />
           <button
             type="submit"
-            disabled={isLoading || !userInput.trim() || !chatInstanceRef.current || !!error}
+            disabled={isLoading || !userInput.trim() || !chatInstanceRef.current || !!error} // Disable if no chat instance or if there's an error
             className={`p-3 rounded-lg text-[${THEME_WHITE}] bg-[${ACCENT_COLOR}] hover:bg-[${ACCENT_COLOR}]/90 focus:ring-2 focus:ring-[${ACCENT_COLOR}] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center`}
             aria-label="Send message"
           >

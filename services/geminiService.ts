@@ -5,18 +5,25 @@ import { GEMINI_CHAT_MODEL, TEAM_NAME } from '../constants';
 // Access API_KEY using process.env
 const API_KEY = process.env.API_KEY;
 
-if (!API_KEY) {
-  console.error("Gemini API Key not found. Ensure the API_KEY environment variable is configured correctly and accessible.");
-}
+let ai: GoogleGenAI | null = null;
 
-const ai = new GoogleGenAI({ apiKey: API_KEY! });
+if (API_KEY) {
+  try {
+    ai = new GoogleGenAI({ apiKey: API_KEY });
+  } catch (e) {
+    console.error("Failed to initialize GoogleGenAI with API_KEY:", e);
+    // ai remains null, features depending on it will be disabled.
+  }
+} else {
+  console.warn("Gemini API Key not found in process.env.API_KEY. Gemini-powered features will be unavailable.");
+}
 
 const systemInstruction = `You are "Toasty", the official AI mascot for ${TEAM_NAME}, a passionate and friendly local soccer team. Your goal is to engage with fans, answer their questions about the team (you can be creative and make up fun, plausible details if you don't have specific info, always staying positive about ${TEAM_NAME}), share fun soccer facts, and generally build excitement. Keep your tone enthusiastic, positive, and suitable for all ages. When asked about specific match results or player stats not provided, you can say something like, "That's a great question! I'm still getting all the latest stats from the coach, but I can tell you ${TEAM_NAME} always plays with heart and a bit of sizzle!" or "While I don't have the exact numbers on that, I know every player gives 110% for ${TEAM_NAME}!". Be concise and conversational. Use emojis to add personality where appropriate, especially fire emojis 🔥.`;
 
 const geminiService = {
   startChatSession: (): Chat => {
-    if (!API_KEY) {
-      throw new Error("Gemini API_KEY not configured. Ensure the API_KEY environment variable is set and accessible.");
+    if (!ai) {
+      throw new Error("Gemini API_KEY not configured or client failed to initialize. Chat session cannot be started.");
     }
     try {
       const chat: Chat = ai.chats.create({
@@ -37,8 +44,10 @@ const geminiService = {
   },
 
   sendMessageToChat: async (chat: Chat, message: string): Promise<string> => {
-    if (!API_KEY) {
-      throw new Error("Gemini API_KEY not configured.");
+    if (!ai) {
+      // This path should ideally not be hit if startChatSession already threw.
+      // However, it's a safeguard. The 'chat' object itself would be invalid if 'ai' wasn't initialized.
+      throw new Error("Gemini client not initialized. Message cannot be sent.");
     }
     try {
       const response: GenerateContentResponse = await chat.sendMessage({ message });
