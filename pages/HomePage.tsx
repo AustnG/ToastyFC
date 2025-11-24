@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useData } from '../contexts/DataContext';
 import Spinner from '../components/Spinner';
@@ -53,8 +54,11 @@ const MatchCard: React.FC<{ game: Game | undefined, type: 'last' | 'next' }> = (
                     )}
                 </div>
                 <div className="flex flex-col items-center justify-center gap-2">
-                    <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center border-2 border-border">
-                        <span className="text-2xl font-bold text-gray-500">{game.Opponent.charAt(0)}</span>
+                    <div 
+                        className={`h-12 w-12 rounded-full flex items-center justify-center border-2 border-border ${!game.OpponentColor ? 'bg-background' : ''}`}
+                        style={game.OpponentColor ? { backgroundColor: game.OpponentColor } : undefined}
+                    >
+                        <span className={`text-2xl font-bold ${game.OpponentColor ? 'text-white drop-shadow-md' : 'text-gray-500'}`}>{game.Opponent.charAt(0)}</span>
                     </div>
                     <h4 className="font-bold text-accent w-full truncate text-sm sm:text-base">{game.Opponent}</h4>
                 </div>

@@ -71,6 +71,7 @@ export interface Game {
     OpponentReds?: string;
     OpponentSaves?: string;
     ManOfTheMatch?: string;
+    OpponentColor?: string;
 }
 
 export interface GameStat {

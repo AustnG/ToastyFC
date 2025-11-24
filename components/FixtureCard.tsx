@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { Game, GameStat, Player } from '../types';
 import { LOGO_URL_ROUNDED } from '../constants';
@@ -207,8 +208,11 @@ const FixtureCard: React.FC<FixtureCardProps> = ({ game, gameStats, players, sho
                     </div>
                     
                     <div className="flex flex-col items-center justify-center gap-2">
-                        <div className="h-16 w-16 md:h-20 md:w-20 rounded-full bg-background flex items-center justify-center border-2 border-border">
-                            <span className="text-3xl md:text-4xl font-bold text-gray-500 select-none">{game.Opponent.charAt(0)}</span>
+                        <div 
+                            className={`h-16 w-16 md:h-20 md:w-20 rounded-full flex items-center justify-center border-2 border-border ${!game.OpponentColor ? 'bg-background' : ''}`}
+                            style={game.OpponentColor ? { backgroundColor: game.OpponentColor } : undefined}
+                        >
+                            <span className={`text-3xl md:text-4xl font-bold select-none ${game.OpponentColor ? 'text-white drop-shadow-md' : 'text-gray-500'}`}>{game.Opponent.charAt(0)}</span>
                         </div>
                         <h3 className="font-bold text-base sm:text-lg md:text-xl text-accent w-full truncate px-1">{game.Opponent}</h3>
                     </div>
