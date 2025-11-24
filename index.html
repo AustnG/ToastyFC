@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s1600/2025_Logo_rounded.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Toasty FC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'primary': '#cabba2',         // Tan
+              'secondary': '#aa0000',       // Red
+              'accent': '#111827',         // Dark text color (like gray-900)
+              'background': '#F3F4F6',     // Light gray background
+              'surface': '#ffffff',         // White for cards
+              'border': '#E5E7EB',         // Lighter border color
+            },
+            fontFamily: {
+                sans: ['Inter', 'sans-serif'],
+            },
+            keyframes: {
+              'bounce-in': {
+                  '0%': { transform: 'scale(0.5)', opacity: '0' },
+                  '100%': { transform: 'scale(1)', opacity: '1' },
+              },
+              'spin-y': {
+                  '0%': { transform: 'rotateY(0deg)' },
+                  '100%': { transform: 'rotateY(360deg)' },
+              },
+            },
+            animation: {
+              'bounce-in': 'bounce-in 0.3s ease-out forwards',
+              'spin-y': 'spin-y 2s linear infinite',
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+      .material-symbols-rounded {
+        font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.1.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.1/",
+    "react/": "https://esm.sh/react@^19.1.1/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.7.1",
+    "recharts": "https://esm.sh/recharts@^3.1.0",
+    "@google/genai": "https://esm.sh/@google/genai@^1.11.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
