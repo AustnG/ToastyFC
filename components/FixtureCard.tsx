@@ -203,7 +203,7 @@ const FixtureCard: React.FC<FixtureCardProps> = ({ game, gameStats, players, sho
                                 </div>
                             </div>
                         ) : (
-                            <span className="text-2xl md:text-3xl font-bold text-gray-400">VS</p>
+                            <span className="text-2xl md:text-3xl font-bold text-gray-400">VS</span>
                         )}
                     </div>
                     

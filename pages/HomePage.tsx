@@ -107,7 +107,7 @@ const getYouTubeEmbedUrl = (url: string): string | null => {
 const getGameDate = (game: Game) => new Date(`${game.Date} ${game.Time}`);
 
 const HomePage: React.FC = () => {
-    const { announcements, games, players, loading, error } = useData();
+    const { announcements, games, players, seasons, rosters, loading, error } = useData();
 
     if (loading) return <div className="flex justify-center items-center h-screen"><Spinner /></div>;
     if (error) return <p className="text-center text-secondary py-20">Failed to load page data.</p>;
@@ -120,8 +120,20 @@ const HomePage: React.FC = () => {
         .filter(g => g.WDL && getGameDate(g) <= new Date())
         .sort((a,b) => getGameDate(b).getTime() - getGameDate(a).getTime());
     
-    const playersWithImage = players.filter(p => p.PlayerImageUrl && p.PlayerImageUrl.trim() !== '');
-    const spotlightPlayer = playersWithImage.length > 0 ? playersWithImage[Math.floor(Math.random() * playersWithImage.length)] : null;
+    const latestSeason = seasons[0];
+    const latestSeasonRosterIds = new Set(
+        rosters
+            .filter(r => r.SeasonId === latestSeason?.Id)
+            .map(r => r.PlayerId)
+    );
+
+    const eligiblePlayers = players.filter(p => 
+        p.PlayerImageUrl && 
+        p.PlayerImageUrl.trim() !== '' &&
+        latestSeasonRosterIds.has(p.Id)
+    );
+    
+    const spotlightPlayer = eligiblePlayers.length > 0 ? eligiblePlayers[Math.floor(Math.random() * eligiblePlayers.length)] : null;
     
     let latestVideoUrl = LATEST_HIGHLIGHT_URL;
     const latestHighlightGame = games
