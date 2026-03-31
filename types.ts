@@ -80,6 +80,7 @@ export interface GameStat {
     Goals: string;
     Assists: string;
     Shots: string;
+    SoT: string;
     Saves: string;
     Fouls: string;
     PlusMinus: string;

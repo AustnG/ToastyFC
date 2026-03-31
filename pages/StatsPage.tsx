@@ -26,14 +26,14 @@ const leaderboardIcons: { [key: string]: React.ReactNode } = {
 };
 
 
-const Leaderboard: React.FC<{ title: string; players: { player: Player, value: number }[]; icon: React.ReactNode }> = ({ title, players, icon }) => (
+const Leaderboard: React.FC<{ title: string; players: { player: Player, value: number, subValue?: number }[]; icon: React.ReactNode; allowNegative?: boolean }> = ({ title, players, icon, allowNegative = false }) => (
     <div className="bg-surface border border-border p-6 rounded-xl shadow-xl h-full flex flex-col">
         <div className="flex items-center gap-4 mb-5">
             {icon}
             <h3 className="text-2xl font-bold text-accent">{title}</h3>
         </div>
         <ul className="space-y-3 flex-grow">
-            {players.filter(p => p.value > 0).slice(0, 5).map(({ player, value }, index) => {
+            {players.filter(p => allowNegative ? true : p.value > 0).slice(0, 5).map(({ player, value, subValue }, index) => {
                 const isFirst = index === 0;
 
                 return (
@@ -47,11 +47,14 @@ const Leaderboard: React.FC<{ title: string; players: { player: Player, value: n
                                 <Link to={`/roster/${player.Id}`} className="font-semibold text-accent hover:text-primary truncate block transition-colors">{`${player.FirstName} ${player.LastName}`}</Link>
                              </div>
                         </div>
-                        <span className="font-bold text-xl text-accent ml-4">{value}</span>
+                        <div className="flex flex-col items-end ml-4">
+                            <span className="font-bold text-xl text-accent">{value}</span>
+                            {subValue !== undefined && <span className="text-xs text-gray-500 font-medium">({subValue} SoT)</span>}
+                        </div>
                     </li>
                 );
             })}
-             {players.filter(p => p.value > 0).length === 0 &&
+             {players.filter(p => allowNegative ? true : p.value > 0).length === 0 &&
                 <div className="flex items-center justify-center h-full text-center">
                      <p className="text-gray-500 py-8">No data available for this period.</p>
                 </div>
@@ -61,7 +64,7 @@ const Leaderboard: React.FC<{ title: string; players: { player: Player, value: n
 );
 
 const StatsPage: React.FC = () => {
-    const { seasons, games, gameStats, players, loading, error } = useData();
+    const { seasons, games, gameStats, players, rosters, loading, error } = useData();
     const [selectedSeasonId, setSelectedSeasonId] = useState<string>('all-time');
     
     const filteredGames = useMemo(() => {
@@ -87,14 +90,20 @@ const StatsPage: React.FC = () => {
         const filteredGameIds = new Set(filteredGames.map(g => g.Id));
         const filteredStats = gameStats.filter(gs => filteredGameIds.has(gs.GameId));
 
-        const playerTotals = players.map(player => {
+        const relevantPlayers = selectedSeasonId === 'all-time'
+            ? players
+            : players.filter(p => rosters.some(r => r.PlayerId === p.Id && r.SeasonId === selectedSeasonId));
+
+        const playerTotals = relevantPlayers.map(player => {
             const playerStats = filteredStats.filter(s => s.PlayerId === player.Id);
             return {
                 player,
                 goals: playerStats.reduce((sum, s) => sum + parseInt(s.Goals || '0'), 0),
                 assists: playerStats.reduce((sum, s) => sum + parseInt(s.Assists || '0'), 0),
                 shots: playerStats.reduce((sum, s) => sum + parseInt(s.Shots || '0'), 0),
+                sot: playerStats.reduce((sum, s) => sum + parseInt(s.SoT || '0'), 0),
                 plusMinus: playerStats.reduce((sum, s) => sum + parseInt(s.PlusMinus || '0'), 0),
+                hasPlusMinus: playerStats.some(s => s.PlusMinus !== "" && s.PlusMinus !== null),
                 fouls: playerStats.reduce((sum, s) => sum + parseInt(s.Fouls || '0'), 0),
                 saves: playerStats.reduce((sum, s) => sum + parseInt(s.Saves || '0'), 0),
                 motm: playerStats.filter(s => s.MotM?.toUpperCase() === 'TRUE' || s.MotM === '1').length,
@@ -104,15 +113,15 @@ const StatsPage: React.FC = () => {
         const boards = {
             topScorers: playerTotals.map(p => ({ player: p.player, value: p.goals })).sort((a,b) => b.value - a.value),
             assistLeaders: playerTotals.map(p => ({ player: p.player, value: p.assists })).sort((a,b) => b.value - a.value),
-            shotLeaders: playerTotals.map(p => ({ player: p.player, value: p.shots })).sort((a,b) => b.value - a.value),
+            shotLeaders: playerTotals.map(p => ({ player: p.player, value: p.shots + p.sot, subValue: p.sot })).sort((a,b) => b.value - a.value),
             motm: playerTotals.map(p => ({ player: p.player, value: p.motm })).sort((a,b) => b.value - a.value),
-            impact: playerTotals.map(p => ({ player: p.player, value: p.plusMinus })).sort((a,b) => b.value - a.value),
+            impact: playerTotals.filter(p => p.hasPlusMinus).map(p => ({ player: p.player, value: p.plusMinus })).sort((a,b) => b.value - a.value),
             fouls: playerTotals.map(p => ({ player: p.player, value: p.fouls })).sort((a,b) => b.value - a.value),
-            saves: playerTotals.filter(p=>p.player['Position(s)']?.includes('Goalkeeper')).map(p => ({ player: p.player, value: p.saves })).sort((a,b) => b.value - a.value),
+            saves: playerTotals.map(p => ({ player: p.player, value: p.saves })).sort((a,b) => b.value - a.value),
         };
         
         return { teamStats: stats, leaderboards: boards };
-    }, [playedGames, filteredGames, gameStats, players]);
+    }, [playedGames, filteredGames, gameStats, players, rosters, selectedSeasonId]);
     
     if (loading) return <Spinner />;
     if (error) return <p className="text-center text-secondary">Failed to load stats data.</p>;
@@ -153,8 +162,8 @@ const StatsPage: React.FC = () => {
                     <Leaderboard title="Top Goalscorers" players={leaderboards.topScorers} icon={leaderboardIcons['Top Goalscorers']} />
                     <Leaderboard title="Assist Leaders" players={leaderboards.assistLeaders} icon={leaderboardIcons['Assist Leaders']} />
                     <Leaderboard title="Shot Leaders" players={leaderboards.shotLeaders} icon={leaderboardIcons['Shot Leaders']} />
-                    <Leaderboard title="Impact Players (+/-)" players={leaderboards.impact} icon={leaderboardIcons['Impact Players (+/-)']} />
-                    {leaderboards.saves.length > 0 && leaderboards.saves[0].value > 0 && <Leaderboard title="Top Savers" players={leaderboards.saves} icon={leaderboardIcons['Top Savers']} />}
+                    <Leaderboard title="Impact Players (+/-)" players={leaderboards.impact} icon={leaderboardIcons['Impact Players (+/-)']} allowNegative />
+                    {leaderboards.saves.length > 0 && leaderboards.saves.some(p => p.value > 0) && <Leaderboard title="Top Savers" players={leaderboards.saves} icon={leaderboardIcons['Top Savers']} />}
                     <Leaderboard title="Foul Leaders" players={leaderboards.fouls} icon={leaderboardIcons['Foul Leaders']} />
                 </div>
             </section>

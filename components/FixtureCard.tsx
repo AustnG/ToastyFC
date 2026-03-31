@@ -147,7 +147,11 @@ const FixtureCard: React.FC<FixtureCardProps> = ({ game, gameStats, players, sho
     const hasTeamStats = useMemo(() => [
         game.Shots, game.SoT, game.Blocks, game.Corners, game.Fouls, game.Yellows, game.Reds, game.Saves,
         game.OpponentShots, game.OpponentSoT, game.OpponentBlocks, game.OpponentCorners, game.OpponentFouls, game.OpponentYellows, game.OpponentReds, game.OpponentSaves
-    ].some(stat => stat !== undefined && stat !== null && stat !== ''), [game]);
+    ].some(stat => {
+        if (stat === undefined || stat === null || stat === '') return false;
+        const val = parseInt(stat, 10);
+        return !isNaN(val) && val > 0;
+    }), [game]);
 
     const motm = game.ManOfTheMatch || playerStats.motm;
     const hasIndividualPlayerStats = playerStats.goals.length > 0 || playerStats.assists.length > 0 || playerStats.saves.length > 0;
