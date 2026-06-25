@@ -11,8 +11,8 @@ import Roster from './components/Roster';
 import Matches from './components/Matches';
 import Stats from './components/Stats';
 import SheetsSync from './components/SheetsSync';
-import { Player, Match, SheetConfig, NewsItem } from './types';
-import { DEFAULT_PLAYERS, DEFAULT_MATCHES, DEFAULT_NEWS } from './data';
+import { Player, Match, SheetConfig, NewsItem, Season } from './types';
+import { DEFAULT_PLAYERS, DEFAULT_MATCHES, DEFAULT_NEWS, DEFAULT_SEASONS } from './data';
 import { 
   fetchSheetCSV, 
   parsePlayersCSV, 
@@ -20,14 +20,18 @@ import {
   parseGamesCSV, 
   parseGameStatsCSV, 
   parseNewsCSV,
+  parseSeasonsCSV,
   compileSyncedData 
 } from './sheets';
-import { Flame, Heart } from 'lucide-react';
+import { Flame, Heart, Database } from 'lucide-react';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('home');
   const [players, setPlayers] = useState<Player[]>(DEFAULT_PLAYERS);
-  const [matches, setMatches] = useState<Match[]>(DEFAULT_MATCHES);
+  const [matches, setMatches] = useState<Match[]>(() => 
+    DEFAULT_MATCHES.map(m => ({ ...m, seasonId: m.seasonId || '11' }))
+  );
+  const [seasons, setSeasons] = useState<Season[]>(DEFAULT_SEASONS);
   const [news, setNews] = useState<NewsItem[]>(DEFAULT_NEWS);
   
   // Sheet config states
@@ -109,6 +113,18 @@ export default function App() {
         console.warn('Rosters tab sync failed:', err);
       }
 
+      // 3.5. Fetch Seasons
+      let parsedSeasons = DEFAULT_SEASONS;
+      try {
+        const seasonsRows = await fetchSheetCSV(config.sheetId, config.seasonsRange || 'Seasons');
+        const freshlyParsedSeasons = parseSeasonsCSV(seasonsRows);
+        if (freshlyParsedSeasons.length > 0) {
+          parsedSeasons = freshlyParsedSeasons;
+        }
+      } catch (err: any) {
+        console.warn('Seasons tab sync failed, using default:', err);
+      }
+
       // 4. Fetch Games
       let parsedGames = [];
       try {
@@ -138,6 +154,7 @@ export default function App() {
       // Update State
       setPlayers(compiledPlayers);
       setMatches(compiledMatches);
+      setSeasons(parsedSeasons);
       setNews(parsedNews);
       setIsSynced(true);
       
@@ -149,6 +166,7 @@ export default function App() {
         `• Successfully linked database Spreadsheet ID: ${config.sheetId.substring(0, 10)}...
 • Syncing News feed: parsed ${parsedNews.length} active articles.
 • Syncing Players directory: parsed ${parsedPlayers.length} profiles with full FC attributes.
+• Syncing Seasons: parsed ${parsedSeasons.length} season specifications.
 • Syncing Rosters: mapped ${parsedRosters.length} roster/captain records.
 • Syncing Games: compiled ${compiledMatches.length} league fixtures.
 • Syncing GameStats: merged ${parsedGameStats.length} individual performance sheets.`
@@ -211,14 +229,17 @@ export default function App() {
         {currentTab === 'home' && (
           <Home matches={matches} players={players} news={news} setCurrentTab={setCurrentTab} />
         )}
-        {currentTab === 'club' && (
-          <Club />
+        {currentTab === 'about' && (
+          <Club subTab="about" setCurrentTab={setCurrentTab} />
+        )}
+        {currentTab === 'gear' && (
+          <Club subTab="gear" setCurrentTab={setCurrentTab} />
         )}
         {currentTab === 'roster' && (
           <Roster players={players} matches={matches} />
         )}
         {currentTab === 'matches' && (
-          <Matches matches={matches} players={players} />
+          <Matches matches={matches} players={players} seasons={seasons} />
         )}
         {currentTab === 'stats' && (
           <Stats matches={matches} players={players} />
@@ -242,7 +263,7 @@ export default function App() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-club-text-dim">
           <div className="flex items-center space-x-2">
             <Flame className="h-4 w-4 text-jersey-red/60" />
-            <span className="text-club-text-muted font-medium">TOASTY FC © 2026. Together since 2022.</span>
+            <span className="text-club-text-muted font-medium">TOASTY FC © 2026 - Est. 2022 -</span>
           </div>
           
           <div className="flex items-center space-x-1.5 text-club-text-dim">
@@ -250,14 +271,26 @@ export default function App() {
             <Heart className="h-3 w-3 text-jersey-red/50 animate-pulse" />
           </div>
 
-          <div className="flex items-center space-x-2">
-            <span className={`h-1.5 w-1.5 rounded-full ${isSynced ? 'bg-emerald-500' : 'bg-jersey-red'}`} />
-            <span className="text-club-text-muted">
+          <button
+            onClick={() => setCurrentTab(currentTab === 'sync' ? 'home' : 'sync')}
+            className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-all duration-200 cursor-pointer ${
+              currentTab === 'sync'
+                ? 'bg-jersey-red/10 border-jersey-red text-jersey-red font-bold'
+                : 'bg-club-card border-club-border text-club-text-muted hover:text-club-text hover:border-club-border-strong hover:bg-club-card-hover shadow-xs'
+            }`}
+            title="Google Sheets Sync Settings"
+            id="footer-sync-button"
+          >
+            <Database className="h-3.5 w-3.5 text-jersey-red/70" />
+            <span>
               {isSynced 
                 ? 'Google Sheets Connected' 
                 : 'Local Sandbox Mode'}
             </span>
-          </div>
+            {isSynced && (
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            )}
+          </button>
         </div>
       </footer>
     </div>

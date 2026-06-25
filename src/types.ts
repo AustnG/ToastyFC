@@ -112,6 +112,7 @@ export interface Match {
   opponentColor?: string;
   wdl?: string;
   forfeit?: boolean;
+  pks?: number;
   shots?: number;
   sot?: number;
   blocks?: number;
@@ -130,6 +131,7 @@ export interface Match {
   opponentReds?: number;
   opponentSaves?: number;
   manOfTheMatch?: string;
+  playerOfTheMatch?: string;
   youtubeLink?: string;
 }
 

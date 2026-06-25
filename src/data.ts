@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Player, Match, TeamStats, NewsItem } from './types';
+import { Player, Match, TeamStats, NewsItem, Season } from './types';
 
 export const DEFAULT_PLAYERS: Player[] = [
   {
@@ -588,6 +588,33 @@ export const DEFAULT_NEWS: NewsItem[] = [
     category: 'Interview',
     content: '"The team camaraderie this season is the highest I have ever seen since we founded the club back in 2022," Captain Austin Greer remarked in yesterday\'s press conference. With only three regular games left on the schedule, Greer emphasizes tactical discipline and focus during training session drills.',
     imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?auto=format&fit=crop&w=600&h=400&q=80'
+  }
+];
+
+export const DEFAULT_SEASONS: Season[] = [
+  {
+    id: '11',
+    name: '2026 Active Season',
+    startDate: '2026-04-01',
+    endDate: '2026-07-31',
+    division: 'Division 1',
+    playersRostered: 15,
+    perPlayerFee: 50,
+    teamFee: 750,
+    amountPaid: 750,
+    overview: 'The current running season where Toasty FC is dominating.'
+  },
+  {
+    id: '10',
+    name: '2025 Autumn Cup',
+    startDate: '2025-09-01',
+    endDate: '2025-11-30',
+    division: 'Division 1',
+    playersRostered: 14,
+    perPlayerFee: 50,
+    teamFee: 700,
+    amountPaid: 700,
+    overview: 'A historic cup run ending with a silver medal.'
   }
 ];
 

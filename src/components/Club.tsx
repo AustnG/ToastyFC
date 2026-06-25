@@ -6,16 +6,19 @@
 import { useState } from 'react';
 import { Shield, Sparkles, Trophy, Heart, Flame, Camera, Check, AlertCircle, Info, Zap, Smile, Swords, Award } from 'lucide-react';
 
-export default function Club() {
-  const [subTab, setSubTab] = useState<'about' | 'gear'>('about');
+interface ClubProps {
+  subTab: 'about' | 'gear';
+  setCurrentTab: (tab: string) => void;
+}
 
+export default function Club({ subTab, setCurrentTab }: ClubProps) {
   return (
     <div className="space-y-8 pb-16 animate-fade-in" id="club-view">
       {/* Subpage Tabs */}
       <div className="flex justify-center border-b border-club-border pb-px" id="club-tabs-container">
         <div className="flex space-x-6" id="club-sub-tabs">
           <button
-            onClick={() => setSubTab('about')}
+            onClick={() => setCurrentTab('about')}
             className={`py-3 text-sm font-bold border-b-2 transition duration-200 cursor-pointer ${
               subTab === 'about'
                 ? 'border-jersey-red text-jersey-red'
@@ -26,7 +29,7 @@ export default function Club() {
             About Toasty FC
           </button>
           <button
-            onClick={() => setSubTab('gear')}
+            onClick={() => setCurrentTab('gear')}
             className={`py-3 text-sm font-bold border-b-2 transition duration-200 cursor-pointer ${
               subTab === 'gear'
                 ? 'border-jersey-red text-jersey-red'

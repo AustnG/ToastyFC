@@ -45,12 +45,8 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
         <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-jersey-gold/5 dark:bg-jersey-gold/10 blur-3xl"></div>
         
         <div className="relative px-6 py-14 sm:px-12 sm:py-20 lg:px-16 flex flex-col items-center text-center">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-jersey-red/10 border border-jersey-red/25 text-jersey-red text-xs font-mono mb-6">
-            <Flame className="h-3.5 w-3.5 animate-pulse" />
-            <span>ACTIVE SINCE 2022</span>
-          </div>
           <h1 className="font-sans text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-club-text max-w-4xl leading-tight">
-            FEEL THE HEAT WITH <span className="text-jersey-red bg-gradient-to-r from-jersey-red to-jersey-gold bg-clip-text text-transparent">TOASTY FC</span>
+            WELCOME TO <span className="text-jersey-red bg-gradient-to-r from-jersey-red to-jersey-gold bg-clip-text text-transparent">TOASTY FC</span>
           </h1>
           <p className="mt-5 text-sm sm:text-base text-club-text-muted max-w-2xl leading-relaxed">
             Welcome to the official hub of Toasty FC. Based in Bowling Green, Kentucky, fueled by absolute passion, and bound together since 2022. Follow our matches, track stats, and trace our golden history.
@@ -65,11 +61,11 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
               <ArrowRight className="h-4 w-4" />
             </button>
             <button
-              onClick={() => setCurrentTab('club')}
+              onClick={() => setCurrentTab('about')}
               className="px-6 py-3 bg-club-secondary hover:bg-club-card-hover border border-club-border text-club-text-muted hover:text-club-text font-semibold rounded-xl transition flex items-center space-x-2 text-sm cursor-pointer"
-              id="hero-btn-club"
+              id="hero-btn-about"
             >
-              <span>Our Story & Gear</span>
+              <span>About Us</span>
             </button>
           </div>
         </div>
@@ -80,7 +76,7 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
         <section className="bg-club-card border border-club-border rounded-3xl overflow-hidden shadow-xs" id="next-fixture-section">
           <div className="border-b border-club-border bg-club-secondary px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
             <div className="flex items-center space-x-2">
-              <span className="flex h-2.5 w-2.5 rounded-full bg-jersey-red animate-ping" />
+              <span className="h-2.5 w-2.5 rounded-full bg-jersey-red" />
               <span className="text-xs font-mono font-bold text-jersey-red uppercase tracking-wider">NEXT UPCOMING FIXTURE</span>
             </div>
             <div className="flex items-center space-x-4 text-xs font-mono text-club-text-dim">
@@ -102,10 +98,10 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
                 <span className="text-lg sm:text-xl font-black text-club-text tracking-tight uppercase">Toasty FC</span>
                 <span className="block text-xs font-mono text-club-text-dim mt-0.5">Home Team (Est. 2022)</span>
               </div>
-              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-jersey-red/10 border-2 border-jersey-gold/30 flex items-center justify-center p-1.5 shadow-[0_0_20px_rgba(170,0,0,0.1)]">
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl flex items-center justify-center p-0 overflow-hidden">
                 <img 
                   src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png" 
-                  alt="Toasty FC" 
+                  alt="Toasty FC Logo" 
                   className="h-full w-full object-cover"
                 />
               </div>
@@ -131,11 +127,7 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
             </div>
           </div>
 
-          <div className="bg-club-secondary/40 border-t border-club-border px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <p className="text-xs font-mono text-club-text-muted leading-relaxed">
-              <span className="text-jersey-red font-bold uppercase mr-1.5">Coach's Briefing:</span>
-              {nextMatch.notes || 'Tactics briefing is ongoing. Get ready for a battle on the turf!'}
-            </p>
+          <div className="bg-club-secondary/40 border-t border-club-border px-6 py-4 flex justify-end">
             <button 
               onClick={() => setCurrentTab('matches')}
               className="text-xs font-mono font-bold text-jersey-red hover:text-jersey-red/80 flex items-center gap-1.5 whitespace-nowrap cursor-pointer"

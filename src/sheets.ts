@@ -84,9 +84,18 @@ export async function fetchSheetCSV(spreadsheetId: string, gidOrName: string = '
  */
 function findHeaderIdx(headers: string[], name: string): number {
   const normTarget = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
+  // 1. Try exact normalized match first (safest and most precise)
+  const exactIdx = headers.findIndex(h => {
+    const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return normHeader === normTarget;
+  });
+  if (exactIdx !== -1) return exactIdx;
+
+  // 2. Fallback to descriptive headers that contain the target
   return headers.findIndex(h => {
     const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return normHeader === normTarget || normHeader.includes(normTarget) || normTarget.includes(normHeader);
+    return normHeader.includes(normTarget);
   });
 }
 
@@ -376,23 +385,26 @@ export function parseGamesCSV(rows: string[][]): Match[] {
   const oppYellowsIdx = getIdx('opponentyellows');
   const oppRedsIdx = getIdx('opponentreds');
   const oppSavesIdx = getIdx('opponentsaves');
-  const motmIdx = getIdx('manofthematch');
+  const motmIdx = getIdx('playerofthematch') !== -1 ? getIdx('playerofthematch') : getIdx('manofthematch');
   const ytIdx = getIdx('youtubelink');
   const notesIdx = getIdx('notes');
 
   const matches: Match[] = [];
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (row.length === 0 || !row[oppIdx === -1 ? 7 : oppIdx]) continue;
+    if (row.length === 0) continue;
 
-    const gameId = idIdx !== -1 ? row[idIdx] : `g-${i}`;
-    const opponent = oppIdx !== -1 ? row[oppIdx] : '';
-    const dateVal = dateIdx !== -1 ? row[dateIdx] : '';
-    const wdlVal = wdlIdx !== -1 ? row[wdlIdx] : '';
+    const gameId = idIdx !== -1 && idIdx < row.length ? row[idIdx] : `g-${i}`;
+    const opponent = oppIdx !== -1 && oppIdx < row.length ? row[oppIdx] : '';
+    if (!opponent) continue; // skip rows with empty opponent
+
+    const dateVal = dateIdx !== -1 && dateIdx < row.length ? row[dateIdx] : '';
+    const wdlVal = wdlIdx !== -1 && wdlIdx < row.length ? row[wdlIdx] : '';
     
     // Status can be determined if a WDL or Goals exists, or date is in the past
     let status: 'played' | 'upcoming' = 'upcoming';
-    if (wdlVal || (goalsIdx !== -1 && row[goalsIdx] !== '')) {
+    const hasGoalsVal = goalsIdx !== -1 && goalsIdx < row.length && row[goalsIdx] !== '';
+    if (wdlVal || hasGoalsVal) {
       status = 'played';
     } else if (dateVal) {
       const matchDate = new Date(dateVal);
@@ -402,46 +414,57 @@ export function parseGamesCSV(rows: string[][]): Match[] {
       }
     }
 
-    const tFcGoals = goalsIdx !== -1 && row[goalsIdx] !== '' ? parseInt(row[goalsIdx], 10) : 0;
-    const oppGoals = gaIdx !== -1 && row[gaIdx] !== '' ? parseInt(row[gaIdx], 10) : 0;
+    // Safe parser for integers
+    const getSafeInt = (idx: number): number => {
+      if (idx === -1 || idx >= row.length) return 0;
+      const val = row[idx];
+      if (!val || val.trim() === '') return 0;
+      const parsed = parseInt(val, 10);
+      return isNaN(parsed) ? 0 : parsed;
+    };
+
+    const tFcGoals = getSafeInt(goalsIdx);
+    const oppGoals = getSafeInt(gaIdx);
 
     const match: Match = {
       id: gameId,
       matchNumber: i, // sequential ordering for simplicity
       date: dateVal,
       opponent,
-      location: venueIdx !== -1 ? row[venueIdx] : 'TBD',
+      location: venueIdx !== -1 && venueIdx < row.length ? row[venueIdx] : 'TBD',
       status,
       score: status === 'played' ? { toastyFc: tFcGoals, opponent: oppGoals } : undefined,
       cleanSheet: status === 'played' ? oppGoals === 0 : false,
-      notes: notesIdx !== -1 ? row[notesIdx] : '',
+      notes: notesIdx !== -1 && notesIdx < row.length ? row[notesIdx] : '',
       
-      seasonId: sIdIdx !== -1 ? row[sIdIdx] : '',
-      gameType: typeIdx !== -1 ? row[typeIdx] : '',
-      time: timeIdx !== -1 ? row[timeIdx] : '',
-      homeAway: haIdx !== -1 ? row[haIdx] : '',
-      opponentColor: colIdx !== -1 ? row[colIdx] : '',
+      seasonId: sIdIdx !== -1 && sIdIdx < row.length ? row[sIdIdx] : '',
+      gameType: typeIdx !== -1 && typeIdx < row.length ? row[typeIdx] : '',
+      time: timeIdx !== -1 && timeIdx < row.length ? row[timeIdx] : '',
+      homeAway: haIdx !== -1 && haIdx < row.length ? row[haIdx] : '',
+      opponentColor: colIdx !== -1 && colIdx < row.length ? row[colIdx] : '',
       wdl: wdlVal,
-      forfeit: forfeitIdx !== -1 ? row[forfeitIdx].toLowerCase() === 'true' || row[forfeitIdx] === '1' : false,
-      shots: shotsIdx !== -1 ? parseInt(row[shotsIdx], 10) || 0 : 0,
-      sot: sotIdx !== -1 ? parseInt(row[sotIdx], 10) || 0 : 0,
-      blocks: blocksIdx !== -1 ? parseInt(row[blocksIdx], 10) || 0 : 0,
-      corners: cornersIdx !== -1 ? parseInt(row[cornersIdx], 10) || 0 : 0,
-      fouls: foulsIdx !== -1 ? parseInt(row[foulsIdx], 10) || 0 : 0,
-      yellows: yellowsIdx !== -1 ? parseInt(row[yellowsIdx], 10) || 0 : 0,
-      reds: redsIdx !== -1 ? parseInt(row[redsIdx], 10) || 0 : 0,
-      saves: savesIdx !== -1 ? parseInt(row[savesIdx], 10) || 0 : 0,
-      opponentPks: oppPksIdx !== -1 ? parseInt(row[oppPksIdx], 10) || 0 : 0,
-      opponentShots: oppShotsIdx !== -1 ? parseInt(row[oppShotsIdx], 10) || 0 : 0,
-      opponentSoT: oppSotIdx !== -1 ? parseInt(row[oppSotIdx], 10) || 0 : 0,
-      opponentBlocks: oppBlocksIdx !== -1 ? parseInt(row[oppBlocksIdx], 10) || 0 : 0,
-      opponentCorners: oppCornersIdx !== -1 ? parseInt(row[oppCornersIdx], 10) || 0 : 0,
-      opponentFouls: oppFoulsIdx !== -1 ? parseInt(row[oppFoulsIdx], 10) || 0 : 0,
-      opponentYellows: oppYellowsIdx !== -1 ? parseInt(row[oppYellowsIdx], 10) || 0 : 0,
-      opponentReds: oppRedsIdx !== -1 ? parseInt(row[oppRedsIdx], 10) || 0 : 0,
-      opponentSaves: oppSavesIdx !== -1 ? parseInt(row[oppSavesIdx], 10) || 0 : 0,
-      manOfTheMatch: motmIdx !== -1 ? row[motmIdx] : '',
-      youtubeLink: ytIdx !== -1 ? row[ytIdx] : '',
+      forfeit: forfeitIdx !== -1 && forfeitIdx < row.length ? row[forfeitIdx].toLowerCase() === 'true' || row[forfeitIdx] === '1' : false,
+      pks: getSafeInt(pksIdx),
+      shots: getSafeInt(shotsIdx),
+      sot: getSafeInt(sotIdx),
+      blocks: getSafeInt(blocksIdx),
+      corners: getSafeInt(cornersIdx),
+      fouls: getSafeInt(foulsIdx),
+      yellows: getSafeInt(yellowsIdx),
+      reds: getSafeInt(redsIdx),
+      saves: getSafeInt(savesIdx),
+      opponentPks: getSafeInt(oppPksIdx),
+      opponentShots: getSafeInt(oppShotsIdx),
+      opponentSoT: getSafeInt(oppSotIdx),
+      opponentBlocks: getSafeInt(oppBlocksIdx),
+      opponentCorners: getSafeInt(oppCornersIdx),
+      opponentFouls: getSafeInt(oppFoulsIdx),
+      opponentYellows: getSafeInt(oppYellowsIdx),
+      opponentReds: getSafeInt(oppRedsIdx),
+      opponentSaves: getSafeInt(oppSavesIdx),
+      manOfTheMatch: motmIdx !== -1 && motmIdx < row.length ? row[motmIdx] : '',
+      playerOfTheMatch: motmIdx !== -1 && motmIdx < row.length ? row[motmIdx] : '',
+      youtubeLink: ytIdx !== -1 && ytIdx < row.length ? row[ytIdx] : '',
     };
 
     matches.push(match);

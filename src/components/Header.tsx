@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Menu, X, Database, Sun, Moon, Youtube, Instagram, HelpCircle } from 'lucide-react';
+import { Menu, X, Database, Sun, Moon, Youtube, Instagram, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
 interface HeaderProps {
@@ -16,14 +16,7 @@ interface HeaderProps {
 
 export default function Header({ currentTab, setCurrentTab, isSynced, theme, setTheme }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
-
-  const navItems = [
-    { id: 'home', label: 'Home' },
-    { id: 'club', label: 'Club' },
-    { id: 'roster', label: 'Roster' },
-    { id: 'matches', label: 'Match Results' },
-    { id: 'stats', label: 'Club Stats' },
-  ];
+  const [isClubDropdownOpen, setIsClubDropdownOpen] = useState(false);
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -40,7 +33,7 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
             onClick={() => setCurrentTab('home')}
             id="brand-logo"
           >
-            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-jersey-gold/30 shadow-[0_0_15px_rgba(170,0,0,0.1)]">
+            <div className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl">
               <img 
                 src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png" 
                 alt="Toasty FC Logo" 
@@ -51,34 +44,117 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
               <span className="font-sans text-base sm:text-lg font-black tracking-tight text-club-text">
                 TOASTY <span className="text-jersey-red">FC</span>
               </span>
-              <p className="font-mono text-[9px] tracking-widest text-club-text-dim uppercase leading-none">
-                Est. 2022
-              </p>
             </div>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-1" id="desktop-nav">
-            {navItems.map((item) => {
-              const isActive = currentTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  id={`nav-tab-${item.id}`}
-                  onClick={() => setCurrentTab(item.id)}
-                  className={`relative px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
-                    isActive
-                      ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
-                      : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
+          <nav className="hidden md:flex items-center space-x-1" id="desktop-nav">
+            {/* Home */}
+            <button
+              id="nav-tab-home"
+              onClick={() => setCurrentTab('home')}
+              className={`relative px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                currentTab === 'home'
+                  ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
+                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+              }`}
+            >
+              Home
+            </button>
+
+            {/* Club Dropdown */}
+            <div 
+              className="relative"
+              onMouseEnter={() => setIsClubDropdownOpen(true)}
+              onMouseLeave={() => setIsClubDropdownOpen(false)}
+            >
+              <button
+                id="nav-tab-club-parent"
+                className={`flex items-center space-x-1 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                  currentTab === 'about' || currentTab === 'gear'
+                    ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
+                    : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+                }`}
+              >
+                <span>Club</span>
+                <ChevronDown className="h-3 w-3 opacity-70" />
+              </button>
+              
+              {isClubDropdownOpen && (
+                <div className="absolute left-0 mt-1 w-48 rounded-xl border border-club-border bg-club-card p-1.5 shadow-lg z-50">
+                  <button
+                    id="nav-tab-about"
+                    onClick={() => {
+                      setCurrentTab('about');
+                      setIsClubDropdownOpen(false);
+                    }}
+                    className={`flex w-full items-center px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
+                      currentTab === 'about'
+                        ? 'text-jersey-red bg-jersey-red/5 font-bold'
+                        : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+                    }`}
+                  >
+                    About Toasty FC
+                  </button>
+                  <button
+                    id="nav-tab-gear"
+                    onClick={() => {
+                      setCurrentTab('gear');
+                      setIsClubDropdownOpen(false);
+                    }}
+                    className={`flex w-full items-center px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer mt-0.5 ${
+                      currentTab === 'gear'
+                        ? 'text-jersey-red bg-jersey-red/5 font-bold'
+                        : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+                    }`}
+                  >
+                    Gear & Setup
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Roster */}
+            <button
+              id="nav-tab-roster"
+              onClick={() => setCurrentTab('roster')}
+              className={`relative px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                currentTab === 'roster'
+                  ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
+                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+              }`}
+            >
+              Roster
+            </button>
+
+            {/* Results */}
+            <button
+              id="nav-tab-matches"
+              onClick={() => setCurrentTab('matches')}
+              className={`relative px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                currentTab === 'matches'
+                  ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
+                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+              }`}
+            >
+              Results
+            </button>
+
+            {/* Club Stats */}
+            <button
+              id="nav-tab-stats"
+              onClick={() => setCurrentTab('stats')}
+              className={`relative px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                currentTab === 'stats'
+                  ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
+                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+              }`}
+            >
+              Club Stats
+            </button>
           </nav>
 
-          {/* Right side controls: Social Links, Sync Status, Theme, Mobile Toggle */}
+          {/* Right side controls: Social Links, Theme, Mobile Toggle */}
           <div className="flex items-center space-x-2.5 sm:space-x-3" id="header-right-controls">
             
             {/* Desktop Social Icons */}
@@ -115,25 +191,6 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
               </a>
             </div>
 
-            {/* Sheets Database Sync Switcher Button */}
-            <button
-              onClick={() => setCurrentTab(currentTab === 'sync' ? 'home' : 'sync')}
-              className={`p-2 rounded-xl border transition duration-200 relative group cursor-pointer ${
-                currentTab === 'sync'
-                  ? 'bg-jersey-red/10 border-jersey-red text-jersey-red'
-                  : isSynced 
-                    ? 'bg-emerald-500/5 border-emerald-500/10 text-emerald-500 hover:bg-emerald-500/10'
-                    : 'bg-club-card-hover border-club-border text-club-text-muted hover:text-club-text'
-              }`}
-              title="Google Sheets Sync Settings"
-              id="header-sync-switcher"
-            >
-              <Database className="h-4.5 w-4.5" />
-              {isSynced && (
-                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-emerald-500 border border-club-card" />
-              )}
-            </button>
-
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
@@ -167,28 +224,111 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-club-border bg-club-card" id="mobile-menu">
+        <div className="md:hidden border-t border-club-border bg-club-card shadow-lg animate-fade-in" id="mobile-menu">
           <div className="space-y-1 px-2.5 pb-3.5 pt-2">
-            {navItems.map((item) => {
-              const isActive = currentTab === item.id;
-              return (
-                <button
-                  key={item.id}
-                  id={`mobile-nav-tab-${item.id}`}
-                  onClick={() => {
-                    setCurrentTab(item.id);
-                    setIsOpen(false);
-                  }}
-                  className={`flex w-full items-center justify-between px-3.5 py-3 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer ${
-                    isActive
-                      ? 'text-jersey-red bg-jersey-red/5 font-bold'
-                      : 'text-club-text-muted hover:bg-club-card-hover hover:text-club-text'
-                  }`}
-                >
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
+            
+            {/* Home */}
+            <button
+              id="mobile-nav-tab-home"
+              onClick={() => {
+                setCurrentTab('home');
+                setIsOpen(false);
+              }}
+              className={`flex w-full items-center px-3.5 py-3 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer ${
+                currentTab === 'home'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold'
+                  : 'text-club-text-muted hover:bg-club-card-hover hover:text-club-text'
+              }`}
+            >
+              <span>Home</span>
+            </button>
+
+            {/* Club Divider */}
+            <div className="px-3.5 pt-3 pb-1 text-[10px] font-mono font-bold text-club-text-dim uppercase tracking-wider">
+              Club Section
+            </div>
+
+            {/* About Toasty FC */}
+            <button
+              id="mobile-nav-tab-about"
+              onClick={() => {
+                setCurrentTab('about');
+                setIsOpen(false);
+              }}
+              className={`flex w-full items-center pl-6 pr-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer ${
+                currentTab === 'about'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold'
+                  : 'text-club-text-muted hover:bg-club-card-hover hover:text-club-text'
+              }`}
+            >
+              <span>About Toasty FC</span>
+            </button>
+
+            {/* Gear & Setup */}
+            <button
+              id="mobile-nav-tab-gear"
+              onClick={() => {
+                setCurrentTab('gear');
+                setIsOpen(false);
+              }}
+              className={`flex w-full items-center pl-6 pr-3.5 py-2.5 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer ${
+                currentTab === 'gear'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold'
+                  : 'text-club-text-muted hover:bg-club-card-hover hover:text-club-text'
+              }`}
+            >
+              <span>Gear & Setup</span>
+            </button>
+
+            <div className="border-t border-club-border/40 my-2" />
+
+            {/* Roster */}
+            <button
+              id="mobile-nav-tab-roster"
+              onClick={() => {
+                setCurrentTab('roster');
+                setIsOpen(false);
+              }}
+              className={`flex w-full items-center px-3.5 py-3 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer ${
+                currentTab === 'roster'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold'
+                  : 'text-club-text-muted hover:bg-club-card-hover hover:text-club-text'
+              }`}
+            >
+              <span>Roster</span>
+            </button>
+
+            {/* Results */}
+            <button
+              id="mobile-nav-tab-matches"
+              onClick={() => {
+                setCurrentTab('matches');
+                setIsOpen(false);
+              }}
+              className={`flex w-full items-center px-3.5 py-3 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer ${
+                currentTab === 'matches'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold'
+                  : 'text-club-text-muted hover:bg-club-card-hover hover:text-club-text'
+              }`}
+            >
+              <span>Results</span>
+            </button>
+
+            {/* Club Stats */}
+            <button
+              id="mobile-nav-tab-stats"
+              onClick={() => {
+                setCurrentTab('stats');
+                setIsOpen(false);
+              }}
+              className={`flex w-full items-center px-3.5 py-3 text-sm font-semibold rounded-lg transition-all duration-150 cursor-pointer ${
+                currentTab === 'stats'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold'
+                  : 'text-club-text-muted hover:bg-club-card-hover hover:text-club-text'
+              }`}
+            >
+              <span>Club Stats</span>
+            </button>
             
             {/* Mobile Social Links row */}
             <div className="flex items-center justify-around pt-3 mt-2 border-t border-club-border/40">
@@ -199,10 +339,6 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
               <a href="https://www.instagram.com/toastyfc" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 text-xs font-semibold text-club-text-dim hover:text-pink-500">
                 <Instagram className="h-4 w-4" />
                 <span>Instagram</span>
-              </a>
-              <a href="https://discord.gg/toastyfc" target="_blank" rel="noopener noreferrer" className="flex items-center space-x-1 text-xs font-semibold text-club-text-dim hover:text-indigo-400">
-                <span className="text-sm">💬</span>
-                <span>Discord</span>
               </a>
             </div>
           </div>
