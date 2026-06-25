@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --bg-primary: #080808;
+  --bg-secondary: #0f0f0f;
+  --bg-card: #141414;
+  --bg-card-hover: #1b1b1b;
+  --border-subtle: rgba(202, 186, 162, 0.12); /* champagne gold subtle */
+  --border-strong: rgba(202, 186, 162, 0.25);
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
+  --text-muted: #666666;
+  --brand-red: #aa0000;
+  --brand-gold: #cabba2;
+}
+
+:root.light {
+  --bg-primary: #fcfbfa; /* Luxury warm stone */
+  --bg-secondary: #f4f2ee;
+  --bg-card: #ffffff;
+  --bg-card-hover: #faf9f6;
+  --border-subtle: rgba(170, 0, 0, 0.08); /* light crimson borders */
+  --border-strong: rgba(170, 0, 0, 0.18);
+  --text-primary: #121212;
+  --text-secondary: #57534e; /* stone-600 */
+  --text-muted: #8c8a82; /* stone-500 */
+  --brand-red: #aa0000;
+  --brand-gold: #b29e84; /* darker gold for readibility on white */
+}
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  
+  --color-jersey-red: var(--brand-red);
+  --color-jersey-gold: var(--brand-gold);
+  
+  --color-club-bg: var(--bg-primary);
+  --color-club-secondary: var(--bg-secondary);
+  --color-club-card: var(--bg-card);
+  --color-club-card-hover: var(--bg-card-hover);
+  --color-club-text: var(--text-primary);
+  --color-club-text-muted: var(--text-secondary);
+  --color-club-text-dim: var(--text-muted);
+  --color-club-border: var(--border-subtle);
+  --color-club-border-strong: var(--border-strong);
+}
+

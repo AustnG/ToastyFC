@@ -1,0 +1,6 @@
+{
+  "name": "Toasty FC Hub",
+  "description": "The official soccer team hub for Toasty FC. Track match schedules, performance statistics, player rosters, and club history with real-time Google Sheets database sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
