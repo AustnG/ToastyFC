@@ -14,34 +14,6 @@ interface ClubProps {
 export default function Club({ subTab, setCurrentTab }: ClubProps) {
   return (
     <div className="space-y-8 pb-16 animate-fade-in" id="club-view">
-      {/* Subpage Tabs */}
-      <div className="flex justify-center border-b border-club-border pb-px" id="club-tabs-container">
-        <div className="flex space-x-6" id="club-sub-tabs">
-          <button
-            onClick={() => setCurrentTab('about')}
-            className={`py-3 text-sm font-bold border-b-2 transition duration-200 cursor-pointer ${
-              subTab === 'about'
-                ? 'border-jersey-red text-jersey-red'
-                : 'border-transparent text-club-text-muted hover:text-club-text'
-            }`}
-            id="sub-tab-about"
-          >
-            About Toasty FC
-          </button>
-          <button
-            onClick={() => setCurrentTab('gear')}
-            className={`py-3 text-sm font-bold border-b-2 transition duration-200 cursor-pointer ${
-              subTab === 'gear'
-                ? 'border-jersey-red text-jersey-red'
-                : 'border-transparent text-club-text-muted hover:text-club-text'
-            }`}
-            id="sub-tab-gear"
-          >
-            Gear & Setup
-          </button>
-        </div>
-      </div>
-
       {subTab === 'about' ? (
         <div className="space-y-12" id="about-subpage">
           {/* Main Hero Story */}

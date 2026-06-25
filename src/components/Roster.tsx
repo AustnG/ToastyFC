@@ -3,21 +3,33 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Search, Trophy, TrendingUp, X, User, ShieldAlert, Heart, Calendar, MapPin, Globe, Filter } from 'lucide-react';
-import { useState } from 'react';
-import { Player, Match } from '../types';
+import { Trophy, TrendingUp, X, User, ShieldAlert, Heart, Calendar, MapPin, Globe, Filter } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Player, Match, Season } from '../types';
 
 interface RosterProps {
   players: Player[];
   matches: Match[];
+  seasons: Season[];
 }
 
-export default function Roster({ players, matches }: RosterProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'guest' | 'inactive'>('all');
-  const [seasonFilter, setSeasonFilter] = useState<string>('all');
+export default function Roster({ players, matches, seasons }: RosterProps) {
+  const [seasonFilter, setSeasonFilter] = useState<string>(() => {
+    if (seasons && seasons.length > 0) {
+      return seasons[seasons.length - 1].id;
+    }
+    return 'all';
+  });
+  const [hasSetDefaultSeason, setHasSetDefaultSeason] = useState<boolean>(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
   const [modalTab, setModalTab] = useState<'overview' | 'attributes'>('overview');
+
+  useEffect(() => {
+    if (seasons && seasons.length > 0 && !hasSetDefaultSeason) {
+      setSeasonFilter(seasons[seasons.length - 1].id);
+      setHasSetDefaultSeason(true);
+    }
+  }, [seasons, hasSetDefaultSeason]);
 
   // Realistic fallback mapping of players to seasons if not synced from Sheets
   const getPlayerSeasonsList = (player: Player): string[] => {
@@ -44,26 +56,99 @@ export default function Roster({ players, matches }: RosterProps) {
     return ['2024 (Winter/Spring)', '2025 (Autumn Cup)', '2026 (Active Season)'];
   };
 
-  // Compile list of unique seasons available for filtering
-  const allSeasons = Array.from(
+  // Reverse sort seasons so most recent is first
+  const sortedSeasons = [...(seasons || [])].reverse();
+
+  // Unique season IDs found in players' rosters
+  const uniqueSeasonIds = Array.from(
     new Set(
-      players.flatMap(player => getPlayerSeasonsList(player))
+      players.flatMap(player => (player.seasons || []).map(s => s.id))
     )
-  ).sort((a, b) => b.localeCompare(a)); // Sort recent seasons first
+  ).filter(Boolean) as string[];
 
-  // Filter players based on search, status, and season selection
+  // Combine metadata seasons with unique season IDs
+  const seasonsForDropdown = [...sortedSeasons];
+  uniqueSeasonIds.forEach((id) => {
+    if (!seasonsForDropdown.some((s) => s.id === id)) {
+      seasonsForDropdown.push({
+        id,
+        name: id.startsWith('S') ? `Season ${id.substring(1)}` : `Season ${id}`,
+        startDate: '',
+        endDate: '',
+        division: '',
+        playersRostered: 0,
+        perPlayerFee: 0,
+        teamFee: 0,
+        amountPaid: 0,
+        overview: ''
+      });
+    }
+  });
+
+  // Fallback to compile from getPlayerSeasonsList if still empty
+  if (seasonsForDropdown.length === 0) {
+    const fallbackSeasonNames = Array.from(
+      new Set(players.flatMap(player => getPlayerSeasonsList(player)))
+    ).sort((a, b) => b.localeCompare(a));
+
+    fallbackSeasonNames.forEach((name) => {
+      let id = '11';
+      if (name.includes('2026')) id = '11';
+      else if (name.includes('2025')) id = '10';
+      else if (name.includes('2024')) id = '9';
+      else if (name.includes('2023')) id = '8';
+      else if (name.includes('2022')) id = '7';
+
+      seasonsForDropdown.push({
+        id,
+        name,
+        startDate: '',
+        endDate: '',
+        division: '',
+        playersRostered: 0,
+        perPlayerFee: 0,
+        teamFee: 0,
+        amountPaid: 0,
+        overview: ''
+      });
+    });
+  }
+
+  const playerBelongsToSeason = (player: Player, seasonId: string): boolean => {
+    if (seasonId === 'all') return true;
+
+    if (player.seasons && player.seasons.length > 0) {
+      return player.seasons.some(s => s.id === seasonId);
+    }
+
+    // Offline fallback matches
+    let matchedName = '';
+    if (seasonId === '11') matchedName = '2026 (Active Season)';
+    else if (seasonId === '10') matchedName = '2025 (Autumn Cup)';
+    else if (seasonId === '9') matchedName = '2024 (Winter/Spring)';
+    else if (seasonId === '8') matchedName = '2023 (Championship)';
+    else if (seasonId === '7') matchedName = '2022 (Inaugural)';
+
+    const offlineSeasons = getPlayerSeasonsList(player);
+    if (matchedName && offlineSeasons.includes(matchedName)) {
+      return true;
+    }
+
+    const targetSeason = seasonsForDropdown.find(s => s.id === seasonId);
+    if (targetSeason) {
+      const tName = targetSeason.name.toLowerCase();
+      return offlineSeasons.some(os => {
+        const osName = os.toLowerCase();
+        return osName.includes(tName) || tName.includes(osName.replace(/[\(\)]/g, '').trim());
+      });
+    }
+
+    return false;
+  };
+
+  // Filter players based on season selection
   const filteredPlayers = players.filter((player) => {
-    const fullName = `${player.firstName} ${player.lastName}`.toLowerCase();
-    const matchesSearch = fullName.includes(searchTerm.toLowerCase()) || player.position.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    // Status filter
-    const matchesStatus = statusFilter === 'all' || player.status === statusFilter;
-
-    // Season filter
-    const playerSeasons = getPlayerSeasonsList(player);
-    const matchesSeason = seasonFilter === 'all' || playerSeasons.includes(seasonFilter);
-
-    return matchesSearch && matchesStatus && matchesSeason;
+    return playerBelongsToSeason(player, seasonFilter);
   });
 
   const getPositionColor = (pos: string) => {
@@ -195,65 +280,29 @@ export default function Roster({ players, matches }: RosterProps) {
     <div className="space-y-8 pb-16" id="roster-view">
       
       {/* Header and Filter Controls */}
-      <div className="bg-club-card border border-club-border rounded-3xl p-6 space-y-6 shadow-xs animate-fade-in" id="roster-header-filters">
+      <div className="bg-club-card border border-club-border rounded-3xl p-6 shadow-xs animate-fade-in" id="roster-header-filters">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h3 className="text-xl sm:text-2xl font-black text-club-text">Team Roster</h3>
             <p className="text-xs text-club-text-muted mt-1">Filter our star players, view deep athletic metrics, and track individual performance history.</p>
           </div>
-          <div className="flex items-center space-x-2 bg-jersey-red/10 border border-jersey-red/25 px-3 py-1.5 rounded-xl text-jersey-red text-xs font-mono w-fit">
-            <Trophy className="h-3.5 w-3.5" />
-            <span>{filteredPlayers.length} Active Candidates</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
-          {/* Search Box */}
-          <div className="relative lg:col-span-4" id="roster-search-box">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-club-text-dim" />
-            <input
-              type="text"
-              placeholder="Search by name or position..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-club-secondary border border-club-border rounded-xl pl-10 pr-4 py-2.5 text-sm text-club-text placeholder-club-text-dim focus:outline-hidden focus:border-jersey-red/50 transition duration-150"
-            />
-          </div>
 
           {/* Season Selector */}
-          <div className="relative lg:col-span-4 flex items-center bg-club-secondary border border-club-border rounded-xl px-3" id="season-selector-wrapper">
-            <Filter className="h-4 w-4 text-jersey-red/80 mr-2" />
+          <div className="relative flex items-center bg-club-secondary border border-club-border rounded-xl px-3 w-full md:w-64" id="season-selector-wrapper">
+            <Filter className="h-4 w-4 text-jersey-red/80 mr-2 flex-shrink-0" />
             <span className="text-xs font-mono text-club-text-dim mr-2 whitespace-nowrap">Season:</span>
             <select
               value={seasonFilter}
               onChange={(e) => setSeasonFilter(e.target.value)}
               className="w-full bg-transparent text-xs font-bold font-mono text-club-text focus:outline-hidden cursor-pointer py-2.5"
             >
-              <option value="all" className="bg-zinc-900 text-club-text font-bold">All Historic Seasons</option>
-              {allSeasons.map((season) => (
-                <option key={season} value={season} className="bg-zinc-900 text-club-text">
-                  {season}
+              <option value="all" className="bg-zinc-900 text-club-text font-bold">All Seasons</option>
+              {seasonsForDropdown.map((season) => (
+                <option key={season.id} value={season.id} className="bg-zinc-900 text-club-text">
+                  {season.name}
                 </option>
               ))}
             </select>
-          </div>
-
-          {/* Status Tabs */}
-          <div className="bg-club-secondary border border-club-border p-1 rounded-xl flex items-center lg:col-span-4" id="roster-tabs">
-            {(['all', 'active', 'guest', 'inactive'] as const).map((tab) => (
-              <button
-                key={tab}
-                id={`roster-tab-${tab}`}
-                onClick={() => setStatusFilter(tab)}
-                className={`flex-1 text-center py-1.5 text-[11px] font-bold font-mono rounded-lg capitalize transition cursor-pointer ${
-                  statusFilter === tab
-                    ? 'bg-jersey-red text-white shadow-sm'
-                    : 'text-club-text-muted hover:text-club-text'
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
           </div>
         </div>
       </div>

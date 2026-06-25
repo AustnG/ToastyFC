@@ -236,7 +236,7 @@ export default function App() {
           <Club subTab="gear" setCurrentTab={setCurrentTab} />
         )}
         {currentTab === 'roster' && (
-          <Roster players={players} matches={matches} />
+          <Roster players={players} matches={matches} seasons={seasons} />
         )}
         {currentTab === 'matches' && (
           <Matches matches={matches} players={players} seasons={seasons} />
