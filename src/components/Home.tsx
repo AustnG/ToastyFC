@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Flame, Calendar, MapPin, Trophy, Shield, Goal, ArrowRight, TrendingUp, Newspaper, Youtube, X, Heart, Play } from 'lucide-react';
+import { Flame, Calendar, MapPin, Trophy, Shield, Goal, ArrowRight, TrendingUp, Newspaper, Youtube, X, Heart, Play, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { Match, Player, NewsItem } from '../types';
 
@@ -79,11 +79,17 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
               <span className="h-2.5 w-2.5 rounded-full bg-jersey-red" />
               <span className="text-xs font-mono font-bold text-jersey-red uppercase tracking-wider">NEXT UPCOMING FIXTURE</span>
             </div>
-            <div className="flex items-center space-x-4 text-xs font-mono text-club-text-dim">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-mono text-club-text-dim">
               <span className="flex items-center space-x-1">
                 <Calendar className="h-3.5 w-3.5 text-jersey-red" />
                 <span>{new Date(nextMatch.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
               </span>
+              {nextMatch.time && (
+                <span className="flex items-center space-x-1">
+                  <Clock className="h-3.5 w-3.5 text-jersey-red" />
+                  <span>{nextMatch.time}</span>
+                </span>
+              )}
               <span className="flex items-center space-x-1">
                 <MapPin className="h-3.5 w-3.5 text-jersey-red" />
                 <span>{nextMatch.location}</span>
@@ -91,14 +97,11 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
             </div>
           </div>
 
-          <div className="p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-12">
             {/* Team 1: Toasty FC */}
-            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left flex-1 justify-end">
-              <div>
-                <span className="text-lg sm:text-xl font-black text-club-text tracking-tight uppercase">Toasty FC</span>
-                <span className="block text-xs font-mono text-club-text-dim mt-0.5">Home Team (Est. 2022)</span>
-              </div>
-              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl flex items-center justify-center p-0 overflow-hidden">
+            <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left flex-1 md:justify-end w-full">
+              <span className="text-xl sm:text-2xl font-black text-club-text tracking-tight uppercase md:order-1">Toasty FC</span>
+              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border-2 border-club-border shadow-xs overflow-hidden flex-shrink-0 bg-club-secondary md:order-2">
                 <img 
                   src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png" 
                   alt="Toasty FC Logo" 
@@ -109,21 +112,22 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
 
             {/* VS Division Badge */}
             <div className="flex flex-col items-center">
-              <span className="px-3.5 py-1.5 rounded-full bg-club-secondary border border-club-border text-xs font-mono font-black text-club-text-muted uppercase shadow-xs">
+              <span className="px-4 py-2 rounded-full bg-club-secondary border border-club-border text-xs font-mono font-black text-club-text-muted uppercase tracking-wider shadow-xs">
                 VS
               </span>
-              <span className="text-[10px] font-mono text-club-text-dim mt-2 block uppercase font-semibold">Matchday {nextMatch.matchNumber}</span>
             </div>
 
             {/* Team 2: Opponent */}
-            <div className="flex flex-col-reverse sm:flex-row items-center gap-4 text-center sm:text-left flex-1 justify-start">
-              <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-club-secondary border border-club-border flex items-center justify-center p-2 shadow-xs">
-                <span className="text-2xl font-black text-club-text-muted">{nextMatch.opponent.substring(0, 2).toUpperCase()}</span>
+            <div className="flex flex-col md:flex-row items-center gap-4 text-center md:text-left flex-1 md:justify-start w-full">
+              <div 
+                className="h-16 w-16 sm:h-20 sm:w-20 rounded-full bg-club-secondary border-2 border-club-border flex items-center justify-center p-2 shadow-xs overflow-hidden flex-shrink-0"
+                style={nextMatch.opponentColor ? { backgroundColor: nextMatch.opponentColor } : {}}
+              >
+                <span className={`text-xl sm:text-2xl font-black ${nextMatch.opponentColor ? 'text-white' : 'text-club-text-muted'}`}>
+                  {nextMatch.opponent.substring(0, 2).toUpperCase()}
+                </span>
               </div>
-              <div>
-                <span className="text-lg sm:text-xl font-black text-club-text tracking-tight uppercase">{nextMatch.opponent}</span>
-                <span className="block text-xs font-mono text-club-text-dim mt-0.5">Bowling Green Futsal rival</span>
-              </div>
+              <span className="text-xl sm:text-2xl font-black text-club-text tracking-tight uppercase">{nextMatch.opponent}</span>
             </div>
           </div>
 

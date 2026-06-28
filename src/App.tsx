@@ -262,13 +262,11 @@ export default function App() {
       <footer className="border-t border-club-border bg-club-secondary py-8 transition-colors duration-200" id="app-footer">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-club-text-dim">
           <div className="flex items-center space-x-2">
-            <Flame className="h-4 w-4 text-jersey-red/60" />
-            <span className="text-club-text-muted font-medium">TOASTY FC © 2026 - Est. 2022 -</span>
+            <span className="text-club-text-muted font-medium">TOASTY FC © 2026</span>
           </div>
           
           <div className="flex items-center space-x-1.5 text-club-text-dim">
-            <span>Made with passion & fire</span>
-            <Heart className="h-3 w-3 text-jersey-red/50 animate-pulse" />
+            <span>Est. 2022</span>
           </div>
 
           <button

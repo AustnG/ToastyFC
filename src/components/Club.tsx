@@ -15,15 +15,14 @@ export default function Club({ subTab, setCurrentTab }: ClubProps) {
   return (
     <div className="space-y-8 pb-16 animate-fade-in" id="club-view">
       {subTab === 'about' ? (
-        <div className="space-y-12" id="about-subpage">
+        <div className="space-y-16 animate-fade-in" id="about-subpage">
           {/* Main Hero Story */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center" id="about-hero-grid">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center" id="about-hero-grid">
             <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center space-x-2 px-3 py-1 bg-jersey-red/10 border border-jersey-red/20 text-jersey-red rounded-full text-xs font-mono font-bold uppercase">
-                <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-                <span>Our Origin Story</span>
-              </div>
-              <h2 className="text-3xl sm:text-5xl font-black text-club-text tracking-tight leading-tight">
+              <span className="text-[10px] font-mono font-bold text-jersey-red uppercase tracking-widest block">
+                OUR ORIGIN STORY
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-black text-club-text tracking-tight leading-tight">
                 Forged by Austin & Goran, <br />
                 <span className="text-jersey-red">Sustained by Passion</span>
               </h2>

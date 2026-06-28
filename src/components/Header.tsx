@@ -53,10 +53,10 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
             <button
               id="nav-tab-home"
               onClick={() => setCurrentTab('home')}
-              className={`relative px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+              className={`relative px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
                 currentTab === 'home'
-                  ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
-                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold border border-jersey-red/10'
+                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover border border-transparent'
               }`}
             >
               Home
@@ -70,10 +70,10 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
             >
               <button
                 id="nav-tab-club-parent"
-                className={`flex items-center space-x-1 px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+                className={`flex items-center space-x-1 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
                   currentTab === 'about' || currentTab === 'gear'
-                    ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
-                    : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+                    ? 'text-jersey-red bg-jersey-red/5 font-bold border border-jersey-red/10'
+                    : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover border border-transparent'
                 }`}
               >
                 <span>Club</span>
@@ -88,7 +88,7 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
                       setCurrentTab('about');
                       setIsClubDropdownOpen(false);
                     }}
-                    className={`flex w-full items-center px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer ${
+                    className={`flex w-full items-center px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                       currentTab === 'about'
                         ? 'text-jersey-red bg-jersey-red/5 font-bold'
                         : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
@@ -102,7 +102,7 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
                       setCurrentTab('gear');
                       setIsClubDropdownOpen(false);
                     }}
-                    className={`flex w-full items-center px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-colors cursor-pointer mt-0.5 ${
+                    className={`flex w-full items-center px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer mt-0.5 ${
                       currentTab === 'gear'
                         ? 'text-jersey-red bg-jersey-red/5 font-bold'
                         : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
@@ -118,10 +118,10 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
             <button
               id="nav-tab-roster"
               onClick={() => setCurrentTab('roster')}
-              className={`relative px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+              className={`relative px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
                 currentTab === 'roster'
-                  ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
-                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold border border-jersey-red/10'
+                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover border border-transparent'
               }`}
             >
               Roster
@@ -131,10 +131,10 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
             <button
               id="nav-tab-matches"
               onClick={() => setCurrentTab('matches')}
-              className={`relative px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+              className={`relative px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
                 currentTab === 'matches'
-                  ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
-                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold border border-jersey-red/10'
+                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover border border-transparent'
               }`}
             >
               Results
@@ -144,10 +144,10 @@ export default function Header({ currentTab, setCurrentTab, isSynced, theme, set
             <button
               id="nav-tab-stats"
               onClick={() => setCurrentTab('stats')}
-              className={`relative px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
+              className={`relative px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 cursor-pointer ${
                 currentTab === 'stats'
-                  ? 'text-jersey-red bg-jersey-red/5 border-b-2 border-jersey-red font-bold'
-                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover'
+                  ? 'text-jersey-red bg-jersey-red/5 font-bold border border-jersey-red/10'
+                  : 'text-club-text-muted hover:text-club-text hover:bg-club-card-hover border border-transparent'
               }`}
             >
               Club Stats
