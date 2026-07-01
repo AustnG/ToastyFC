@@ -84,15 +84,137 @@ export async function fetchSheetCSV(spreadsheetId: string, gidOrName: string = '
  */
 function findHeaderIdx(headers: string[], name: string): number {
   const normTarget = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  // 1. Explicit precise percentage vs direct count target overrides
+  if (name === 'sot%') {
+    const idx = headers.findIndex(h => {
+      const normHeader = h.toLowerCase();
+      return normHeader.includes('sot') && (normHeader.includes('%') || normHeader.includes('percent') || normHeader.includes('pct'));
+    });
+    if (idx !== -1) return idx;
+  }
+  if (name === 'sot') {
+    const idx = headers.findIndex(h => {
+      const normHeader = h.toLowerCase();
+      return normHeader.replace(/[^a-z]/g, '') === 'sot' && !normHeader.includes('%') && !normHeader.includes('percent') && !normHeader.includes('pct');
+    });
+    if (idx !== -1) return idx;
+  }
+  if (name === 'savepercentage') {
+    const idx = headers.findIndex(h => {
+      const normHeader = h.toLowerCase();
+      return normHeader.includes('save') && (normHeader.includes('%') || normHeader.includes('percent') || normHeader.includes('pct') || normHeader.includes('ratio'));
+    });
+    if (idx !== -1) return idx;
+  }
+  if (name === 'saves') {
+    const idx = headers.findIndex(h => {
+      const normHeader = h.toLowerCase();
+      return normHeader.includes('saves') && !normHeader.includes('%') && !normHeader.includes('percent') && !normHeader.includes('pct') && !normHeader.includes('opponent');
+    });
+    if (idx !== -1) return idx;
+  }
   
-  // 1. Try exact normalized match first (safest and most precise)
+  // 2. Try exact normalized match first (safest and most precise)
   const exactIdx = headers.findIndex(h => {
     const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
     return normHeader === normTarget;
   });
   if (exactIdx !== -1) return exactIdx;
 
-  // 2. Fallback to descriptive headers that contain the target
+  // 3. Define explicit aliases or exclusion list for overlapping terms to prevent false positives
+  // "goals" should not match "goalsagainst" or "goalsallowed" or "opponentgoals"
+  if (normTarget === 'goals') {
+    const goalsScoredAliases = ['goals', 'goalsfor', 'gf', 'scored', 'toastyfcgoals', 'toastygoals', 'teamgoals', 'goalsscored', 'g'];
+    // Look for any header that exactly matches one of these aliases
+    const aliasIdx = headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return goalsScoredAliases.includes(normHeader);
+    });
+    if (aliasIdx !== -1) return aliasIdx;
+
+    // Fallback: look for a header that includes 'goals' or 'scored' or 'gf' but does NOT contain 'against' or 'conceded' or 'allowed' or 'opponent'
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const hasGoals = normHeader.includes('goals') || normHeader.includes('scored') || normHeader === 'g' || normHeader === 'gf';
+      const isOpponentOrAgainst = normHeader.includes('against') || normHeader.includes('conceded') || normHeader.includes('allowed') || normHeader.includes('opponent') || normHeader.includes('opp');
+      return hasGoals && !isOpponentOrAgainst;
+    });
+  }
+
+  // "saves" should not match "opponentsaves"
+  if (normTarget === 'saves') {
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normHeader.includes('saves') && !normHeader.includes('opponent') && !normHeader.includes('opp');
+    });
+  }
+
+  // "shots" should not match "opponentshots"
+  if (normTarget === 'shots') {
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normHeader.includes('shots') && !normHeader.includes('opponent') && !normHeader.includes('opp');
+    });
+  }
+
+  // "sot" should not match "opponentsot"
+  if (normTarget === 'sot') {
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normHeader.includes('sot') && !normHeader.includes('opponent') && !normHeader.includes('opp');
+    });
+  }
+
+  // "blocks" should not match "opponentblocks"
+  if (normTarget === 'blocks') {
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normHeader.includes('blocks') && !normHeader.includes('opponent') && !normHeader.includes('opp');
+    });
+  }
+
+  // "corners" should not match "opponentcorners"
+  if (normTarget === 'corners') {
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normHeader.includes('corners') && !normHeader.includes('opponent') && !normHeader.includes('opp');
+    });
+  }
+
+  // "fouls" should not match "opponentfouls"
+  if (normTarget === 'fouls') {
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normHeader.includes('fouls') && !normHeader.includes('opponent') && !normHeader.includes('opp');
+    });
+  }
+
+  // "yellows" should not match "opponentyellows"
+  if (normTarget === 'yellows') {
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normHeader.includes('yellows') && !normHeader.includes('opponent') && !normHeader.includes('opp');
+    });
+  }
+
+  // "reds" should not match "opponentreds"
+  if (normTarget === 'reds') {
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normHeader.includes('reds') && !normHeader.includes('opponent') && !normHeader.includes('opp');
+    });
+  }
+
+  // "pks" should not match "opponentpks"
+  if (normTarget === 'pks') {
+    return headers.findIndex(h => {
+      const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
+      return normHeader.includes('pks') && !normHeader.includes('opponent') && !normHeader.includes('opp');
+    });
+  }
+
+  // 4. Fallback to descriptive headers that contain the target
   return headers.findIndex(h => {
     const normHeader = h.toLowerCase().replace(/[^a-z0-9]/g, '');
     return normHeader.includes(normTarget);
@@ -116,15 +238,19 @@ export function parseNewsCSV(rows: string[][]): NewsItem[] {
   const news: NewsItem[] = [];
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (row.length === 0 || !row[titleIdx === -1 ? 2 : titleIdx]) continue;
+    if (row.length === 0) continue;
+    
+    const titleVal = titleIdx !== -1 && titleIdx < row.length ? row[titleIdx] || '' : '';
+    if (!titleVal) continue;
+
     news.push({
-      id: idIdx !== -1 ? row[idIdx] : `news-${i}`,
-      date: dateIdx !== -1 ? row[dateIdx] : '',
-      title: titleIdx !== -1 ? row[titleIdx] : '',
-      category: categoryIdx !== -1 ? row[categoryIdx] : 'General',
-      content: contentIdx !== -1 ? row[contentIdx] : '',
-      link: linkIdx !== -1 ? row[linkIdx] : undefined,
-      imageUrl: imageIdx !== -1 ? row[imageIdx] : undefined,
+      id: idIdx !== -1 && idIdx < row.length ? row[idIdx] : `news-${i}`,
+      date: dateIdx !== -1 && dateIdx < row.length ? row[dateIdx] : '',
+      title: titleVal,
+      category: categoryIdx !== -1 && categoryIdx < row.length ? row[categoryIdx] : 'General',
+      content: contentIdx !== -1 && contentIdx < row.length ? row[contentIdx] : '',
+      link: linkIdx !== -1 && linkIdx < row.length ? row[linkIdx] : undefined,
+      imageUrl: imageIdx !== -1 && imageIdx < row.length ? row[imageIdx] : undefined,
     });
   }
   return news.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -148,20 +274,31 @@ export function parseSeasonsCSV(rows: string[][]): Season[] {
   const overIdx = findHeaderIdx(headers, 'overview');
 
   const seasons: Season[] = [];
+  
+  const parseCurrency = (val: string): number => {
+    if (!val) return 0;
+    const cleaned = val.replace(/[^0-9.]/g, '');
+    return parseFloat(cleaned) || 0;
+  };
+
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (row.length === 0 || !row[nameIdx === -1 ? 1 : nameIdx]) continue;
+    if (row.length === 0) continue;
+
+    const nameVal = nameIdx !== -1 && nameIdx < row.length ? row[nameIdx] || '' : '';
+    if (!nameVal) continue;
+
     seasons.push({
-      id: idIdx !== -1 ? row[idIdx] : `season-${i}`,
-      name: nameIdx !== -1 ? row[nameIdx] : '',
-      startDate: startIdx !== -1 ? row[startIdx] : '',
-      endDate: endIdx !== -1 ? row[endIdx] : '',
-      division: divIdx !== -1 ? row[divIdx] : '',
-      playersRostered: rostIdx !== -1 ? parseInt(row[rostIdx], 10) || 0 : 0,
-      perPlayerFee: pFeeIdx !== -1 ? parseFloat(row[pFeeIdx]) || 0 : 0,
-      teamFee: tFeeIdx !== -1 ? parseFloat(row[tFeeIdx]) || 0 : 0,
-      amountPaid: paidIdx !== -1 ? parseFloat(row[paidIdx]) || 0 : 0,
-      overview: overIdx !== -1 ? row[overIdx] : '',
+      id: idIdx !== -1 && idIdx < row.length ? row[idIdx] : `season-${i}`,
+      name: nameVal,
+      startDate: startIdx !== -1 && startIdx < row.length ? row[startIdx] : '',
+      endDate: endIdx !== -1 && endIdx < row.length ? row[endIdx] : '',
+      division: divIdx !== -1 && divIdx < row.length ? row[divIdx] : '',
+      playersRostered: rostIdx !== -1 && rostIdx < row.length ? parseInt(row[rostIdx], 10) || 0 : 0,
+      perPlayerFee: pFeeIdx !== -1 && pFeeIdx < row.length ? parseCurrency(row[pFeeIdx]) : 0,
+      teamFee: tFeeIdx !== -1 && tFeeIdx < row.length ? parseCurrency(row[tFeeIdx]) : 0,
+      amountPaid: paidIdx !== -1 && paidIdx < row.length ? parseCurrency(row[paidIdx]) : 0,
+      overview: overIdx !== -1 && overIdx < row.length ? row[overIdx] : '',
     });
   }
   return seasons;
@@ -187,18 +324,22 @@ export function parseRostersCSV(rows: string[][]): RosterEntry[] {
   const entries: RosterEntry[] = [];
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (row.length === 0 || !row[pIdIdx === -1 ? 3 : pIdIdx]) continue;
+    if (row.length === 0) continue;
+
+    const pIdVal = pIdIdx !== -1 && pIdIdx < row.length ? row[pIdIdx] || '' : '';
+    if (!pIdVal) continue;
+
     entries.push({
-      rosterId: rIdIdx !== -1 ? row[rIdIdx] : `r-${i}`,
-      seasonId: sIdIdx !== -1 ? row[sIdIdx] : '',
-      formulaSeasonName: sNameIdx !== -1 ? row[sNameIdx] : '',
-      playerId: pIdIdx !== -1 ? row[pIdIdx] : '',
-      formulaFirstLast: flIdx !== -1 ? row[flIdx] : '',
-      number: numIdx !== -1 ? parseInt(row[numIdx], 10) || 0 : 0,
-      positions: posIdx !== -1 ? row[posIdx] : 'Player',
-      captain: capIdx !== -1 ? row[capIdx].toLowerCase() === 'true' || row[capIdx] === '1' || row[capIdx].toLowerCase() === 'yes' : false,
-      paidSeasonFee: feeIdx !== -1 ? row[feeIdx] : '',
-      notes: notesIdx !== -1 ? row[notesIdx] : '',
+      rosterId: rIdIdx !== -1 && rIdIdx < row.length ? row[rIdIdx] : `r-${i}`,
+      seasonId: sIdIdx !== -1 && sIdIdx < row.length ? row[sIdIdx] : '',
+      formulaSeasonName: sNameIdx !== -1 && sNameIdx < row.length ? row[sNameIdx] : '',
+      playerId: pIdVal,
+      formulaFirstLast: flIdx !== -1 && flIdx < row.length ? row[flIdx] : '',
+      number: numIdx !== -1 && numIdx < row.length ? parseInt(row[numIdx], 10) || 0 : 0,
+      positions: posIdx !== -1 && posIdx < row.length ? row[posIdx] : 'Player',
+      captain: capIdx !== -1 && capIdx < row.length && row[capIdx] ? String(row[capIdx]).toLowerCase() === 'true' || String(row[capIdx]) === '1' || String(row[capIdx]).toLowerCase() === 'yes' : false,
+      paidSeasonFee: feeIdx !== -1 && feeIdx < row.length ? row[feeIdx] : '',
+      notes: notesIdx !== -1 && notesIdx < row.length ? row[notesIdx] : '',
     });
   }
   return entries;
@@ -235,29 +376,33 @@ export function parseGameStatsCSV(rows: string[][]): GameStatEntry[] {
   const stats: GameStatEntry[] = [];
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (row.length === 0 || !row[pIdIdx === -1 ? 2 : pIdIdx]) continue;
+    if (row.length === 0) continue;
+
+    const pIdVal = pIdIdx !== -1 && pIdIdx < row.length ? row[pIdIdx] || '' : '';
+    if (!pIdVal) continue;
+
     stats.push({
-      gameId: gIdIdx !== -1 ? row[gIdIdx] : '',
-      formulaGameTitle: titleIdx !== -1 ? row[titleIdx] : '',
-      playerId: pIdIdx !== -1 ? row[pIdIdx] : '',
-      formulaFirstLast: nameIdx !== -1 ? row[nameIdx] : '',
-      goals: gIdx !== -1 ? parseInt(row[gIdx], 10) || 0 : 0,
-      assists: aIdx !== -1 ? parseInt(row[aIdx], 10) || 0 : 0,
-      points: ptsIdx !== -1 ? parseInt(row[ptsIdx], 10) || 0 : 0,
-      shots: shIdx !== -1 ? parseInt(row[shIdx], 10) || 0 : 0,
-      sot: sotIdx !== -1 ? parseInt(row[sotIdx], 10) || 0 : 0,
-      sotPercentage: sotPIdx !== -1 ? parseFloat(row[sotPIdx].replace('%', '')) || 0 : 0,
-      blocks: blkIdx !== -1 ? parseInt(row[blkIdx], 10) || 0 : 0,
-      plusMinus: pmIdx !== -1 ? parseInt(row[pmIdx], 10) || 0 : 0,
-      fouls: fIdx !== -1 ? parseInt(row[fIdx], 10) || 0 : 0,
-      yellows: yIdx !== -1 ? parseInt(row[yIdx], 10) || 0 : 0,
-      reds: rIdx !== -1 ? parseInt(row[rIdx], 10) || 0 : 0,
-      potm: potmIdx !== -1 ? row[potmIdx].toLowerCase() === 'true' || row[potmIdx] === '1' || row[potmIdx].toLowerCase() === 'yes' || row[potmIdx].toLowerCase() === 'potm' : false,
-      saves: sIdx !== -1 ? parseInt(row[sIdx], 10) || 0 : 0,
-      savePercentage: sPIdx !== -1 ? parseFloat(row[sPIdx].replace('%', '')) || 0 : 0,
-      saveRatio: sRIdx !== -1 ? row[sRIdx] : '',
-      goalsAllowed: gaIdx !== -1 ? parseInt(row[gaIdx], 10) || 0 : 0,
-      cleanSheet: csIdx !== -1 ? row[csIdx].toLowerCase() === 'true' || row[csIdx] === '1' || row[csIdx].toLowerCase() === 'yes' : false,
+      gameId: gIdIdx !== -1 && gIdIdx < row.length ? row[gIdIdx] : '',
+      formulaGameTitle: titleIdx !== -1 && titleIdx < row.length ? row[titleIdx] : '',
+      playerId: pIdVal,
+      formulaFirstLast: nameIdx !== -1 && nameIdx < row.length ? row[nameIdx] : '',
+      goals: gIdx !== -1 && gIdx < row.length ? parseInt(row[gIdx], 10) || 0 : 0,
+      assists: aIdx !== -1 && aIdx < row.length ? parseInt(row[aIdx], 10) || 0 : 0,
+      points: ptsIdx !== -1 && ptsIdx < row.length ? parseInt(row[ptsIdx], 10) || 0 : 0,
+      shots: shIdx !== -1 && shIdx < row.length ? parseInt(row[shIdx], 10) || 0 : 0,
+      sot: sotIdx !== -1 && sotIdx < row.length ? parseInt(row[sotIdx], 10) || 0 : 0,
+      sotPercentage: sotPIdx !== -1 && sotPIdx < row.length && row[sotPIdx] ? parseFloat(String(row[sotPIdx]).replace('%', '')) || 0 : 0,
+      blocks: blkIdx !== -1 && blkIdx < row.length ? parseInt(row[blkIdx], 10) || 0 : 0,
+      plusMinus: pmIdx !== -1 && pmIdx < row.length ? parseInt(row[pmIdx], 10) || 0 : 0,
+      fouls: fIdx !== -1 && fIdx < row.length ? parseInt(row[fIdx], 10) || 0 : 0,
+      yellows: yIdx !== -1 && yIdx < row.length ? parseInt(row[yIdx], 10) || 0 : 0,
+      reds: rIdx !== -1 && rIdx < row.length ? parseInt(row[rIdx], 10) || 0 : 0,
+      potm: potmIdx !== -1 && potmIdx < row.length && row[potmIdx] ? String(row[potmIdx]).toLowerCase() === 'true' || String(row[potmIdx]) === '1' || String(row[potmIdx]).toLowerCase() === 'yes' || String(row[potmIdx]).toLowerCase() === 'potm' : false,
+      saves: sIdx !== -1 && sIdx < row.length ? parseInt(row[sIdx], 10) || 0 : 0,
+      savePercentage: sPIdx !== -1 && sPIdx < row.length && row[sPIdx] ? parseFloat(String(row[sPIdx]).replace('%', '')) || 0 : 0,
+      saveRatio: sRIdx !== -1 && sRIdx < row.length ? row[sRIdx] : '',
+      goalsAllowed: gaIdx !== -1 && gaIdx < row.length ? parseInt(row[gaIdx], 10) || 0 : 0,
+      cleanSheet: csIdx !== -1 && csIdx < row.length && row[csIdx] ? String(row[csIdx]).toLowerCase() === 'true' || String(row[csIdx]) === '1' || String(row[csIdx]).toLowerCase() === 'yes' : false,
     });
   }
   return stats;
@@ -304,37 +449,39 @@ export function parsePlayersCSV(rows: string[][]): Player[] {
   const players: Player[] = [];
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (row.length === 0 || !row[fNameIdx === -1 ? 1 : fNameIdx]) continue;
+    if (row.length === 0) continue;
 
-    const firstName = row[fNameIdx] || '';
-    const lastName = row[lNameIdx] || '';
-    const id = idIdx !== -1 && row[idIdx] ? row[idIdx] : `${firstName.toLowerCase().replace(/[^a-z0-9]/g, '')}-${lastName.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    const firstName = fNameIdx !== -1 && fNameIdx < row.length ? row[fNameIdx] || '' : '';
+    const lastName = lNameIdx !== -1 && lNameIdx < row.length ? row[lNameIdx] || '' : '';
+    if (!firstName) continue;
+
+    const id = idIdx !== -1 && idIdx < row.length && row[idIdx] ? row[idIdx] : `${firstName.toLowerCase().replace(/[^a-z0-9]/g, '')}-${lastName.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
 
     const player: Player = {
       id,
       firstName,
       lastName,
-      position: posIdx !== -1 ? row[posIdx] : 'Player',
+      position: posIdx !== -1 && posIdx < row.length ? row[posIdx] : 'Player',
       status: 'active',
-      notes: notesIdx !== -1 ? row[notesIdx] : '',
-      avatarUrl: imgIdx !== -1 && row[imgIdx] ? row[imgIdx] : undefined,
+      notes: notesIdx !== -1 && notesIdx < row.length ? row[notesIdx] : '',
+      avatarUrl: imgIdx !== -1 && imgIdx < row.length && row[imgIdx] ? row[imgIdx] : undefined,
       ratings: {},
       totalRating: 0,
 
-      dob: dobIdx !== -1 ? row[dobIdx] : '',
-      height: heightIdx !== -1 ? row[heightIdx] : '',
-      birthplace: birthplaceIdx !== -1 ? row[birthplaceIdx] : '',
-      nationality: nationalityIdx !== -1 ? row[nationalityIdx] : '',
-      playerImageUrl: imgIdx !== -1 ? row[imgIdx] : '',
-      footedness: footIdx !== -1 ? row[footIdx] : 'Right',
-      bio: bioIdx !== -1 ? row[bioIdx] : '',
+      dob: dobIdx !== -1 && dobIdx < row.length ? row[dobIdx] : '',
+      height: heightIdx !== -1 && heightIdx < row.length ? row[heightIdx] : '',
+      birthplace: birthplaceIdx !== -1 && birthplaceIdx < row.length ? row[birthplaceIdx] : '',
+      nationality: nationalityIdx !== -1 && nationalityIdx < row.length ? row[nationalityIdx] : '',
+      playerImageUrl: imgIdx !== -1 && imgIdx < row.length ? row[imgIdx] : '',
+      footedness: footIdx !== -1 && footIdx < row.length ? row[footIdx] : 'Right',
+      bio: bioIdx !== -1 && bioIdx < row.length ? row[bioIdx] : '',
     };
 
     // Parse stat values (0-99)
     statFields.forEach(field => {
       const idx = statIndices[field];
-      if (idx !== -1 && row[idx]) {
-        (player as any)[field] = parseInt(row[idx], 10) || 0;
+      if (idx !== -1 && idx < row.length && row[idx]) {
+        (player as any)[field] = parseInt(row[idx], 10) || 50;
       } else {
         (player as any)[field] = 50; // default medium stat if empty
       }
@@ -443,7 +590,7 @@ export function parseGamesCSV(rows: string[][]): Match[] {
       homeAway: haIdx !== -1 && haIdx < row.length ? row[haIdx] : '',
       opponentColor: colIdx !== -1 && colIdx < row.length ? row[colIdx] : '',
       wdl: wdlVal,
-      forfeit: forfeitIdx !== -1 && forfeitIdx < row.length ? row[forfeitIdx].toLowerCase() === 'true' || row[forfeitIdx] === '1' : false,
+      forfeit: forfeitIdx !== -1 && forfeitIdx < row.length && row[forfeitIdx] ? String(row[forfeitIdx]).toLowerCase() === 'true' || String(row[forfeitIdx]) === '1' : false,
       pks: getSafeInt(pksIdx),
       shots: getSafeInt(shotsIdx),
       sot: getSafeInt(sotIdx),
@@ -584,7 +731,7 @@ export function compileSyncedData(
       captain: activeRoster ? activeRoster.captain : false,
       paidSeasonFee: activeRoster ? activeRoster.paidSeasonFee : undefined,
       status: activeRoster 
-        ? (activeRoster.positions.toLowerCase().includes('guest') ? 'guest' as const : 'active' as const)
+        ? ((activeRoster.positions || '').toLowerCase().includes('guest') ? 'guest' as const : 'active' as const)
         : player.status,
       
       // aggregated stats

@@ -107,7 +107,7 @@ export default function App() {
       // 3. Fetch Rosters
       let parsedRosters = [];
       try {
-        const rostersRows = await fetchSheetCSV(config.sheetId, config.rostersRange || 'Rosters');
+        const rostersRows = await fetchSheetCSV(config.sheetId, config.rostersRange || config.rosterRange || 'Rosters');
         parsedRosters = parseRostersCSV(rostersRows);
       } catch (err: any) {
         console.warn('Rosters tab sync failed:', err);
@@ -128,7 +128,7 @@ export default function App() {
       // 4. Fetch Games
       let parsedGames = [];
       try {
-        const gamesRows = await fetchSheetCSV(config.sheetId, config.gamesRange || 'Games');
+        const gamesRows = await fetchSheetCSV(config.sheetId, config.gamesRange || config.matchesRange || 'Games');
         parsedGames = parseGamesCSV(gamesRows);
       } catch (err: any) {
         console.warn('Games tab sync failed:', err);
@@ -137,7 +137,7 @@ export default function App() {
       // 5. Fetch GameStats
       let parsedGameStats = [];
       try {
-        const gameStatsRows = await fetchSheetCSV(config.sheetId, config.gameStatsRange || 'GameStats');
+        const gameStatsRows = await fetchSheetCSV(config.sheetId, config.gameStatsRange || config.ratingsRange || 'GameStats');
         parsedGameStats = parseGameStatsCSV(gameStatsRows);
       } catch (err: any) {
         console.warn('GameStats tab sync failed:', err);
@@ -227,7 +227,7 @@ export default function App() {
       {/* Main Content Render */}
       <main className="flex-grow mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 pt-8" id="main-content-area">
         {currentTab === 'home' && (
-          <Home matches={matches} players={players} news={news} setCurrentTab={setCurrentTab} />
+          <Home matches={matches} players={players} news={news} setCurrentTab={setCurrentTab} seasons={seasons} />
         )}
         {currentTab === 'about' && (
           <Club subTab="about" setCurrentTab={setCurrentTab} />
@@ -261,34 +261,38 @@ export default function App() {
       {/* Footer Branding */}
       <footer className="border-t border-club-border bg-club-secondary py-8 transition-colors duration-200" id="app-footer">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-mono text-club-text-dim">
-          <div className="flex items-center space-x-2">
-            <span className="text-club-text-muted font-medium">TOASTY FC © 2026</span>
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4">
+            <span className="text-club-text-muted font-bold">TOASTY FC © 2026</span>
+            <span className="hidden md:inline text-club-text-dim/40">|</span>
+            <span className="text-club-text-dim/80">Bowling Green, KY</span>
           </div>
           
-          <div className="flex items-center space-x-1.5 text-club-text-dim">
-            <span>Est. 2022</span>
+          <div className="flex items-center space-x-1.5 text-club-text-dim font-bold">
+            <span>- Est. 2022 -</span>
           </div>
 
-          <button
-            onClick={() => setCurrentTab(currentTab === 'sync' ? 'home' : 'sync')}
-            className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-all duration-200 cursor-pointer ${
-              currentTab === 'sync'
-                ? 'bg-jersey-red/10 border-jersey-red text-jersey-red font-bold'
-                : 'bg-club-card border-club-border text-club-text-muted hover:text-club-text hover:border-club-border-strong hover:bg-club-card-hover shadow-xs'
-            }`}
-            title="Google Sheets Sync Settings"
-            id="footer-sync-button"
-          >
-            <Database className="h-3.5 w-3.5 text-jersey-red/70" />
-            <span>
-              {isSynced 
-                ? 'Google Sheets Connected' 
-                : 'Local Sandbox Mode'}
-            </span>
-            {isSynced && (
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-            )}
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setCurrentTab(currentTab === 'sync' ? 'home' : 'sync')}
+              className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg border transition-all duration-200 cursor-pointer ${
+                currentTab === 'sync'
+                  ? 'bg-jersey-red/10 border-jersey-red text-jersey-red font-bold'
+                  : 'bg-club-card border-club-border text-club-text-muted hover:text-club-text hover:border-club-border-strong hover:bg-club-card-hover shadow-xs'
+              }`}
+              title="Google Sheets Sync Settings"
+              id="footer-sync-button"
+            >
+              <Database className="h-3.5 w-3.5 text-jersey-red/70" />
+              <span>
+                {isSynced 
+                  ? 'Google Sheets Connected' 
+                  : 'Local Sandbox Mode'}
+              </span>
+              {isSynced && (
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              )}
+            </button>
+          </div>
         </div>
       </footer>
     </div>

@@ -63,9 +63,12 @@ export default function SheetsSync({
 
     const newConfig: SheetConfig = {
       sheetId: finalId,
-      rosterRange: rosterGid.trim() || 'Roster',
-      ratingsRange: ratingsGid.trim() || 'Ratings',
-      matchesRange: matchesGid.trim() || 'Matches',
+      rosterRange: rosterGid.trim() || 'Rosters',
+      ratingsRange: ratingsGid.trim() || 'GameStats',
+      matchesRange: matchesGid.trim() || 'Games',
+      rostersRange: rosterGid.trim() || 'Rosters',
+      gameStatsRange: ratingsGid.trim() || 'GameStats',
+      gamesRange: matchesGid.trim() || 'Games',
       isCustom: true
     };
 
@@ -131,7 +134,7 @@ Zac Lechler,-1,1,,,1,,1,-1,1,1,,,,3`,
                   </label>
                   <input
                     type="text"
-                    placeholder="Roster"
+                    placeholder="Rosters"
                     value={rosterGid}
                     onChange={(e) => setRosterGid(e.target.value)}
                     className="w-full bg-club-secondary border border-club-border rounded-xl px-3 py-2.5 text-xs text-club-text placeholder-club-text-dim text-center font-mono focus:outline-hidden focus:border-jersey-red/40"
@@ -143,7 +146,7 @@ Zac Lechler,-1,1,,,1,,1,-1,1,1,,,,3`,
                   </label>
                   <input
                     type="text"
-                    placeholder="Ratings"
+                    placeholder="GameStats"
                     value={ratingsGid}
                     onChange={(e) => setRatingsGid(e.target.value)}
                     className="w-full bg-club-secondary border border-club-border rounded-xl px-3 py-2.5 text-xs text-club-text placeholder-club-text-dim text-center font-mono focus:outline-hidden focus:border-jersey-red/40"
@@ -155,7 +158,7 @@ Zac Lechler,-1,1,,,1,,1,-1,1,1,,,,3`,
                   </label>
                   <input
                     type="text"
-                    placeholder="Matches"
+                    placeholder="Games"
                     value={matchesGid}
                     onChange={(e) => setMatchesGid(e.target.value)}
                     className="w-full bg-club-secondary border border-club-border rounded-xl px-3 py-2.5 text-xs text-club-text placeholder-club-text-dim text-center font-mono focus:outline-hidden focus:border-jersey-red/40"

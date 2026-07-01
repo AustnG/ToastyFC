@@ -3,18 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Flame, Calendar, MapPin, Trophy, Shield, Goal, ArrowRight, TrendingUp, Newspaper, Youtube, X, Heart, Play, Clock } from 'lucide-react';
+import { Flame, Calendar, MapPin, Trophy, Shield, Goal, ArrowRight, TrendingUp, Newspaper, Youtube, X, Heart, Play, Clock, User } from 'lucide-react';
 import { useState } from 'react';
-import { Match, Player, NewsItem } from '../types';
+import { Match, Player, NewsItem, Season } from '../types';
 
 interface HomeProps {
   matches: Match[];
   players: Player[];
   news?: NewsItem[];
   setCurrentTab: (tab: string) => void;
+  seasons?: Season[];
 }
 
-export default function Home({ matches, players, news = [], setCurrentTab }: HomeProps) {
+export default function Home({ matches, players, news = [], setCurrentTab, seasons = [] }: HomeProps) {
   const [selectedNews, setSelectedNews] = useState<NewsItem | null>(null);
 
   // Calculate the next match
@@ -25,51 +26,214 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
   const pastMatches = matches.filter(m => m.status === 'played').sort((a, b) => b.matchNumber - a.matchNumber);
   const recentResults = pastMatches.slice(0, 3);
 
-  // Active season stats calculation
-  const wins = pastMatches.filter(m => m.score && m.score.toastyFc > m.score.opponent).length;
-  const losses = pastMatches.filter(m => m.score && m.score.toastyFc < m.score.opponent).length;
-  const draws = pastMatches.filter(m => m.score && m.score.toastyFc === m.score.opponent).length;
-  const cleanSheets = pastMatches.filter(m => m.cleanSheet).length;
-  const totalGoals = pastMatches.reduce((sum, m) => sum + (m.score?.toastyFc || 0), 0);
+  // Active/current season definition
+  const activeSeason = seasons && seasons.length > 0 ? seasons[seasons.length - 1] : null;
+  const activeSeasonId = activeSeason ? activeSeason.id : null;
 
-  // Top player highlight (MVP)
-  const mvpCandidate = [...players].sort((a, b) => b.totalRating - a.totalRating)[0];
+  // Filter played matches for the active season to calculate real-time season stats
+  const activeSeasonMatches = activeSeasonId 
+    ? pastMatches.filter(m => m.seasonId === activeSeasonId)
+    : pastMatches;
+
+  // Active season stats calculation
+  const wins = activeSeasonMatches.filter(m => m.score && m.score.toastyFc > m.score.opponent).length;
+  const losses = activeSeasonMatches.filter(m => m.score && m.score.toastyFc < m.score.opponent).length;
+  const draws = activeSeasonMatches.filter(m => m.score && m.score.toastyFc === m.score.opponent).length;
+  const cleanSheets = activeSeasonMatches.filter(m => m.cleanSheet).length;
+  const totalGoals = activeSeasonMatches.reduce((sum, m) => sum + (m.score?.toastyFc || 0), 0);
+
+  // Helper to extract YouTube ID from links
+  const getYouTubeEmbedId = (url: string | undefined): string => {
+    if (!url) return 'U_EAtzHscbQ';
+    try {
+      if (url.includes('youtu.be/')) {
+        return url.split('youtu.be/')[1].split(/[?#]/)[0];
+      }
+      if (url.includes('v=')) {
+        return url.split('v=')[1].split(/[&#]/)[0];
+      }
+      if (url.includes('embed/')) {
+        return url.split('embed/')[1].split(/[?#]/)[0];
+      }
+      const parts = url.split('/');
+      const last = parts[parts.length - 1];
+      if (last && last.length === 11) {
+        return last;
+      }
+    } catch (e) {
+      console.error('Error parsing YouTube link:', e);
+    }
+    return 'U_EAtzHscbQ';
+  };
+
+  // Find latest played match with a youtube link
+  const matchesWithVideos = matches
+    .filter(m => m.status === 'played' && m.youtubeLink)
+    .sort((a, b) => b.matchNumber - a.matchNumber);
+  
+  const latestMatchWithVideo = matchesWithVideos.length > 0 ? matchesWithVideos[0] : null;
+  const videoId = getYouTubeEmbedId(latestMatchWithVideo?.youtubeLink);
+
+  // Filter players who are on the roster for the current season
+  const activePlayers = players.filter(p => {
+    if (!activeSeasonId) return true;
+    if (p.seasons && p.seasons.length > 0) {
+      return p.seasons.some(s => s.id === activeSeasonId);
+    }
+    // Fallback for active status
+    return p.status === 'active' || p.status === 'guest';
+  });
+
+  // Top player highlight (MVP) strictly chosen from the current season roster
+  const mvpCandidate = activePlayers.length > 0
+    ? [...activePlayers].sort((a, b) => b.totalRating - a.totalRating)[0]
+    : [...players].sort((a, b) => b.totalRating - a.totalRating)[0];
 
   return (
     <div className="space-y-12 pb-16 animate-fade-in" id="home-view">
       
-      {/* 1. Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-club-card border border-club-border shadow-xs" id="hero-section">
-        {/* Decorative backdrop glow */}
-        <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-jersey-red/5 dark:bg-jersey-red/10 blur-3xl"></div>
-        <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-jersey-gold/5 dark:bg-jersey-gold/10 blur-3xl"></div>
-        
-        <div className="relative px-6 py-14 sm:px-12 sm:py-20 lg:px-16 flex flex-col items-center text-center">
-          <h1 className="font-sans text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-club-text max-w-4xl leading-tight">
-            WELCOME TO <span className="text-jersey-red bg-gradient-to-r from-jersey-red to-jersey-gold bg-clip-text text-transparent">TOASTY FC</span>
-          </h1>
-          <p className="mt-5 text-sm sm:text-base text-club-text-muted max-w-2xl leading-relaxed">
-            Welcome to the official hub of Toasty FC. Based in Bowling Green, Kentucky, fueled by absolute passion, and bound together since 2022. Follow our matches, track stats, and trace our golden history.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4 justify-center">
-            <button
-              onClick={() => setCurrentTab('matches')}
-              className="px-6 py-3 bg-jersey-red hover:bg-jersey-red/90 text-white font-semibold rounded-xl transition shadow-[0_4px_20px_rgba(170,0,0,0.15)] flex items-center space-x-2 text-sm cursor-pointer"
-              id="hero-btn-matches"
-            >
-              <span>Schedule & Results</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setCurrentTab('about')}
-              className="px-6 py-3 bg-club-secondary hover:bg-club-card-hover border border-club-border text-club-text-muted hover:text-club-text font-semibold rounded-xl transition flex items-center space-x-2 text-sm cursor-pointer"
-              id="hero-btn-about"
-            >
-              <span>About Us</span>
-            </button>
+      {/* 1. News Hero Section */}
+      {news && news.length > 0 ? (
+        <section className="space-y-6" id="news-hero-section">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2.5">
+              <span className="h-3 w-3 rounded-full bg-jersey-red animate-pulse" />
+              <h2 className="text-xl sm:text-2xl font-black text-club-text uppercase tracking-tight">LATEST NEWS & CLUB UPDATES</h2>
+            </div>
           </div>
-        </div>
-      </section>
+
+          {/* Featured News Hero Card */}
+          <div 
+            onClick={() => setSelectedNews(news[0])}
+            className="group relative overflow-hidden rounded-3xl bg-club-card border border-club-border shadow-md hover:border-jersey-gold/30 hover:bg-club-card-hover transition-all duration-300 cursor-pointer grid grid-cols-1 lg:grid-cols-12 gap-0"
+          >
+            {/* Image (Left on Desktop, Top on Mobile) */}
+            <div className="lg:col-span-7 h-64 sm:h-96 lg:h-full min-h-[280px] relative overflow-hidden bg-club-secondary">
+              {news[0].imageUrl ? (
+                <img 
+                  src={news[0].imageUrl} 
+                  alt={news[0].title} 
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700"
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-club-secondary flex items-center justify-center">
+                  <Newspaper className="h-16 w-16 text-club-text-dim/40" />
+                </div>
+              )}
+              {/* Cover Gradient for Mobile/Tablet readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent lg:hidden"></div>
+              
+              {/* Category Pill Floating on Image */}
+              <div className="absolute top-4 left-4 px-3 py-1 bg-jersey-red text-white text-[10px] font-mono font-bold uppercase rounded-lg tracking-wider shadow-md">
+                {news[0].category}
+              </div>
+            </div>
+
+            {/* Text details (Right on Desktop, Bottom on Mobile) */}
+            <div className="lg:col-span-5 p-6 sm:p-10 lg:p-12 flex flex-col justify-between space-y-6">
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-mono text-jersey-gold font-bold">{news[0].date}</span>
+                  <h3 className="font-sans text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-club-text leading-tight group-hover:text-jersey-red transition-colors">
+                    {news[0].title}
+                  </h3>
+                </div>
+                <p className="text-sm text-club-text-muted leading-relaxed font-sans line-clamp-4 sm:line-clamp-6">
+                  {news[0].content}
+                </p>
+              </div>
+
+              <div>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedNews(news[0]);
+                  }}
+                  className="px-5 py-3 bg-jersey-red hover:bg-jersey-red/90 text-white font-bold text-xs sm:text-sm rounded-xl transition shadow-[0_4px_20px_rgba(170,0,0,0.15)] flex items-center space-x-2 cursor-pointer w-fit"
+                >
+                  <span>Read Full Update</span>
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Secondary News items (Next 2 items) */}
+          {news.length > 1 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6" id="secondary-news-grid">
+              {news.slice(1, 3).map((item) => (
+                <div 
+                  key={item.id}
+                  onClick={() => setSelectedNews(item)}
+                  className="bg-club-card border border-club-border rounded-2xl overflow-hidden hover:border-jersey-gold/30 hover:bg-club-card-hover transition-all duration-300 flex flex-col justify-between shadow-xs group cursor-pointer"
+                >
+                  <div className="flex flex-col sm:flex-row h-full">
+                    {item.imageUrl ? (
+                      <div className="sm:w-2/5 h-44 sm:h-auto relative overflow-hidden flex-shrink-0">
+                        <img 
+                          src={item.imageUrl} 
+                          alt={item.title} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          referrerPolicy="no-referrer"
+                        />
+                        <div className="absolute top-3 left-3 px-2 py-0.5 bg-club-secondary/85 border border-club-border/40 text-club-text text-[9px] font-mono font-bold uppercase rounded-md">
+                          {item.category}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="sm:w-2/5 h-44 sm:h-full bg-club-secondary flex items-center justify-center border-r border-club-border flex-shrink-0">
+                        <Newspaper className="h-10 w-10 text-club-text-dim/40" />
+                      </div>
+                    )}
+
+                    <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                      <div className="space-y-1">
+                        <span className="text-[10px] font-mono text-club-text-dim block">{item.date}</span>
+                        <h4 className="text-sm sm:text-base font-bold text-club-text leading-snug group-hover:text-jersey-red transition-colors line-clamp-2">
+                          {item.title}
+                        </h4>
+                        <p className="text-xs text-club-text-muted leading-relaxed line-clamp-2">
+                          {item.content}
+                        </p>
+                      </div>
+
+                      <span className="text-xs font-mono font-bold text-jersey-red hover:text-jersey-red/80 flex items-center space-x-1 cursor-pointer">
+                        <span>Read Story</span>
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      ) : (
+        /* Fallback Welcome Hero when there is no news */
+        <section className="relative overflow-hidden rounded-3xl bg-club-card border border-club-border shadow-xs" id="hero-section">
+          <div className="absolute -top-40 -left-40 h-96 w-96 rounded-full bg-jersey-red/5 dark:bg-jersey-red/10 blur-3xl"></div>
+          <div className="absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-jersey-gold/5 dark:bg-jersey-gold/10 blur-3xl"></div>
+          
+          <div className="relative px-6 py-14 sm:px-12 sm:py-20 lg:px-16 flex flex-col items-center text-center">
+            <h1 className="font-sans text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-club-text max-w-4xl leading-tight">
+              TOASTY <span className="text-jersey-red bg-gradient-to-r from-jersey-red to-jersey-gold bg-clip-text text-transparent">FOOTBALL CLUB</span>
+            </h1>
+            <p className="mt-5 text-sm sm:text-base text-club-text-muted max-w-2xl leading-relaxed">
+              Based in Bowling Green, Kentucky. Bound together by sport, friendship, and relentless passion since 2022.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4 justify-center">
+              <button
+                onClick={() => setCurrentTab('matches')}
+                className="px-6 py-3 bg-jersey-red hover:bg-jersey-red/90 text-white font-semibold rounded-xl transition shadow-[0_4px_20px_rgba(170,0,0,0.15)] flex items-center space-x-2 text-sm cursor-pointer"
+              >
+                <span>Schedule & Results</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 2. Combined Upcoming Match Section */}
       {nextMatch && (
@@ -143,133 +307,7 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
         </section>
       )}
 
-      {/* 3. YouTube Video Embed Integration */}
-      <section className="bg-club-card border border-club-border rounded-3xl overflow-hidden p-6 sm:p-8 space-y-6 shadow-xs" id="youtube-embed-showcase">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-club-border/60 pb-5">
-          <div className="space-y-1">
-            <div className="inline-flex items-center space-x-1.5 text-xs font-mono font-bold text-red-500 uppercase">
-              <Youtube className="h-4.5 w-4.5" />
-              <span>OFFICIAL HIGHLIGHT REEL</span>
-            </div>
-            <h3 className="text-xl sm:text-2xl font-black text-club-text">Latest Match Highlights</h3>
-            <p className="text-xs sm:text-sm text-club-text-muted">Stay connected to all the goals, saves, and triumphs from Bowling Green Futsal league matches.</p>
-          </div>
-          <a 
-            href="https://www.youtube.com/@ToastyFC" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs rounded-xl transition flex items-center space-x-1.5 cursor-pointer self-start sm:self-center"
-          >
-            <Youtube className="h-4 w-4" />
-            <span>Subscribe on YouTube</span>
-          </a>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          {/* Responsive Embedded Player */}
-          <div className="lg:col-span-8 overflow-hidden rounded-2xl border border-club-border aspect-video bg-black relative shadow-lg" id="yt-player-container">
-            <iframe 
-              src="https://www.youtube.com/embed/U_EAtzHscbQ" 
-              title="Toasty FC Match Highlights Replay"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-              allowFullScreen
-              className="absolute top-0 left-0 w-full h-full border-0"
-            />
-          </div>
-
-          <div className="lg:col-span-4 space-y-4" id="video-info-box">
-            <div className="bg-club-secondary/60 border border-club-border rounded-xl p-5 space-y-4">
-              <div className="flex items-center gap-2 text-xs font-mono text-jersey-gold font-bold">
-                <Play className="h-4 w-4 text-jersey-gold fill-current" />
-                <span>FEATURED GAME PLAYLIST</span>
-              </div>
-              <h4 className="text-base font-bold text-club-text leading-snug">Championship Campaigns & Post-Match Coverage</h4>
-              <p className="text-xs text-club-text-muted leading-relaxed">
-                We use a three-camera wireless <strong>Mevo Start</strong> setup to record every single minute. Highlight clips, tactical breakdowns, and spectacular play reviews are uploaded directly to our official channel.
-              </p>
-              <div className="pt-2">
-                <span className="block text-[10px] font-mono text-club-text-dim uppercase tracking-wider font-semibold">Video Features:</span>
-                <ul className="text-xs font-mono text-club-text-dim space-y-1.5 mt-2">
-                  <li className="flex items-center gap-1.5">
-                    <span className="text-red-500">▶</span> Multi-Angle High-Definition Coverage
-                  </li>
-                  <li className="flex items-center gap-1.5">
-                    <span className="text-red-500">▶</span> Striker Goals & Key Saves
-                  </li>
-                  <li className="flex items-center gap-1.5">
-                    <span className="text-red-500">▶</span> Tactical Post-Match Debriefs
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Dynamic News Feed from Sheets */}
-      {news && news.length > 0 && (
-        <section className="space-y-6" id="news-section">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-club-text flex items-center space-x-2">
-              <Newspaper className="h-5 w-5 text-jersey-red" />
-              <span>Latest Club News</span>
-            </h3>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6" id="news-cards-grid">
-            {news.slice(0, 3).map((item) => (
-              <div 
-                key={item.id}
-                onClick={() => setSelectedNews(item)}
-                className="bg-club-card border border-club-border rounded-2xl overflow-hidden hover:border-jersey-gold/30 hover:bg-club-card-hover transition-all duration-300 flex flex-col justify-between shadow-xs group cursor-pointer"
-              >
-                <div>
-                  {item.imageUrl ? (
-                    <div className="overflow-hidden relative h-44">
-                      <img 
-                        src={item.imageUrl} 
-                        alt={item.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        referrerPolicy="no-referrer"
-                      />
-                      <div className="absolute top-3 left-3 px-2 py-0.5 bg-jersey-red text-white text-[9px] font-mono font-bold uppercase rounded-md tracking-wider">
-                        {item.category}
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="h-44 bg-club-secondary flex items-center justify-center border-b border-club-border">
-                      <Newspaper className="h-12 w-12 text-club-text-dim/40" />
-                    </div>
-                  )}
-                  <div className="p-5 space-y-2">
-                    <span className="text-[10px] font-mono text-club-text-dim block">{item.date}</span>
-                    <h4 className="text-base font-bold text-club-text leading-snug group-hover:text-jersey-red transition-colors line-clamp-2">
-                      {item.title}
-                    </h4>
-                    <p className="text-xs text-club-text-muted leading-relaxed line-clamp-3">
-                      {item.content}
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="px-5 pb-5 pt-2 border-t border-club-border/40">
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedNews(item);
-                    }}
-                    className="text-xs font-mono font-bold text-jersey-red hover:text-jersey-red/80 flex items-center space-x-1 cursor-pointer"
-                  >
-                    <span>Read Full Story</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 5. Season Stats & Recent Results */}
+      {/* 3. Season Stats & Recent Results */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-8" id="quick-data-summary">
         {/* Left: Recent Results */}
         <div className="lg:col-span-6 space-y-4">
@@ -330,7 +368,7 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
         <div className="lg:col-span-6 space-y-4">
           <h3 className="text-xl font-bold text-club-text flex items-center space-x-2">
             <TrendingUp className="h-5 w-5 text-jersey-red" />
-            <span>Active Season Stats</span>
+            <span>Active Season Stats {activeSeason ? `(${activeSeason.name})` : ''}</span>
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4" id="stats-snapshot-grid">
@@ -355,13 +393,13 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
             <div className="flex items-center justify-between text-xs font-mono text-club-text-muted">
               <span>WIN RATIO</span>
               <span className="text-jersey-red font-bold">
-                {pastMatches.length > 0 ? Math.round((wins / pastMatches.length) * 100) : 0}%
+                {activeSeasonMatches.length > 0 ? Math.round((wins / activeSeasonMatches.length) * 100) : 0}%
               </span>
             </div>
             <div className="h-2 w-full bg-club-secondary rounded-full overflow-hidden">
               <div 
                 className="h-full bg-gradient-to-r from-jersey-red to-jersey-gold"
-                style={{ width: `${pastMatches.length > 0 ? (wins / pastMatches.length) * 100 : 0}%` }}
+                style={{ width: `${activeSeasonMatches.length > 0 ? (wins / activeSeasonMatches.length) * 100 : 0}%` }}
               ></div>
             </div>
 
@@ -379,67 +417,160 @@ export default function Home({ matches, players, news = [], setCurrentTab }: Hom
         </div>
       </section>
 
-      {/* 6. Player of the Week / Highlight Section */}
+      {/* 4. Match Highlights YouTube Section */}
+      <section className="bg-club-card border border-club-border rounded-3xl overflow-hidden p-6 sm:p-8 space-y-6 shadow-xs" id="youtube-embed-showcase">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-club-border/60 pb-5">
+          <div className="space-y-1">
+            <div className="inline-flex items-center space-x-1.5 text-xs font-mono font-bold text-red-500 uppercase">
+              <Youtube className="h-4.5 w-4.5" />
+              <span>OFFICIAL HIGHLIGHT REEL</span>
+            </div>
+            <h3 className="text-xl sm:text-2xl font-black text-club-text">Latest Match Highlights</h3>
+            {latestMatchWithVideo ? (
+              <p className="text-xs sm:text-sm text-club-text-muted">
+                Highlights from our played match: <span className="font-bold text-club-text">Toasty FC vs {latestMatchWithVideo.opponent}</span> ({latestMatchWithVideo.date})
+              </p>
+            ) : (
+              <p className="text-xs sm:text-sm text-club-text-muted">
+                Stay connected with the latest goals, saves, and triumphs from Bowling Green Futsal league matches.
+              </p>
+            )}
+          </div>
+          <a 
+            href="https://www.youtube.com/@ToastyFC" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs rounded-xl transition flex items-center space-x-1.5 cursor-pointer self-start sm:self-center"
+          >
+            <Youtube className="h-4 w-4" />
+            <span>Subscribe on YouTube</span>
+          </a>
+        </div>
+
+        {/* Responsive Embedded Player (Contained beautifully) */}
+        <div className="max-w-4xl mx-auto overflow-hidden rounded-2xl border border-club-border aspect-video bg-black relative shadow-lg" id="yt-player-container">
+          <iframe 
+            src={`https://www.youtube.com/embed/${videoId}`} 
+            title="Toasty FC Match Highlights Replay"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowFullScreen
+            className="absolute top-0 left-0 w-full h-full border-0"
+          />
+        </div>
+      </section>
+
+      {/* 5. Featured Player Section */}
       {mvpCandidate && (
-        <section className="bg-club-card border border-club-border rounded-2xl p-6 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-center shadow-xs" id="mvp-highlight-banner">
-          <div className="md:col-span-4 flex flex-col items-center text-center">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-tr from-jersey-red to-jersey-gold rounded-full blur-md opacity-35 animate-pulse"></div>
+        <section className="bg-club-card border border-club-border rounded-3xl overflow-hidden grid grid-cols-1 md:grid-cols-12 gap-0 shadow-md" id="mvp-highlight-banner">
+          {/* Left / Top Side: Large, Unconfined Player Image */}
+          <div className="md:col-span-5 h-80 md:h-full min-h-[340px] relative bg-club-secondary border-b md:border-b-0 md:border-r border-club-border">
+            {mvpCandidate.playerImageUrl || mvpCandidate.avatarUrl ? (
               <img 
-                src={mvpCandidate.avatarUrl || 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?auto=format&fit=crop&w=150&h=150&q=80'}
+                src={mvpCandidate.playerImageUrl || mvpCandidate.avatarUrl}
                 alt={`${mvpCandidate.firstName} ${mvpCandidate.lastName}`}
                 referrerPolicy="no-referrer"
-                className="relative h-28 w-28 rounded-full border-2 border-jersey-gold object-cover"
+                className="absolute inset-0 h-full w-full object-cover object-top"
               />
-              <div className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full bg-club-card border border-jersey-gold flex items-center justify-center shadow-md">
-                <Trophy className="h-4 w-4 text-jersey-gold" />
+            ) : (
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-club-text-dim/30 bg-gradient-to-b from-club-secondary to-club-card">
+                <User className="h-20 w-20 mb-2" />
+                <span className="text-xs font-mono">TOASTY ATHLETE</span>
               </div>
+            )}
+            {/* Elegant overlay gradient to make name legible and premium */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent"></div>
+            
+            {/* Floating Badges */}
+            <div className="absolute top-4 left-4 flex flex-col gap-1.5">
+              <span className="w-12 h-12 rounded-xl bg-black/85 backdrop-blur-xs border border-jersey-red/20 flex items-center justify-center font-mono text-xl font-black text-white shadow-lg">
+                {mvpCandidate.number !== undefined ? `#${mvpCandidate.number}` : '--'}
+              </span>
             </div>
-            <h4 className="text-lg font-bold text-club-text mt-4">{mvpCandidate.firstName} {mvpCandidate.lastName}</h4>
-            <span className="text-xs font-mono text-jersey-red font-semibold">{mvpCandidate.position}</span>
+            
+            <div className="absolute top-4 right-4 flex flex-col gap-1.5 items-end">
+              <span className="px-3 py-1.5 bg-jersey-gold text-black font-black font-mono text-xs uppercase rounded-lg shadow-md flex items-center gap-1">
+                <Trophy className="h-3 w-3" />
+                <span>SEASON MVP</span>
+              </span>
+            </div>
+
+            {/* Overall Rating Overlay on Image */}
+            <div className="absolute bottom-6 left-6 bg-black/85 backdrop-blur-xs px-3.5 py-2 rounded-2xl border border-jersey-gold/30 flex items-center space-x-2 shadow-xl">
+              <span className="text-xs font-mono text-jersey-gold font-bold uppercase tracking-wider">OVR</span>
+              <span className="text-xl font-black font-mono text-white">
+                {mvpCandidate.pace !== undefined 
+                  ? Math.round(((mvpCandidate.pace || 50) + (mvpCandidate.shooting || 50) + (mvpCandidate.passing || 50) + (mvpCandidate.dribbling || 50) + (mvpCandidate.defending || 50) + (mvpCandidate.physical || 50)) / 6)
+                  : 75
+                }
+              </span>
+            </div>
           </div>
 
-          <div className="md:col-span-8 space-y-4">
-            <div>
-              <span className="text-[10px] font-mono text-jersey-red tracking-widest uppercase font-bold">SEASON IMPACT LEAD</span>
-              <h3 className="text-2xl sm:text-3xl font-black text-club-text leading-tight mt-0.5">Match Rating Leader</h3>
-              <p className="text-club-text-muted text-sm mt-1.5 leading-relaxed">
-                Based on current match-by-match game database ratings, {mvpCandidate.firstName} is having an incredible campaign supporting Toasty FC on and off the ball.
+          {/* Right / Bottom Side: Stats & Info Details */}
+          <div className="md:col-span-7 p-8 sm:p-10 flex flex-col justify-between space-y-6">
+            <div className="space-y-4">
+              <div>
+                <span className="text-xs font-mono text-jersey-red tracking-widest uppercase font-black">FEATURED CLUB MVP</span>
+                <h3 className="text-3xl sm:text-4xl font-black text-club-text leading-tight mt-1">{mvpCandidate.firstName} {mvpCandidate.lastName}</h3>
+                <div className="flex flex-wrap gap-2 items-center mt-2">
+                  <span className="px-3 py-0.5 bg-jersey-red/10 border border-jersey-red/20 text-jersey-red text-xs font-mono rounded-full font-bold uppercase">
+                    {mvpCandidate.position}
+                  </span>
+                  {mvpCandidate.footedness && (
+                    <span className="text-xs font-mono text-club-text-dim bg-club-secondary border border-club-border px-2.5 py-0.5 rounded-full">
+                      {mvpCandidate.footedness} Footed
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <p className="text-club-text-muted text-sm leading-relaxed font-sans">
+                {mvpCandidate.bio || mvpCandidate.notes || `Based on current match-by-match database ratings, ${mvpCandidate.firstName} is having an incredible campaign supporting Toasty FC on and off the ball. With superior teamwork and technical grit, they represent the absolute legacy of the club.`}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-2">
-              <div className="bg-club-secondary border border-club-border rounded-xl p-3">
-                <span className="text-club-text-dim text-[10px] font-mono block uppercase">TOTAL IMPACT</span>
-                <span className="text-lg font-bold text-club-text font-mono">+{mvpCandidate.totalRating}</span>
+            {/* Stat Row */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-t border-b border-club-border/50 py-6 font-mono text-xs">
+              <div className="space-y-1">
+                <span className="text-club-text-dim uppercase text-[10px] block">TOTAL IMPACT POINTS</span>
+                <span className="text-xl font-black text-club-text font-mono">+{mvpCandidate.totalRating}</span>
               </div>
-              <div className="bg-club-secondary border border-club-border rounded-xl p-3">
-                <span className="text-club-text-dim text-[10px] font-mono block uppercase">GAMES PLAYED</span>
-                <span className="text-lg font-bold text-club-text font-mono font-semibold">
-                  {Object.keys(mvpCandidate.ratings).length} / {pastMatches.length}
+              <div className="space-y-1">
+                <span className="text-club-text-dim uppercase text-[10px] block">GAMES PLAYED</span>
+                <span className="text-xl font-black text-club-text font-mono">
+                  {Object.keys(mvpCandidate.ratings || {}).length} / {pastMatches.length}
                 </span>
               </div>
-              <div className="bg-club-secondary border border-club-border rounded-xl p-3 col-span-2 sm:col-span-1">
-                <span className="text-club-text-dim text-[10px] font-mono block uppercase">VISION STATUS</span>
-                <span className="text-xs text-club-text-muted block truncate mt-0.5">{mvpCandidate.notes || 'Incredible vision.'}</span>
+              <div className="space-y-1 col-span-2 sm:col-span-1">
+                <span className="text-club-text-dim uppercase text-[10px] block">BIRTHPLACE</span>
+                <span className="text-sm font-black text-club-text-muted block truncate mt-1">
+                  {mvpCandidate.birthplace || 'Unknown'}
+                </span>
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4">
               <button 
                 onClick={() => setCurrentTab('roster')}
-                className="text-sm font-bold text-jersey-red hover:text-jersey-red/80 flex items-center space-x-1.5 cursor-pointer"
+                className="text-sm font-black text-jersey-red hover:text-jersey-red/80 flex items-center space-x-1.5 cursor-pointer group"
                 id="mvp-btn-roster"
               >
                 <span>View Full Team Roster</span>
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 transform group-hover:translate-x-1 transition-transform" />
               </button>
+              
+              {mvpCandidate.nationality && (
+                <div className="text-xs font-mono text-club-text-dim flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-jersey-gold"></span>
+                  <span>Representing {mvpCandidate.nationality}</span>
+                </div>
+              )}
             </div>
           </div>
         </section>
       )}
 
-      {/* 7. Interactive Full News Story Reader Modal */}
+      {/* 6. Interactive Full News Story Reader Modal */}
       {selectedNews && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-fade-in" id="news-modal-overlay">
           <div className="relative w-full max-w-2xl bg-club-card border border-club-border rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[85vh]">
