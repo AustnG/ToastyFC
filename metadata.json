@@ -1,0 +1,6 @@
+{
+  "name": "Toasty FC",
+  "description": "A dynamic website and Google Sheets powered CMS for the Toasty FC soccer team to manage matches, players, stats, news, and galleries.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
