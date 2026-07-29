@@ -553,6 +553,9 @@ export default function App() {
   // Keep navigation scannable
   const navItems: NavItem[] = [
     { id: 'overview', label: 'Home', icon: Home },
+    { id: 'matches', label: 'Matches', icon: Calendar },
+    { id: 'roster', label: 'Roster', icon: Users },
+    { id: 'stats', label: 'Stats', icon: BarChart3 },
     { 
       id: 'club-dropdown', 
       label: 'Club', 
@@ -563,9 +566,6 @@ export default function App() {
         { id: 'gear', label: 'Gear & Setup', icon: Video }
       ]
     },
-    { id: 'roster', label: 'Roster', icon: Users },
-    { id: 'matches', label: 'Matches', icon: Calendar },
-    { id: 'stats', label: 'Stats', icon: BarChart3 },
     { id: 'news', label: 'News & Gallery', icon: BookOpen },
   ];
 
@@ -578,11 +578,14 @@ export default function App() {
           
           {/* Logo Brand Brand */}
           <div className="flex items-center gap-2.5 shrink-0">
-            <div className="w-9 h-9 rounded-xl bg-amber-500 flex items-center justify-center text-slate-950 font-black tracking-tighter shadow-md shadow-amber-500/10 hover:scale-105 transition-transform duration-200">
-              ⚽
-            </div>
+            <img 
+              src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png" 
+              alt="Toasty FC Official Crest" 
+              className="w-9 h-9 object-contain rounded-xl shadow-md shadow-red-900/20 border border-toasty-tan/30 hover:scale-105 transition-transform duration-200"
+              referrerPolicy="no-referrer"
+            />
             <div>
-              <h1 className="font-display font-black text-sm sm:text-base tracking-wider leading-none text-amber-400">TOASTY FC</h1>
+              <h1 className="font-display font-black text-sm sm:text-base tracking-wider leading-none text-toasty-tan">TOASTY FC</h1>
               <span className="text-[9px] sm:text-[10px] font-mono text-slate-400 uppercase tracking-widest leading-none font-bold block mt-1">Est. 2022</span>
             </div>
           </div>
@@ -602,7 +605,7 @@ export default function App() {
                     <button
                       className={`px-3 py-2 rounded-xl text-[10px] sm:text-[11px] font-display font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
                         isClubActive 
-                          ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' 
+                          ? 'bg-toasty-red text-white shadow-md shadow-red-950/40 border border-red-500/30' 
                           : 'text-slate-300 hover:text-white hover:bg-slate-900'
                       }`}
                       id="nav-btn-club-dropdown"
@@ -631,11 +634,11 @@ export default function App() {
                               }}
                               className={`w-full text-left px-3 py-2 rounded-lg text-[10px] sm:text-[11px] font-display font-extrabold uppercase tracking-wider flex items-center gap-2 transition cursor-pointer ${
                                 isSubActive 
-                                  ? 'bg-amber-500 text-slate-950 font-black' 
-                                  : 'text-slate-355 hover:text-white hover:bg-slate-900'
+                                  ? 'bg-toasty-red text-white font-black' 
+                                  : 'text-slate-300 hover:text-white hover:bg-slate-900'
                               }`}
                             >
-                              <SubIcon size={12} className="shrink-0" />
+                              <SubIcon size={12} className="shrink-0 text-toasty-tan" />
                               {subItem.label}
                             </button>
                           );
@@ -654,7 +657,7 @@ export default function App() {
                   onClick={() => setActiveTab(item.id)}
                   className={`px-3 py-2 rounded-xl text-[10px] sm:text-[11px] font-display font-extrabold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
                     isActive 
-                      ? 'bg-amber-500 text-slate-950 shadow-md shadow-amber-500/10' 
+                      ? 'bg-toasty-red text-white shadow-md shadow-red-950/40 border border-red-500/30' 
                       : 'text-slate-300 hover:text-white hover:bg-slate-900'
                   }`}
                   id={`nav-btn-${item.id}`}
@@ -742,11 +745,11 @@ export default function App() {
                               }}
                               className={`w-full text-left px-4 py-2.5 rounded-xl font-bold uppercase tracking-wider text-xs flex items-center gap-3 transition ${
                                 isSubActive 
-                                  ? 'bg-amber-500 text-slate-950 font-black shadow-md' 
+                                  ? 'bg-toasty-red text-white font-black shadow-md shadow-red-950/40 border border-red-500/30' 
                                   : 'hover:bg-slate-900 text-slate-300'
                               }`}
                             >
-                              <SubIcon size={14} />
+                              <SubIcon size={14} className="text-toasty-tan" />
                               {subItem.label}
                             </button>
                           );
@@ -767,7 +770,7 @@ export default function App() {
                     }}
                     className={`w-full text-left px-4 py-3 rounded-xl font-bold uppercase tracking-wider text-sm flex items-center gap-3 transition ${
                       isActive 
-                        ? 'bg-amber-500 text-slate-950' 
+                        ? 'bg-toasty-red text-white font-black shadow-md shadow-red-950/40 border border-red-500/30' 
                         : 'hover:bg-slate-900 text-slate-300'
                     }`}
                   >
@@ -897,12 +900,13 @@ export default function App() {
             {/* Brand Info & Copyright */}
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <div className="flex items-center gap-2.5">
-                <div 
+                <img 
                   onDoubleClick={handleToggleAdmin}
-                  className="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-black text-xs shadow-sm select-none cursor-pointer hover:scale-105 active:scale-95 transition-transform"
-                >
-                  ⚽
-                </div>
+                  src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png" 
+                  alt="Toasty FC Crest" 
+                  className="w-7 h-7 object-contain rounded-lg shadow-sm select-none cursor-pointer hover:scale-105 active:scale-95 transition-transform"
+                  referrerPolicy="no-referrer"
+                />
                 <div className="text-left">
                   <h4 className="font-display font-black text-[11px] text-white tracking-wider uppercase leading-none">TOASTY FC</h4>
                   <p className="text-[8px] text-slate-500 font-mono mt-0.5 uppercase tracking-widest font-bold">EST. 2022</p>

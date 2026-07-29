@@ -112,7 +112,7 @@ export const Roster: React.FC<RosterProps> = ({
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 pb-2">
         <div className="space-y-1.5 max-w-xl">
           <h2 className="text-2xl sm:text-3xl font-display font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-            <Shield className="text-amber-500 fill-amber-500/10 shrink-0" size={28} /> Meet the Squad
+            <Shield className="text-toasty-red fill-toasty-red/10 shrink-0" size={28} /> Meet the Squad
           </h2>
           <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">
             The heart and soul of Toasty FC. Currently rostered players for the active campaign.
@@ -123,7 +123,7 @@ export const Roster: React.FC<RosterProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full lg:w-auto lg:flex lg:items-center">
           {seasons && activeSeason && onSeasonChange && (
             <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm w-full lg:w-auto">
-              <CalendarDays size={14} className="text-amber-500 shrink-0" />
+              <CalendarDays size={14} className="text-toasty-red shrink-0" />
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Campaign:</span>
               <select
                 value={activeSeason}
@@ -142,7 +142,7 @@ export const Roster: React.FC<RosterProps> = ({
 
           {/* Sort Selector */}
           <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 shadow-sm w-full lg:w-auto">
-            <ArrowUpDown size={14} className="text-amber-500 shrink-0" />
+            <ArrowUpDown size={14} className="text-toasty-red shrink-0" />
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider shrink-0">Sort:</span>
             <select
               value={sortBy}
@@ -163,9 +163,9 @@ export const Roster: React.FC<RosterProps> = ({
           <button
             key={pos}
             onClick={() => setFilter(pos)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition ${
+            className={`px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition cursor-pointer ${
               filter === pos 
-                ? 'bg-amber-500 text-white shadow' 
+                ? 'bg-toasty-red text-white shadow' 
                 : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
             }`}
             id={`filter-pos-${pos.toLowerCase()}`}
@@ -185,13 +185,13 @@ export const Roster: React.FC<RosterProps> = ({
             id={`player-card-${player.id}`}
           >
             {/* Jersey Number Floating Badge */}
-            <div className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-950/80 backdrop-blur text-amber-400 border border-amber-400/30 font-mono font-bold text-base flex items-center justify-center">
+            <div className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-slate-950/80 backdrop-blur text-toasty-tan border border-toasty-tan/30 font-mono font-bold text-base flex items-center justify-center">
               {player.number !== undefined && player.number !== null && player.number > 0 ? `#${player.number}` : '—'}
             </div>
 
             {/* Captain Badge */}
             {player.isCaptain && (
-              <div className="absolute top-4 left-4 z-10 flex items-center gap-1 bg-amber-500 text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm">
+              <div className="absolute top-4 left-4 z-10 flex items-center gap-1 bg-toasty-red text-white text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full shadow-sm border border-red-500/30">
                 <Award size={12} /> Captain
               </div>
             )}
@@ -203,7 +203,7 @@ export const Roster: React.FC<RosterProps> = ({
                   <div className="relative flex items-center justify-center w-24 h-24 rounded-full bg-slate-800/80 border border-slate-700/50 shadow-inner group-hover:scale-105 transition-transform duration-500">
                     <User className="w-12 h-12 text-slate-400" />
                     {player.number !== undefined && player.number !== null && player.number > 0 && (
-                      <span className="absolute bottom-1 right-1 bg-amber-500 text-slate-950 font-mono text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-slate-900">
+                      <span className="absolute bottom-1 right-1 bg-toasty-red text-white font-mono text-[10px] font-black w-6 h-6 rounded-full flex items-center justify-center border-2 border-slate-900">
                         {player.number}
                       </span>
                     )}
@@ -230,7 +230,7 @@ export const Roster: React.FC<RosterProps> = ({
               {/* Bottom detail row overlay */}
               <div className="absolute bottom-4 left-4 right-4 text-white flex justify-between items-end z-20">
                 <div>
-                  <span className="text-xs font-semibold tracking-widest text-amber-400 uppercase font-mono">{player.position}</span>
+                  <span className="text-xs font-semibold tracking-widest text-toasty-tan uppercase font-mono">{player.position}</span>
                   <h4 className="font-bold text-lg leading-tight mt-0.5">{player.name}</h4>
                 </div>
               </div>
@@ -244,11 +244,11 @@ export const Roster: React.FC<RosterProps> = ({
               </div>
               <div>
                 <span className="block text-[10px] text-slate-400 uppercase tracking-wider">Goals</span>
-                <strong className="text-emerald-600 text-sm">{player.goals}</strong>
+                <strong className="text-toasty-red text-sm">{player.goals}</strong>
               </div>
               <div>
                 <span className="block text-[10px] text-slate-400 uppercase tracking-wider">Assists</span>
-                <strong className="text-amber-600 text-sm">{player.assists}</strong>
+                <strong className="text-toasty-tan-dark text-sm">{player.assists}</strong>
               </div>
             </div>
           </div>
@@ -305,7 +305,7 @@ export const Roster: React.FC<RosterProps> = ({
               <div className="w-full md:w-[340px] shrink-0 bg-slate-950 text-white relative flex flex-col justify-between p-6 overflow-hidden border-b md:border-b-0 md:border-r border-slate-900">
                 
                 {/* Background ambient glow/patterns */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/10 via-slate-950/40 to-slate-950 pointer-events-none z-0" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-toasty-red/15 via-slate-950/60 to-slate-950 pointer-events-none z-0" />
                 
                 <div className="relative z-10 flex flex-col h-full justify-between gap-5">
                   
@@ -317,7 +317,7 @@ export const Roster: React.FC<RosterProps> = ({
                         <div className="relative flex items-center justify-center w-28 h-28 rounded-full bg-slate-800/80 border border-slate-700/50 shadow-inner">
                           <User className="w-16 h-16 text-slate-400" />
                           {activeSelectedPlayer.number !== undefined && activeSelectedPlayer.number !== null && activeSelectedPlayer.number > 0 && (
-                            <span className="absolute bottom-1 right-1 bg-amber-500 text-slate-950 font-mono text-xs font-black w-7 h-7 rounded-full flex items-center justify-center border-2 border-slate-900">
+                            <span className="absolute bottom-1 right-1 bg-toasty-red text-white font-mono text-xs font-black w-7 h-7 rounded-full flex items-center justify-center border-2 border-slate-900">
                               {activeSelectedPlayer.number}
                             </span>
                           )}
@@ -339,17 +339,17 @@ export const Roster: React.FC<RosterProps> = ({
                         }}
                       />
                     )}
-                    {/* Sophisticated dual gradients to ensure readability and protect photo visibility */}
+                    {/* Dual gradients */}
                     <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent z-10" />
                     <div className="absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-slate-950/60 to-transparent z-10" />
 
                     {/* Jersey Number Ribbon (Top-Right of Image) */}
                     <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5 z-20">
-                      <span className="bg-amber-500 text-slate-950 font-mono text-xs font-black uppercase tracking-wider px-3 py-1 rounded-lg shadow-lg select-none">
+                      <span className="bg-toasty-red text-white border border-red-500/30 font-mono text-xs font-black uppercase tracking-wider px-3 py-1 rounded-lg shadow-lg select-none">
                         {activeSelectedPlayer.number !== undefined && activeSelectedPlayer.number !== null && activeSelectedPlayer.number > 0 ? `#${activeSelectedPlayer.number}` : '—'}
                       </span>
                       {activeSelectedPlayer.isCaptain && (
-                        <span className="bg-amber-400 text-slate-950 font-mono text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded flex items-center gap-1 shadow-md select-none">
+                        <span className="bg-toasty-red text-white font-mono text-[9px] font-black uppercase tracking-widest px-2.5 py-0.5 rounded flex items-center gap-1 shadow-md select-none border border-red-500/30">
                           <Award size={10} className="stroke-[3]" /> CAPTAIN
                         </span>
                       )}
@@ -363,26 +363,26 @@ export const Roster: React.FC<RosterProps> = ({
                         <h3 className="text-xl font-black text-white tracking-tight leading-tight uppercase font-sans">
                           {activeSelectedPlayer.name}
                         </h3>
-                        <span className="text-[10px] text-amber-400 font-mono uppercase tracking-widest font-bold block mt-0.5">
+                        <span className="text-[10px] text-toasty-tan font-mono uppercase tracking-widest font-bold block mt-0.5">
                           {activeSelectedPlayer.position}
                         </span>
                       </div>
                       {activeSelectedPlayer.skills ? (
-                        <div className="flex flex-col items-center justify-center bg-gradient-to-b from-amber-400 to-yellow-600 shadow-lg px-3 py-1.5 rounded-xl text-slate-950 min-w-[50px] text-center border border-amber-300/50 select-none">
+                        <div className="flex flex-col items-center justify-center bg-toasty-red text-white shadow-lg px-3 py-1.5 rounded-xl min-w-[50px] text-center border border-red-500/30 select-none">
                           <span className="text-lg font-black tracking-tighter leading-none">
                             {getOverallRating(activeSelectedPlayer)}
                           </span>
-                          <span className="text-[8px] font-black uppercase tracking-widest mt-0.5 text-slate-950/80">OVR</span>
+                          <span className="text-[8px] font-black uppercase tracking-widest mt-0.5 opacity-90">OVR</span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1.5 bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-slate-800 text-amber-400 shadow-md">
-                          <Star size={11} className="fill-current text-amber-400" />
+                        <div className="flex items-center gap-1.5 bg-slate-950/80 px-2.5 py-1.5 rounded-xl border border-slate-800 text-toasty-tan shadow-md">
+                          <Star size={11} className="fill-current text-toasty-tan" />
                           <span className="text-[8px] font-black uppercase tracking-wider text-slate-200">ACTIVE</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Core Stats Bar (Glassmorphism overlay) */}
+                    {/* Core Stats Bar */}
                     <div className="bg-white/[0.04] border border-white/5 rounded-2xl p-3 grid grid-cols-3 gap-2 text-center">
                       <div>
                         <span className="block text-[9px] text-slate-400 font-mono uppercase tracking-wider">Matches</span>
@@ -390,11 +390,11 @@ export const Roster: React.FC<RosterProps> = ({
                       </div>
                       <div>
                         <span className="block text-[9px] text-slate-400 font-mono uppercase tracking-wider">Goals</span>
-                        <strong className="text-base font-black text-emerald-400">{goals}</strong>
+                        <strong className="text-base font-black text-toasty-red">{goals}</strong>
                       </div>
                       <div>
                         <span className="block text-[9px] text-slate-400 font-mono uppercase tracking-wider">Assists</span>
-                        <strong className="text-base font-black text-amber-400">{assists}</strong>
+                        <strong className="text-base font-black text-toasty-tan">{assists}</strong>
                       </div>
                     </div>
                   </div>
@@ -411,7 +411,7 @@ export const Roster: React.FC<RosterProps> = ({
                   {/* Dossier Header and Bio */}
                   <div className="space-y-3">
                     <div className="space-y-1">
-                      <h4 className="text-lg font-black text-slate-900 tracking-tight leading-none uppercase font-mono text-amber-500">
+                      <h4 className="text-lg font-black text-slate-900 tracking-tight leading-none uppercase font-mono text-toasty-red">
                         Bio
                       </h4>
                     </div>
@@ -459,7 +459,7 @@ export const Roster: React.FC<RosterProps> = ({
                   {activeSelectedPlayer.skills && (
                     <div className="bg-white border border-slate-100 rounded-2xl p-4.5 shadow-sm space-y-3">
                       <span className="text-[9px] text-slate-400 font-mono uppercase tracking-wider font-bold block flex items-center gap-1.5">
-                        <Activity size={12} className="text-amber-500" /> Tactical Skill Metrics
+                        <Activity size={12} className="text-toasty-red" /> Tactical Skill Metrics
                       </span>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 border-t border-slate-50 pt-3">
                         {(Object.entries(activeSelectedPlayer.skills) as [string, number][]).map(([key, value]) => {
@@ -468,7 +468,7 @@ export const Roster: React.FC<RosterProps> = ({
                             <div key={key} className="space-y-1">
                               <div className="flex justify-between text-xs font-medium text-slate-700">
                                 <span className="flex items-center gap-1.5">
-                                  <span className="text-amber-600 font-bold text-[9px] font-mono bg-amber-50 px-1.5 py-0.5 rounded shrink-0">{label.short}</span>
+                                  <span className="text-toasty-red font-bold text-[9px] font-mono bg-toasty-red/10 px-1.5 py-0.5 rounded shrink-0">{label.short}</span>
                                   <span className="text-slate-600">{label.full}</span>
                                 </span>
                                 <strong className="font-mono text-slate-900">{value}</strong>
@@ -477,11 +477,11 @@ export const Roster: React.FC<RosterProps> = ({
                                 <div
                                   className={`h-full rounded-full transition-all duration-500 ${
                                     value >= 90 
-                                      ? 'bg-amber-500' 
+                                      ? 'bg-toasty-red' 
                                       : value >= 80 
-                                      ? 'bg-emerald-500' 
+                                      ? 'bg-toasty-tan' 
                                       : value >= 70 
-                                      ? 'bg-indigo-500' 
+                                      ? 'bg-stone-600' 
                                       : 'bg-slate-400'
                                   }`}
                                   style={{ width: `${value}%` }}
@@ -498,10 +498,10 @@ export const Roster: React.FC<RosterProps> = ({
                   <div className="bg-white border border-slate-100 rounded-2xl p-4.5 shadow-sm space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
                       <span className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2 font-mono">
-                        <Activity size={15} className="text-amber-500 animate-pulse" />
+                        <Activity size={15} className="text-toasty-red animate-pulse" />
                         {activeSeason === 'All Seasons' ? 'All-Time Stats Summary' : `${activeSeason} Stats Summary`}
                       </span>
-                      <span className="bg-amber-50 text-amber-800 text-[10px] font-mono px-2.5 py-1 rounded-full font-bold border border-amber-100/50">
+                      <span className="bg-toasty-tan/20 text-toasty-tan-dark text-[10px] font-mono px-2.5 py-1 rounded-full font-bold border border-toasty-tan/30">
                         {matchesPlayed} Matches
                       </span>
                     </div>
@@ -513,13 +513,13 @@ export const Roster: React.FC<RosterProps> = ({
                         <div className="space-y-2.5 text-xs">
                           <div className="flex justify-between items-center">
                             <span className="text-slate-600">Goals Scored</span>
-                            <span className="font-mono font-extrabold text-emerald-600 text-sm">
+                            <span className="font-mono font-extrabold text-toasty-red text-sm">
                               {goals} <span className="text-[10px] text-slate-400 font-normal">({goalsPerMatch}/g)</span>
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-slate-600">Assists Delivered</span>
-                            <span className="font-mono font-extrabold text-amber-500 text-sm">
+                            <span className="font-mono font-extrabold text-toasty-tan-dark text-sm">
                               {assists} <span className="text-[10px] text-slate-400 font-normal">({assistsPerMatch}/g)</span>
                             </span>
                           </div>
@@ -536,7 +536,7 @@ export const Roster: React.FC<RosterProps> = ({
                                 <span>{shotAccuracy}% ({shotsOnTarget}/{shots} SOT)</span>
                               </div>
                               <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-                                <div className="bg-amber-500 h-full rounded-full transition-all duration-300" style={{ width: `${shotAccuracy}%` }} />
+                                <div className="bg-toasty-red h-full rounded-full transition-all duration-300" style={{ width: `${shotAccuracy}%` }} />
                               </div>
                             </div>
                           )}
@@ -549,13 +549,13 @@ export const Roster: React.FC<RosterProps> = ({
                         <div className="space-y-2.5 text-xs">
                           <div className="flex justify-between items-center">
                             <span className="text-slate-600">Plus / Minus (+/-)</span>
-                            <span className={`font-mono font-extrabold text-sm ${plusMinus > 0 ? 'text-emerald-600' : plusMinus < 0 ? 'text-rose-500' : 'text-slate-400'}`}>
+                            <span className={`font-mono font-extrabold text-sm ${plusMinus > 0 ? 'text-toasty-red' : plusMinus < 0 ? 'text-stone-500' : 'text-slate-400'}`}>
                               {plusMinus > 0 ? `+${plusMinus}` : plusMinus}
                             </span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-slate-600">Blocks Logged</span>
-                            <span className="font-mono font-extrabold text-indigo-600 text-sm">{blocks}</span>
+                            <span className="font-mono font-extrabold text-stone-700 text-sm">{blocks}</span>
                           </div>
                           <div className="flex justify-between items-center">
                             <span className="text-slate-600">Fouls Committed</span>
@@ -581,24 +581,24 @@ export const Roster: React.FC<RosterProps> = ({
                     </div>
 
                     {/* Role Specific Additional Metrics (Goalkeeper or Honors) */}
-                    <div className="bg-amber-50/45 border border-amber-100/40 p-4 rounded-xl text-xs mt-1">
+                    <div className="bg-toasty-tan/10 border border-toasty-tan/20 p-4 rounded-xl text-xs mt-1">
                       {activeSelectedPlayer.position === 'Goalkeeper' ? (
                         <div className="space-y-2">
-                          <h5 className="text-[10px] font-bold text-amber-800 uppercase tracking-wider font-mono">Goalkeeping Performance Metrics</h5>
+                          <h5 className="text-[10px] font-bold text-toasty-tan-dark uppercase tracking-wider font-mono">Goalkeeping Performance Metrics</h5>
                           <div className="grid grid-cols-3 gap-3 text-center pt-1">
-                            <div className="bg-white p-2.5 rounded-lg border border-amber-100/50 shadow-sm">
+                            <div className="bg-white p-2.5 rounded-lg border border-toasty-tan/30 shadow-sm">
                               <span className="block text-[9px] text-slate-400 font-mono uppercase tracking-wide">Clean Sheets</span>
                               <strong className="text-slate-800 font-mono font-black text-sm">{cleanSheets}</strong>
                             </div>
-                            <div className="bg-white p-2.5 rounded-lg border border-amber-100/50 shadow-sm">
+                            <div className="bg-white p-2.5 rounded-lg border border-toasty-tan/30 shadow-sm">
                               <span className="block text-[9px] text-slate-400 font-mono uppercase tracking-wide">Saves Logged</span>
-                              <strong className="text-emerald-600 font-mono font-black text-sm">
+                              <strong className="text-toasty-red font-mono font-black text-sm">
                                 {saves} <span className="text-[8px] text-slate-400 font-normal">({savesPerMatch}/g)</span>
                               </strong>
                             </div>
-                            <div className="bg-white p-2.5 rounded-lg border border-amber-100/50 shadow-sm">
+                            <div className="bg-white p-2.5 rounded-lg border border-toasty-tan/30 shadow-sm">
                               <span className="block text-[9px] text-slate-400 font-mono uppercase tracking-wide">Goals Allowed</span>
-                              <strong className="text-rose-600 font-mono font-black text-sm">
+                              <strong className="text-stone-600 font-mono font-black text-sm">
                                 {goalsAllowed} <span className="text-[8px] text-slate-400 font-normal">({goalsAllowedPerMatch}/g)</span>
                               </strong>
                             </div>
@@ -607,22 +607,22 @@ export const Roster: React.FC<RosterProps> = ({
                       ) : (
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                           <div className="space-y-0.5">
-                            <h5 className="text-[10px] font-bold text-amber-850 uppercase tracking-wider font-mono">Accolades & Distinctions</h5>
+                            <h5 className="text-[10px] font-bold text-toasty-red uppercase tracking-wider font-mono">Accolades & Distinctions</h5>
                             <p className="text-[11px] text-slate-500 leading-tight">Key individual highlights logged during active campaigns.</p>
                           </div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <div className="bg-amber-100/70 border border-amber-200/60 text-amber-850 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
-                              <Star size={14} className="text-amber-500 fill-amber-500 shrink-0" />
+                            <div className="bg-toasty-tan/20 border border-toasty-tan/40 text-slate-900 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
+                              <Star size={14} className="text-toasty-red fill-toasty-red shrink-0" />
                               <div className="text-left font-mono">
-                                <div className="text-[8px] text-amber-700 uppercase tracking-widest font-black leading-none">POTM Trophies</div>
+                                <div className="text-[8px] text-toasty-red uppercase tracking-widest font-black leading-none">POTM Trophies</div>
                                 <div className="text-xs font-black mt-0.5">{potm} Awards</div>
                               </div>
                             </div>
                             {cleanSheets > 0 && (
-                              <div className="bg-emerald-100/70 border border-emerald-200/60 text-emerald-800 px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
-                                <Shield size={14} className="text-emerald-600 shrink-0" />
+                              <div className="bg-toasty-red/10 border border-toasty-red/20 text-toasty-red px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-bold">
+                                <Shield size={14} className="text-toasty-red shrink-0" />
                                 <div className="text-left font-mono">
-                                  <div className="text-[8px] text-emerald-700 uppercase tracking-widest font-black leading-none">Clean Sheets</div>
+                                  <div className="text-[8px] text-toasty-red uppercase tracking-widest font-black leading-none">Clean Sheets</div>
                                   <div className="text-xs font-black mt-0.5">{cleanSheets} Match</div>
                                 </div>
                               </div>

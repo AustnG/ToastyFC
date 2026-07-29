@@ -1,6 +1,6 @@
 {
   "name": "Toasty FC",
-  "description": "A dynamic website and Google Sheets powered CMS for the Toasty FC soccer team to manage matches, players, stats, news, and galleries.",
+  "description": "Official website for Toasty FC — Bowling Green's premier futsal & soccer club. Live match results, squad statistics, kit evolutions, and club news. Stay Toasty!",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

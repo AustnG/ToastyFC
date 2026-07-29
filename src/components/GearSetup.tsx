@@ -78,15 +78,15 @@ export const GearSetup: React.FC = () => {
     <div className="space-y-10 animate-fade-in" id="gear-setup-view-root">
       {/* Header Banner */}
       <div className="bg-slate-950 text-white rounded-3xl p-8 md:p-12 border border-slate-900 relative overflow-hidden shadow-xl">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 blur-3xl rounded-full" />
-        <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-emerald-500/5 blur-2xl rounded-full" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-toasty-red/15 blur-3xl rounded-full" />
+        <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-toasty-tan/10 blur-2xl rounded-full" />
         
         <div className="relative z-10 space-y-4 max-w-3xl">
-          <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full font-mono">
+          <span className="bg-toasty-red/20 text-red-300 border border-toasty-red/40 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full font-mono">
             Tech & Filming
           </span>
           <h2 className="text-3xl md:text-5xl font-display font-black tracking-tight leading-tight">
-            GEAR & <span className="text-amber-400">SETUP</span>
+            GEAR & <span className="text-toasty-tan">SETUP</span>
           </h2>
           <p className="text-sm md:text-base text-slate-400 leading-relaxed">
             Filming recreational futsal at broadcast quality is an athletic feat. Explore the multi-angle camera networks, raw banter microphones, and player GPS vests we use to track club logs.
@@ -97,8 +97,8 @@ export const GearSetup: React.FC = () => {
       {/* Production Philosophy */}
       <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8 items-center">
         <div className="space-y-4">
-          <span className="text-[10px] font-mono font-bold text-amber-600 uppercase tracking-widest flex items-center gap-1.5">
-            <Radio size={14} className="animate-pulse text-amber-500" /> Broadcast Philosophy
+          <span className="text-[10px] font-mono font-bold text-toasty-red uppercase tracking-widest flex items-center gap-1.5">
+            <Radio size={14} className="animate-pulse text-toasty-red" /> Broadcast Philosophy
           </span>
           <h3 className="text-2xl font-black text-slate-900 leading-tight">How We Capture The Action</h3>
           <p className="text-sm text-slate-600 leading-relaxed">
@@ -113,9 +113,9 @@ export const GearSetup: React.FC = () => {
 
         {/* Telemetry Highlight box */}
         <div className="bg-slate-950 text-white p-6 rounded-2xl border border-slate-900 space-y-4 shadow-inner relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 blur-2xl rounded-full" />
-          <h4 className="font-bold text-xs text-amber-400 uppercase tracking-wider font-mono flex items-center gap-2">
-            <Settings size={14} className="text-amber-400 animate-spin-slow" /> Telemetry Workflow
+          <div className="absolute top-0 right-0 w-24 h-24 bg-toasty-red/10 blur-2xl rounded-full" />
+          <h4 className="font-bold text-xs text-toasty-tan uppercase tracking-wider font-mono flex items-center gap-2">
+            <Settings size={14} className="text-toasty-tan animate-spin-slow" /> Telemetry Workflow
           </h4>
           <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
             Following each fixture, player GPS tracker logs are matched against our game timeline data, converting raw distances and speeds into dynamic visual cards, overlays, and color charts.
@@ -134,7 +134,7 @@ export const GearSetup: React.FC = () => {
           return (
             <div 
               key={idx} 
-              className="bg-white border border-slate-200 hover:border-amber-400 hover:shadow-lg rounded-2xl p-5 flex flex-col justify-between gap-5 transition-all duration-300"
+              className="bg-white border border-slate-200 hover:border-toasty-tan hover:shadow-lg rounded-2xl p-5 flex flex-col justify-between gap-5 transition-all duration-300"
               id={`gear-item-${idx}`}
             >
               <div className="space-y-3">
@@ -150,7 +150,7 @@ export const GearSetup: React.FC = () => {
 
                 {/* Name and Icon */}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0 shadow-sm">
+                  <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-toasty-red shrink-0 shadow-sm">
                     <Icon size={18} />
                   </div>
                   <h4 className="font-extrabold text-sm sm:text-base text-slate-900 tracking-tight leading-tight">
@@ -170,7 +170,7 @@ export const GearSetup: React.FC = () => {
                 <ul className="text-[10px] text-slate-600 font-mono space-y-1">
                   {item.specs.map((spec, sIdx) => (
                     <li key={sIdx} className="flex items-start gap-1">
-                      <span className="text-amber-500 font-bold shrink-0">&bull;</span>
+                      <span className="text-toasty-red font-bold shrink-0">&bull;</span>
                       <span className="leading-tight">{spec}</span>
                     </li>
                   ))}
@@ -183,7 +183,7 @@ export const GearSetup: React.FC = () => {
 
       {/* Watch callout banner */}
       <div className="bg-slate-950 text-white rounded-3xl p-6 border border-slate-900 flex flex-col sm:flex-row justify-between items-center gap-4 relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-32 h-32 bg-indigo-500/5 blur-2xl rounded-full" />
+        <div className="absolute top-0 left-0 w-32 h-32 bg-toasty-red/10 blur-2xl rounded-full" />
         <div className="flex items-center gap-4 text-center sm:text-left">
           <span className="text-3xl">📽️</span>
           <div>
@@ -195,7 +195,7 @@ export const GearSetup: React.FC = () => {
           href="https://youtube.com/@toastyfc"
           target="_blank"
           rel="noopener noreferrer"
-          className="bg-amber-500 text-slate-950 font-black text-xs uppercase px-5 py-3 rounded-xl hover:bg-amber-400 transition shadow-md whitespace-nowrap shrink-0 cursor-pointer"
+          className="bg-toasty-red text-white border border-red-500/30 font-black text-xs uppercase px-5 py-3 rounded-xl hover:bg-toasty-red-hover transition shadow-md whitespace-nowrap shrink-0 cursor-pointer"
         >
           Watch Now
         </a>

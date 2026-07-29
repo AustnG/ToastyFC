@@ -186,37 +186,48 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
     }
   };
 
-  // Helper to extract YouTube video ID with support for standard, shorts, embed, and raw ID formats
+  // Helper to extract YouTube video ID with support for standard, shorts, embed, live, and raw ID formats
   const getYouTubeId = (url?: string) => {
     if (!url) return null;
     const cleaned = url.trim();
     if (cleaned.length === 11 && /^[a-zA-Z0-9_-]{11}$/.test(cleaned)) {
       return cleaned;
     }
-    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=|shorts\/|live\/)|youtu\.be\/)([^"&?\/\s]{11})/;
     const match = cleaned.match(regExp);
     return match ? match[1] : null;
   };
 
-  // Turn database matches with youtubeUrl into dynamic highlight videos (get the last three matches)
+  // Helper to extract non-empty YouTube URL checking column header aliases (e.g. youtubeUrl, YouTubeurl, YouTubeUrl, etc.)
+  const getMatchYouTubeUrl = (m: Match): string | undefined => {
+    const val = m.youtubeUrl || (m as any).YouTubeurl || (m as any).YouTubeUrl || (m as any).youtube_url || (m as any)['YouTube URL'] || (m as any)['YouTube'] || (m as any)['youtube'];
+    if (!val) return undefined;
+    const str = String(val).trim();
+    if (str === '' || str.toLowerCase() === 'null' || str.toLowerCase() === 'undefined' || str.toLowerCase() === 'none') {
+      return undefined;
+    }
+    return str;
+  };
+
+  // Turn database matches with YouTube links into dynamic highlight videos (pulling the latest available records with a link)
   const matchesWithYoutube = [...matches]
-    .filter(m => {
-      if (!m.youtubeUrl) return false;
-      const url = String(m.youtubeUrl).trim();
-      return url !== '' && url.toLowerCase() !== 'null' && url.toLowerCase() !== 'undefined' && url.toLowerCase() !== 'none';
-    })
+    .filter(m => !!getMatchYouTubeUrl(m))
+    .map(m => ({
+      ...m,
+      youtubeUrl: getMatchYouTubeUrl(m)
+    }))
     .sort((a, b) => {
       const dateA = new Date(a.date).getTime();
       const dateB = new Date(b.date).getTime();
       if (!isNaN(dateA) && !isNaN(dateB)) {
         return dateB - dateA;
       }
-      return b.date.localeCompare(a.date);
+      return (b.date || '').localeCompare(a.date || '');
     })
     .slice(0, 3);
 
   // Find next upcoming match
-  const upcomingMatch = matches.find(m => m.status === 'Upcoming') || matches[0];
+  const upcomingMatch = matches.find(m => m.status === 'Upcoming');
   const completedMatches = matches
     .filter(m => m.status === 'Completed')
     .sort((a, b) => {
@@ -282,11 +293,11 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                     referrerPolicy="no-referrer"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-                  <span className="absolute top-3 left-3 bg-amber-500 text-slate-950 text-[9px] px-2.5 py-1 rounded-md font-mono font-black uppercase tracking-wider shadow-sm">
+                  <span className="absolute top-3 left-3 bg-toasty-red text-white text-[9px] px-2.5 py-1 rounded-md font-mono font-black uppercase tracking-wider shadow-sm border border-red-500/20">
                     LATEST BULLETIN
                   </span>
                   <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10px] font-mono">
-                    <span className="text-amber-300 font-bold">
+                    <span className="text-toasty-tan font-bold">
                       ✍️ {latestNews[0].author}
                     </span>
                     <span className="text-slate-300 font-semibold">
@@ -298,7 +309,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                 <div className="space-y-2">
                   <h3 
                     onClick={() => setSelectedFullStory(latestNews[0])}
-                    className="font-display font-black text-slate-900 text-xl sm:text-2xl lg:text-3xl leading-tight tracking-tight hover:text-amber-500 transition duration-150 cursor-pointer"
+                    className="font-display font-black text-slate-900 text-xl sm:text-2xl lg:text-3xl leading-tight tracking-tight hover:text-toasty-red transition duration-150 cursor-pointer"
                   >
                     {latestNews[0].title}
                   </h3>
@@ -311,7 +322,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
               <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                 <button 
                   onClick={() => setSelectedFullStory(latestNews[0])}
-                  className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5 shadow-sm uppercase tracking-wider cursor-pointer"
+                  className="bg-toasty-red hover:bg-toasty-red-hover text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-red-950/30 uppercase tracking-wider cursor-pointer border border-red-500/30"
                 >
                   <BookOpen size={13} /> Read Story
                 </button>
@@ -350,10 +361,10 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                             referrerPolicy="no-referrer"
                           />
                           <div className="space-y-1 min-w-0 flex-1">
-                            <span className="block text-[9px] font-mono font-bold text-amber-600 uppercase tracking-wider">
+                            <span className="block text-[9px] font-mono font-bold text-toasty-tan uppercase tracking-wider">
                               {item.date}
                             </span>
-                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 group-hover/item:text-amber-500 transition duration-150 leading-snug tracking-tight line-clamp-1">
+                            <h4 className="font-extrabold text-xs sm:text-sm text-slate-900 group-hover/item:text-toasty-red transition duration-150 leading-snug tracking-tight line-clamp-1">
                               {item.title}
                             </h4>
                             <p className="text-[11px] text-slate-500 line-clamp-1 leading-relaxed">
@@ -389,111 +400,137 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
         {/* Card 1: Next Upcoming Clash */}
         <div className="bg-slate-950 text-white rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden shadow-2xl border border-slate-900 min-h-[430px]">
           {/* subtle background glow */}
-          <div className="absolute top-0 right-0 w-44 h-44 bg-amber-500/10 blur-3xl rounded-full" />
+          <div className="absolute top-0 right-0 w-44 h-44 bg-toasty-red/10 blur-3xl rounded-full" />
 
           <div className="relative z-10 flex flex-col h-full justify-between space-y-4">
             {/* Header */}
             <div className="flex justify-between items-center pb-3 border-b border-slate-900">
-              <h3 className="text-xs font-display font-bold tracking-widest text-amber-500 uppercase flex items-center gap-1.5">
-                <Calendar size={14} className="text-amber-500" /> Next Game
+              <h3 className="text-xs font-display font-bold tracking-widest text-toasty-tan uppercase flex items-center gap-1.5">
+                <Calendar size={14} className="text-toasty-tan" /> Next Game
               </h3>
-              <span className="bg-amber-500/15 text-amber-400 text-[9px] font-extrabold font-mono px-2.5 py-0.5 rounded border border-amber-500/30 uppercase tracking-wider">
+              <span className="bg-toasty-red/20 text-red-300 text-[9px] font-extrabold font-mono px-2.5 py-0.5 rounded border border-toasty-red/40 uppercase tracking-wider">
                 {upcomingMatch?.type || 'Fixture'}
               </span>
             </div>
 
-            {/* Premium Matchday Clash Section */}
-            <div className="flex-1 flex flex-col justify-center space-y-6">
-              
-              {/* Massive Opponent Headline */}
-              <div className="text-center space-y-2">
-                <span className="text-[10px] text-slate-500 font-mono font-bold tracking-widest uppercase">UPCOMING MATCHUP</span>
-                <h2 className="text-3xl font-black text-white tracking-tight leading-none uppercase">
-                  vs {upcomingMatch?.opponent || 'Next Opponent'}
-                </h2>
-              </div>
-
-              {/* Big visual versus row */}
-              <div className="bg-slate-900/45 border border-slate-900 rounded-2xl p-4.5 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 to-transparent pointer-events-none" />
-                <div className="flex items-center justify-between gap-4">
-                  {/* Home Team */}
-                  <div className="flex-1 text-center min-w-0">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center mx-auto shadow-md">
-                      <Trophy size={20} className="text-amber-500" />
-                    </div>
-                    <p className="font-black text-xs text-white uppercase tracking-tight mt-2 truncate">Toasty FC</p>
-                    <span className="text-[9px] text-amber-400 font-mono font-bold uppercase tracking-wider block mt-0.5">Home</span>
-                  </div>
-
-                  {/* VS Badge */}
-                  <div className="shrink-0">
-                    <div className="w-9 h-9 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[11px] font-black text-amber-400 font-mono shadow-lg">
-                      VS
-                    </div>
-                  </div>
-
-                  {/* Away Team */}
-                  <div className="flex-1 text-center min-w-0">
-                    <div 
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-md"
-                      style={{ 
-                        backgroundColor: upcomingMatch?.opponentColor ? `${upcomingMatch.opponentColor}20` : '#1E293B',
-                        borderColor: upcomingMatch?.opponentColor ? upcomingMatch.opponentColor : '#475569',
-                        borderWidth: '1px'
-                      }}
-                    >
-                      <Shield size={20} style={{ color: upcomingMatch?.opponentColor || '#94A3B8' }} />
-                    </div>
-                    <p className="font-black text-xs text-white uppercase tracking-tight mt-2 truncate">
-                      {upcomingMatch?.opponent || 'Opponent'}
-                    </p>
-                    <span className="text-[9px] text-slate-400 font-mono font-bold uppercase tracking-wider block mt-0.5">Away</span>
-                  </div>
+            {upcomingMatch ? (
+              /* Premium Matchday Clash Section */
+              <div className="flex-1 flex flex-col justify-center space-y-6">
+                
+                {/* Massive Opponent Headline */}
+                <div className="text-center space-y-2">
+                  <span className="text-[10px] text-slate-500 font-mono font-bold tracking-widest uppercase">UPCOMING MATCHUP</span>
+                  <h2 className="text-3xl font-black text-white tracking-tight leading-none uppercase">
+                    vs {upcomingMatch.opponent || 'Next Opponent'}
+                  </h2>
                 </div>
-              </div>
 
-              {/* Info Block: Ticket details (Schedule & Venue combined) */}
-              <div className="space-y-3">
-                <div className="bg-gradient-to-r from-slate-900 to-slate-900/40 border border-slate-800/80 p-3.5 rounded-2xl flex items-center gap-3.5">
-                  <div className="bg-amber-500 text-slate-950 text-xs font-black py-2 px-2.5 rounded-xl text-center font-mono leading-none shrink-0 min-w-[54px] shadow-md border border-amber-400 whitespace-pre-line">
-                    {upcomingMatch?.time ? formatTo12HourBadge(upcomingMatch.time) : '8:30\nPM'}
-                  </div>
-                  <div className="min-w-0 text-left">
-                    <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-400 block">
-                      SCHEDULED KICKOFF
-                    </span>
-                    <div className="text-sm font-black text-white tracking-tight mt-1">
-                      {(() => {
-                        if (!upcomingMatch?.date) return 'TBD';
-                        try {
-                          const d = new Date(upcomingMatch.date);
-                          if (!isNaN(d.getTime())) {
-                            return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
-                          }
-                        } catch (e) {}
-                        return upcomingMatch.date;
-                      })()}
+                {/* Big visual versus row */}
+                <div className="bg-slate-900/45 border border-slate-900 rounded-2xl p-4.5 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-b from-toasty-tan/5 to-transparent pointer-events-none" />
+                  <div className="flex items-center justify-between gap-4">
+                    {/* Home Team */}
+                    <div className="flex-1 text-center min-w-0">
+                      <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-toasty-tan/30 p-1 flex items-center justify-center mx-auto shadow-md">
+                        <img 
+                          src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png" 
+                          alt="Toasty FC" 
+                          className="w-full h-full object-contain"
+                          referrerPolicy="no-referrer"
+                        />
+                      </div>
+                      <p className="font-black text-xs text-white uppercase tracking-tight mt-2 truncate">Toasty FC</p>
+                      <span className="text-[9px] text-toasty-tan font-mono font-bold uppercase tracking-wider block mt-0.5">Home</span>
+                    </div>
+
+                    {/* VS Badge */}
+                    <div className="shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center text-[11px] font-black text-toasty-tan font-mono shadow-lg">
+                        VS
+                      </div>
+                    </div>
+
+                    {/* Away Team */}
+                    <div className="flex-1 text-center min-w-0">
+                      <div 
+                        className="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-md"
+                        style={{ 
+                          backgroundColor: upcomingMatch.opponentColor ? `${upcomingMatch.opponentColor}20` : '#1E293B',
+                          borderColor: upcomingMatch.opponentColor ? upcomingMatch.opponentColor : '#475569',
+                          borderWidth: '1px'
+                        }}
+                      >
+                        <Shield size={20} style={{ color: upcomingMatch.opponentColor || '#94A3B8' }} />
+                      </div>
+                      <p className="font-black text-xs text-white uppercase tracking-tight mt-2 truncate">
+                        {upcomingMatch.opponent || 'Opponent'}
+                      </p>
+                      <span className="text-[9px] text-slate-400 font-mono font-bold uppercase tracking-wider block mt-0.5">Away</span>
                     </div>
                   </div>
                 </div>
 
-                {upcomingMatch?.location && (
-                  <div className="bg-slate-900/50 border border-slate-900/30 px-3.5 py-2.5 rounded-xl flex items-center gap-2.5">
-                    <MapPin size={14} className="text-amber-500 shrink-0" />
-                    <div className="text-left min-w-0">
-                      <span className="text-[8px] font-mono font-bold uppercase tracking-wider text-slate-400 block leading-none">
-                        MATCH VENUE
+                {/* Info Block: Ticket details (Schedule & Venue combined) */}
+                <div className="space-y-3">
+                  <div className="bg-gradient-to-r from-slate-900 to-slate-900/40 border border-slate-800/80 p-3.5 rounded-2xl flex items-center gap-3.5">
+                    <div className="bg-toasty-red text-white text-xs font-black py-2 px-2.5 rounded-xl text-center font-mono leading-none shrink-0 min-w-[54px] shadow-md border border-red-500/30 whitespace-pre-line">
+                      {upcomingMatch.time ? formatTo12HourBadge(upcomingMatch.time) : '8:30\nPM'}
+                    </div>
+                    <div className="min-w-0 text-left">
+                      <span className="text-[9px] font-mono font-bold uppercase tracking-widest text-slate-400 block">
+                        SCHEDULED KICKOFF
                       </span>
-                      <span className="text-xs font-semibold text-slate-200 truncate block mt-1 leading-tight">
-                        {upcomingMatch.location}
-                      </span>
+                      <div className="text-sm font-black text-white tracking-tight mt-1">
+                        {(() => {
+                          if (!upcomingMatch.date) return 'TBD';
+                          try {
+                            const d = new Date(upcomingMatch.date);
+                            if (!isNaN(d.getTime())) {
+                              return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+                            }
+                          } catch (e) {}
+                          return upcomingMatch.date;
+                        })()}
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
 
-            </div>
+                  {upcomingMatch.location && (
+                    <div className="bg-slate-900/50 border border-slate-900/30 px-3.5 py-2.5 rounded-xl flex items-center gap-2.5">
+                      <MapPin size={14} className="text-toasty-tan shrink-0" />
+                      <div className="text-left min-w-0">
+                        <span className="text-[8px] font-mono font-bold uppercase tracking-wider text-slate-400 block leading-none">
+                          MATCH VENUE
+                        </span>
+                        <span className="text-xs font-semibold text-slate-200 truncate block mt-1 leading-tight">
+                          {upcomingMatch.location}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            ) : (
+              /* No Upcoming Match Empty State */
+              <div className="flex-1 flex flex-col justify-center items-center text-center px-4 py-8 space-y-4">
+                <div className="w-16 h-16 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-toasty-tan">
+                  <Calendar size={28} />
+                </div>
+                <div className="space-y-1.5">
+                  <h4 className="font-extrabold text-sm text-slate-200 font-mono tracking-wider uppercase">No Upcoming Match</h4>
+                  <p className="text-xs text-slate-400 leading-relaxed max-w-[210px] mx-auto">
+                    Toasty FC has completed all scheduled fixtures. Check back soon for the next campaign!
+                  </p>
+                </div>
+                <button
+                  onClick={() => onSelectTab('matches')}
+                  className="mt-2 text-[10px] font-black uppercase tracking-wider text-toasty-tan hover:text-white transition-colors bg-toasty-tan/10 hover:bg-toasty-tan/20 px-3.5 py-1.5 rounded-lg border border-toasty-tan/20 cursor-pointer"
+                >
+                  View Schedule & Results
+                </button>
+              </div>
+            )}
 
           </div>
         </div>
@@ -501,15 +538,15 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
         {/* Card 2: Current Season */}
         <div className="bg-slate-950 border border-slate-900 rounded-3xl p-6 text-white shadow-2xl flex flex-col justify-between relative overflow-hidden min-h-[430px]">
           {/* subtle background gradient glow */}
-          <div className="absolute top-0 left-0 w-44 h-44 bg-emerald-500/10 blur-3xl rounded-full" />
+          <div className="absolute top-0 left-0 w-44 h-44 bg-toasty-red/10 blur-3xl rounded-full" />
           
           <div className="relative z-10 flex flex-col h-full justify-between space-y-4">
             {/* Header */}
             <div className="flex justify-between items-center pb-3 border-b border-slate-900">
-              <h3 className="text-xs font-display font-bold tracking-widest text-amber-500 uppercase flex items-center gap-1.5">
-                <TrendingUp size={14} className="text-amber-500" /> Current Season
+              <h3 className="text-xs font-display font-bold tracking-widest text-toasty-tan uppercase flex items-center gap-1.5">
+                <TrendingUp size={14} className="text-toasty-tan" /> Current Season
               </h3>
-              <span className="bg-emerald-500/15 text-emerald-400 text-[9px] font-extrabold font-mono px-2.5 py-0.5 rounded border border-emerald-500/30 tracking-wider">
+              <span className="bg-toasty-tan/20 text-toasty-tan-light text-[9px] font-extrabold font-mono px-2.5 py-0.5 rounded border border-toasty-tan/40 tracking-wider">
                 {matches[0]?.season ? `${matches[0].season}` : 'ACTIVE'}
               </span>
             </div>
@@ -518,7 +555,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
             <div className="flex items-stretch gap-3">
               <div className="flex-1 bg-gradient-to-br from-slate-900 to-slate-900/50 border border-slate-800 p-4 rounded-2xl flex flex-col justify-center items-center text-center shadow-inner relative overflow-hidden">
                 <span className="text-[9px] font-mono uppercase tracking-widest text-slate-400 font-extrabold">Win Rate</span>
-                <div className="text-5xl font-black text-emerald-400 font-mono tracking-tighter mt-1 leading-none">
+                <div className="text-5xl font-black text-toasty-red font-mono tracking-tighter mt-1 leading-none">
                   {Math.round((wins / (completedMatches.length || 1)) * 100)}%
                 </div>
                 <span className="text-[9px] text-slate-500 font-mono uppercase mt-1.5 font-bold block">
@@ -528,15 +565,15 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
 
               <div className="grid grid-cols-2 gap-2 flex-1">
                 <div className="bg-slate-900/40 border border-slate-900/80 p-2.5 rounded-xl text-center flex flex-col justify-center">
-                  <span className="text-[9px] font-mono text-emerald-400 font-black block tracking-wider">WINS</span>
+                  <span className="text-[9px] font-mono text-toasty-red font-black block tracking-wider">WINS</span>
                   <span className="text-2xl font-black font-mono text-white block mt-1 leading-none">{wins}</span>
                 </div>
                 <div className="bg-slate-900/40 border border-slate-900/80 p-2.5 rounded-xl text-center flex flex-col justify-center">
-                  <span className="text-[9px] font-mono text-amber-400 font-black block tracking-wider">DRAWS</span>
+                  <span className="text-[9px] font-mono text-toasty-tan font-black block tracking-wider">DRAWS</span>
                   <span className="text-2xl font-black font-mono text-white block mt-1 leading-none">{draws}</span>
                 </div>
                 <div className="bg-slate-900/40 border border-slate-900/80 p-2.5 rounded-xl text-center flex flex-col justify-center">
-                  <span className="text-[9px] font-mono text-rose-500 font-black block tracking-wider">LOSSES</span>
+                  <span className="text-[9px] font-mono text-stone-400 font-black block tracking-wider">LOSSES</span>
                   <span className="text-2xl font-black font-mono text-white block mt-1 leading-none">{losses}</span>
                 </div>
                 <div className="bg-slate-900/40 border border-slate-900/80 p-2.5 rounded-xl text-center flex flex-col justify-center">
@@ -557,10 +594,10 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                     const isWin = weScored > theyScored;
                     const isLoss = weScored < theyScored;
                     const badgeColor = isWin 
-                      ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' 
+                      ? 'bg-toasty-red/20 text-red-300 border border-toasty-red/40' 
                       : isLoss 
-                        ? 'bg-rose-500/15 text-rose-400 border border-rose-500/20' 
-                        : 'bg-amber-500/15 text-amber-400 border border-amber-500/20';
+                        ? 'bg-stone-800 text-stone-300 border border-stone-700' 
+                        : 'bg-toasty-tan/20 text-toasty-tan-light border border-toasty-tan/30';
                     return (
                       <div key={m.id} className="flex items-center justify-between text-xs bg-slate-900/40 border border-slate-900/60 px-3 py-2 rounded-xl">
                         <div className="min-w-0 truncate pr-2">
@@ -584,11 +621,11 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
             </div>
 
             {/* Combined Goals Tracker & Form Guide */}
-            <div className="bg-gradient-to-r from-amber-500/10 via-amber-600/5 to-transparent border border-amber-500/15 rounded-xl p-3 flex items-center justify-between shadow-sm">
+            <div className="bg-gradient-to-r from-toasty-red/15 via-toasty-tan/10 to-transparent border border-toasty-tan/20 rounded-xl p-3 flex items-center justify-between shadow-sm">
               <div>
                 <span className="text-[8px] text-slate-400 font-mono uppercase tracking-wider block font-bold">Goals Scored</span>
                 <div className="flex items-baseline gap-1.5 mt-0.5">
-                  <span className="text-xl font-black text-amber-400 font-mono leading-none">{goalsScored}</span>
+                  <span className="text-xl font-black text-toasty-tan font-mono leading-none">{goalsScored}</span>
                   <span className="text-[9px] text-slate-400 font-mono font-bold">Avg {(goalsScored / (completedMatches.length || 1)).toFixed(1)}/G</span>
                 </div>
               </div>
@@ -603,10 +640,10 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                         key={f.id || i} 
                         className={`w-5 h-5 rounded flex items-center justify-center font-bold font-mono text-[9px] border ${
                           f.result === 'W' 
-                            ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400' 
+                            ? 'bg-toasty-red text-white border-red-500/30' 
                             : f.result === 'L' 
-                              ? 'bg-rose-500/15 border-rose-500/30 text-rose-400' 
-                              : 'bg-amber-500/15 border-amber-500/30 text-amber-400'
+                              ? 'bg-stone-800 border-stone-700 text-stone-300' 
+                              : 'bg-toasty-tan/20 border-toasty-tan/30 text-toasty-tan'
                         }`}
                         title={`vs ${f.opponent} (${f.score})`}
                       >
@@ -628,12 +665,12 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
               
               {/* Header */}
               <div className="flex justify-between items-center pb-2 border-b border-slate-900">
-                <h3 className="text-xs font-display font-bold tracking-widest text-amber-500 uppercase flex items-center gap-1.5">
-                  <Star size={14} className="text-amber-500 fill-amber-500" /> Player Spotlight
+                <h3 className="text-xs font-display font-bold tracking-widest text-toasty-tan uppercase flex items-center gap-1.5">
+                  <Star size={14} className="text-toasty-tan fill-toasty-tan" /> Player Spotlight
                 </h3>
                 <button 
                   onClick={handleNextSpotlight}
-                  className="bg-slate-900 hover:bg-slate-800 border border-slate-800/80 text-amber-400 text-[10px] font-bold font-mono px-3 py-1.5 rounded flex items-center gap-1 cursor-pointer transition active:scale-95 shadow-md"
+                  className="bg-slate-900 hover:bg-slate-800 border border-slate-800/80 text-toasty-tan text-[10px] font-bold font-mono px-3 py-1.5 rounded flex items-center gap-1 cursor-pointer transition active:scale-95 shadow-md"
                 >
                   Next <ChevronRight size={12} />
                 </button>
@@ -663,7 +700,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                 {/* Top Overlay Badges */}
                 <div className="absolute top-3.5 left-3.5 flex gap-1.5">
                   {activeSpotlightPlayer.isCaptain && (
-                    <span className="bg-amber-400 text-slate-950 font-mono text-[8px] font-black uppercase px-2.5 py-0.5 rounded shadow-md border border-amber-300">
+                    <span className="bg-toasty-red text-white font-mono text-[8px] font-black uppercase px-2.5 py-0.5 rounded shadow-md border border-red-500/30">
                       Captain
                     </span>
                   )}
@@ -674,12 +711,12 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
 
                 {/* Top Right Massive Jersey Number & Overall Rating */}
                 <div className="absolute top-3.5 right-3.5 flex flex-col items-center gap-1.5">
-                  <div className="bg-amber-500 text-slate-950 font-mono text-xs font-black w-7 h-7 rounded-full flex items-center justify-center shadow-lg border border-amber-400">
+                  <div className="bg-toasty-red text-white font-mono text-xs font-black w-7 h-7 rounded-full flex items-center justify-center shadow-lg border border-red-500/30">
                     #{activeSpotlightPlayer.number}
                   </div>
                   {getOverallRating(activeSpotlightPlayer) && (
-                    <div className="bg-emerald-500 text-white font-mono text-[9px] font-black w-7 h-7 rounded-lg flex flex-col items-center justify-center shadow-lg border border-emerald-400" title="Overall Rating">
-                      <span className="leading-none text-[8px] text-emerald-100 uppercase font-mono">OVR</span>
+                    <div className="bg-toasty-red text-white font-mono text-[9px] font-black w-7 h-7 rounded-lg flex flex-col items-center justify-center shadow-lg border border-red-500/30" title="Overall Rating">
+                      <span className="leading-none text-[8px] text-red-200 uppercase font-mono">OVR</span>
                       <span className="leading-none mt-0.5 font-bold">{getOverallRating(activeSpotlightPlayer)}</span>
                     </div>
                   )}
@@ -695,7 +732,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                       {getAge(activeSpotlightPlayer.dateOfBirth) || '24'} YRS
                     </span>
                   </div>
-                  <p className="text-amber-400 text-[10px] font-mono font-extrabold uppercase tracking-widest mt-2 leading-none">
+                  <p className="text-toasty-tan text-[10px] font-mono font-extrabold uppercase tracking-widest mt-2 leading-none">
                     {activeSpotlightPlayer.position}
                   </p>
                 </div>
@@ -707,13 +744,13 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                   <span className="text-[9px] text-slate-400 font-mono font-bold uppercase tracking-wider block">Matches</span>
                   <strong className="text-2xl font-black text-white font-mono mt-1 block leading-none">{activeSpotlightPlayer.matchesPlayed}</strong>
                 </div>
-                <div className="flex-1 bg-emerald-500/5 border border-emerald-500/10 p-3 rounded-2xl shadow-sm">
-                  <span className="text-[9px] text-emerald-400 font-mono font-bold uppercase tracking-wider block">Goals</span>
-                  <strong className="text-2xl font-black text-emerald-400 font-mono mt-1 block leading-none">{activeSpotlightPlayer.goals}</strong>
+                <div className="flex-1 bg-toasty-red/10 border border-toasty-red/20 p-3 rounded-2xl shadow-sm">
+                  <span className="text-[9px] text-toasty-red font-mono font-bold uppercase tracking-wider block">Goals</span>
+                  <strong className="text-2xl font-black text-toasty-red font-mono mt-1 block leading-none">{activeSpotlightPlayer.goals}</strong>
                 </div>
-                <div className="flex-1 bg-amber-500/5 border border-amber-500/10 p-3 rounded-2xl shadow-sm">
-                  <span className="text-[9px] text-amber-400 font-mono font-bold uppercase tracking-wider block">Assists</span>
-                  <strong className="text-2xl font-black text-amber-400 font-mono mt-1 block leading-none">{activeSpotlightPlayer.assists}</strong>
+                <div className="flex-1 bg-toasty-tan/10 border border-toasty-tan/20 p-3 rounded-2xl shadow-sm">
+                  <span className="text-[9px] text-toasty-tan-dark font-mono font-bold uppercase tracking-wider block">Assists</span>
+                  <strong className="text-2xl font-black text-toasty-tan font-mono mt-1 block leading-none">{activeSpotlightPlayer.assists}</strong>
                 </div>
               </div>
             </div>
@@ -733,12 +770,12 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
       <div className="bg-slate-950 border border-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl space-y-6 relative overflow-hidden" id="video-highlights-section">
         
         {/* Glow ambient decoration */}
-        <div className="absolute right-0 top-0 w-96 h-96 bg-gradient-to-br from-amber-500/5 via-transparent to-transparent pointer-events-none z-0" />
+        <div className="absolute right-0 top-0 w-96 h-96 bg-gradient-to-br from-toasty-red/10 via-transparent to-transparent pointer-events-none z-0" />
         
         <div className="relative z-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-900">
           <div>
             <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-              <Tv className="text-amber-400" size={20} /> Latest Highlights
+              <Tv className="text-toasty-red" size={20} /> Latest Highlights
             </h3>
             <p className="text-xs text-slate-400">
               Watch real match footage and highlight reels of our latest fixtures.
@@ -750,7 +787,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
               href="https://www.youtube.com/@toastyfc" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="bg-[#FF0000] hover:bg-[#CC0000] text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-md uppercase tracking-wider"
+              className="bg-toasty-red hover:bg-toasty-red-hover text-white text-xs font-extrabold px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-md uppercase tracking-wider border border-red-500/30"
               id="youtube-subscribe-btn"
             >
               <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
@@ -761,7 +798,13 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
           </div>
         </div>
 
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className={`relative z-10 grid gap-6 ${
+          matchesWithYoutube.length === 1
+            ? 'grid-cols-1 max-w-2xl mx-auto'
+            : matchesWithYoutube.length === 2
+              ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+              : 'grid-cols-1 md:grid-cols-3'
+        }`}>
           {matchesWithYoutube.length > 0 ? (
             matchesWithYoutube.map((m) => {
               const videoId = getYouTubeId(m.youtubeUrl);
@@ -794,7 +837,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                           href={m.youtubeUrl} 
                           target="_blank" 
                           rel="noopener noreferrer" 
-                          className="text-[10px] text-amber-400 hover:underline mt-2 font-mono flex items-center gap-1 bg-slate-800 px-2.5 py-1 rounded"
+                          className="text-[10px] text-toasty-tan hover:underline mt-2 font-mono flex items-center gap-1 bg-slate-800 px-2.5 py-1 rounded"
                         >
                           Watch on YouTube &rarr;
                         </a>
@@ -807,7 +850,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                       <h4 className="font-extrabold text-slate-100 text-sm tracking-tight leading-snug">
                         Toasty FC vs. {m.opponent}
                       </h4>
-                      <span className="text-[9px] font-mono font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded uppercase shrink-0">
+                      <span className="text-[9px] font-mono font-bold text-toasty-tan bg-toasty-tan/15 border border-toasty-tan/30 px-2 py-0.5 rounded uppercase shrink-0">
                         {formattedDate}
                       </span>
                     </div>

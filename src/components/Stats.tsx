@@ -153,7 +153,7 @@ export const Stats: React.FC<StatsProps> = ({ players, seasons, activeSeason, on
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-2xl font-display font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <Activity className="text-amber-500 animate-pulse" size={24} /> Statistics & Records
+            <Activity className="text-toasty-red animate-pulse" size={24} /> Statistics & Records
           </h2>
           <p className="text-slate-500 text-sm font-medium">
             Dynamic squad metrics, Golden Boot rankings, and locker-room lore from our active campaigns.
@@ -161,8 +161,8 @@ export const Stats: React.FC<StatsProps> = ({ players, seasons, activeSeason, on
         </div>
 
         {seasons && activeSeason && onSeasonChange && (
-          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 w-full md:w-auto shadow-sm self-start md:self-auto hover:border-amber-500/50 transition">
-            <CalendarDays size={14} className="text-amber-500 shrink-0" />
+          <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 w-full md:w-auto shadow-sm self-start md:self-auto hover:border-toasty-red/50 transition">
+            <CalendarDays size={14} className="text-toasty-red shrink-0" />
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Campaign:</span>
             <select
               value={activeSeason}
@@ -183,20 +183,20 @@ export const Stats: React.FC<StatsProps> = ({ players, seasons, activeSeason, on
       {/* Season Performance Summary Panel (Matches Season Performance card on Home) */}
       <div className="bg-slate-950 border border-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl space-y-6 relative overflow-hidden">
         {/* Ambient top right glow */}
-        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-amber-500/10 via-transparent to-transparent pointer-events-none z-0" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-toasty-red/10 via-transparent to-transparent pointer-events-none z-0" />
         
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-slate-900">
           <div>
             <h3 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-              <Trophy className="text-amber-400" size={20} /> Season Performance Overview
+              <Trophy className="text-toasty-tan" size={20} /> Season Performance Overview
             </h3>
             <p className="text-xs text-slate-400">
-              Overview of Toasty FC's competitive fixtures, goal metrics, and form trajectory for <strong className="text-amber-400 font-mono font-bold">{activeSeason === 'All Seasons' ? 'All Seasons' : activeSeason}</strong>.
+              Overview of Toasty FC's competitive fixtures, goal metrics, and form trajectory for <strong className="text-toasty-tan font-mono font-bold">{activeSeason === 'All Seasons' ? 'All Seasons' : activeSeason}</strong>.
             </p>
           </div>
-          <div className="bg-amber-500/10 border border-amber-500/25 rounded-full px-4 py-1.5 flex items-center gap-2 self-start md:self-auto">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-            <span className="text-[10px] font-bold text-amber-400 font-mono uppercase tracking-widest">{completedMatches.length} Fixtures Played</span>
+          <div className="bg-toasty-red/20 border border-toasty-red/40 rounded-full px-4 py-1.5 flex items-center gap-2 self-start md:self-auto">
+            <span className="w-2 h-2 rounded-full bg-toasty-red animate-pulse" />
+            <span className="text-[10px] font-bold text-red-300 font-mono uppercase tracking-widest">{completedMatches.length} Fixtures Played</span>
           </div>
         </div>
 

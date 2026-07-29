@@ -139,6 +139,13 @@ const rowsToObjects = (rows: any[]): any[] => {
         setNestedKey(obj, header, val);
       }
     }
+
+    // Normalize field aliases for YouTube URL column variations in Google Sheets (e.g. YouTubeurl, YouTubeUrl, youtube_url, YouTube URL)
+    const ytVal = obj.youtubeUrl || obj.YouTubeurl || obj.YouTubeUrl || obj.youtube_url || obj['YouTube URL'] || obj['YouTube'] || obj['youtube'];
+    if (ytVal && String(ytVal).trim() !== '' && String(ytVal).toLowerCase() !== 'null' && String(ytVal).toLowerCase() !== 'undefined' && String(ytVal).toLowerCase() !== 'none') {
+      obj.youtubeUrl = String(ytVal).trim();
+    }
+
     objects.push(obj);
   }
   return objects;

@@ -190,9 +190,9 @@ export const Matches: React.FC<MatchesProps> = ({
   const formGuide = lastFiveMatches.map(m => {
     const ts = m.toastyScore ?? 0;
     const os = m.opponentScore ?? 0;
-    if (ts > os) return { result: 'W', bg: 'bg-emerald-500 text-white', label: `Win vs ${m.opponent}` };
-    if (ts === os) return { result: 'D', bg: 'bg-amber-500 text-white', label: `Draw vs ${m.opponent}` };
-    return { result: 'L', bg: 'bg-rose-500 text-white', label: `Loss vs ${m.opponent}` };
+    if (ts > os) return { result: 'W', bg: 'bg-toasty-red text-white border border-red-500/40 shadow-sm font-bold', label: `Win vs ${m.opponent}` };
+    if (ts === os) return { result: 'D', bg: 'bg-toasty-tan text-slate-950 border border-amber-200/50 shadow-sm font-bold', label: `Draw vs ${m.opponent}` };
+    return { result: 'L', bg: 'bg-stone-800 text-stone-300 border border-stone-700 shadow-sm font-bold', label: `Loss vs ${m.opponent}` };
   });
 
   return (
@@ -201,7 +201,7 @@ export const Matches: React.FC<MatchesProps> = ({
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-2xl font-display font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <Trophy className="text-amber-500" size={24} /> Match Center
+            <Trophy className="text-toasty-red" size={24} /> Match Center
           </h2>
           <p className="text-slate-500 text-sm">
             Keep up with upcoming fixtures, field locations, and live results from our games.
@@ -212,7 +212,7 @@ export const Matches: React.FC<MatchesProps> = ({
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
           {seasons && activeSeason && onSeasonChange && (
             <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2 w-full sm:w-auto shadow-sm">
-              <CalendarDays size={14} className="text-amber-500 shrink-0" />
+              <CalendarDays size={14} className="text-toasty-red shrink-0" />
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Campaign:</span>
               <select
                 value={activeSeason}
@@ -250,9 +250,9 @@ export const Matches: React.FC<MatchesProps> = ({
       </div>
 
       {/* Season Overview Segment */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="matches-season-overview">
+      <div className="flex overflow-x-auto pb-4 gap-4 snap-x snap-mandatory scrollbar-none sm:grid sm:grid-cols-2 lg:grid-cols-4 -mx-4 px-4 sm:mx-0 sm:px-0" id="matches-season-overview">
         {/* Record Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200">
+        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200 min-w-[280px] sm:min-w-0 shrink-0 snap-start">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Campaign Record</span>
             <div className="flex items-baseline gap-2">
@@ -265,13 +265,13 @@ export const Matches: React.FC<MatchesProps> = ({
               {completedCount} of {totalMatchesCount} games played
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-toasty-tan/15 border border-toasty-tan/30 flex items-center justify-center text-toasty-tan shrink-0">
             <Trophy size={20} />
           </div>
         </div>
 
         {/* Goals Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200">
+        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200 min-w-[280px] sm:min-w-0 shrink-0 snap-start">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Goals & GD</span>
             <div className="flex items-center gap-2">
@@ -280,9 +280,9 @@ export const Matches: React.FC<MatchesProps> = ({
               </span>
               <span className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded border ${
                 goalDiff > 0 
-                  ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/25' 
+                  ? 'bg-toasty-red/20 text-red-300 border-toasty-red/40' 
                   : goalDiff < 0 
-                    ? 'bg-rose-500/15 text-rose-400 border-rose-500/25' 
+                    ? 'bg-stone-800 text-stone-300 border-stone-700' 
                     : 'bg-slate-800 text-slate-400 border-slate-700'
               }`}>
                 {goalDiff > 0 ? `+${goalDiff}` : goalDiff} GD
@@ -292,13 +292,13 @@ export const Matches: React.FC<MatchesProps> = ({
               Avg. {completedCount > 0 ? (goalsScored / completedCount).toFixed(1) : 0} goals/game
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-toasty-red/20 border border-toasty-red/40 flex items-center justify-center text-red-300 shrink-0">
             <Target size={20} />
           </div>
         </div>
 
         {/* Win Rate Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200">
+        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200 min-w-[280px] sm:min-w-0 shrink-0 snap-start">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Win Percentage</span>
             <div className="flex items-baseline gap-1.5">
@@ -308,20 +308,20 @@ export const Matches: React.FC<MatchesProps> = ({
               <span className="text-xs text-slate-400 font-semibold uppercase font-mono">Rate</span>
             </div>
             {/* simple micro progress bar */}
-            <div className="w-24 h-1.5 bg-slate-950 rounded-full overflow-hidden mt-1 border border-slate-800">
+            <div className="w-24 h-1.5 bg-slate-900 rounded-full overflow-hidden mt-1 border border-slate-800">
               <div 
-                className="h-full bg-amber-500 rounded-full animate-pulse" 
+                className="h-full bg-toasty-red rounded-full animate-pulse" 
                 style={{ width: `${winRate}%` }}
               />
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-toasty-tan/15 border border-toasty-tan/30 flex items-center justify-center text-toasty-tan shrink-0">
             <TrendingUp size={20} />
           </div>
         </div>
 
         {/* Form Guide Card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200">
+        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200 min-w-[280px] sm:min-w-0 shrink-0 snap-start">
           <div className="space-y-1.5 w-full">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Recent Form</span>
             <div className="flex items-center gap-1.5">
@@ -331,7 +331,7 @@ export const Matches: React.FC<MatchesProps> = ({
                 formGuide.map((game, i) => (
                   <div 
                     key={i} 
-                    className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-black select-none ${game.bg} cursor-help shadow-sm border border-black/10`}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-black select-none ${game.bg} cursor-help shadow-sm`}
                     title={game.label}
                   >
                     {game.result}
@@ -345,7 +345,7 @@ export const Matches: React.FC<MatchesProps> = ({
               </span>
             )}
           </div>
-          <div className="w-10 h-10 rounded-xl bg-pink-500/15 border border-pink-500/20 flex items-center justify-center text-pink-400 shrink-0 self-start">
+          <div className="w-10 h-10 rounded-xl bg-toasty-red/20 border border-toasty-red/40 flex items-center justify-center text-red-300 shrink-0 self-start">
             <Activity size={20} />
           </div>
         </div>
@@ -366,11 +366,11 @@ export const Matches: React.FC<MatchesProps> = ({
           let outcomeBadge = null;
           if (isCompleted) {
             if (didToastyWin) {
-              outcomeBadge = <span className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full">Win</span>;
+              outcomeBadge = <span className="bg-toasty-red/15 text-toasty-red border border-toasty-red/30 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full">Win</span>;
             } else if (didToastyDraw) {
-              outcomeBadge = <span className="bg-amber-500/10 text-amber-600 border border-amber-500/20 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full">Draw</span>;
+              outcomeBadge = <span className="bg-toasty-tan/25 text-toasty-tan-dark border border-toasty-tan/40 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full">Draw</span>;
             } else {
-              outcomeBadge = <span className="bg-rose-500/10 text-rose-600 border border-rose-500/20 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full">Loss</span>;
+              outcomeBadge = <span className="bg-stone-100 text-stone-600 border border-stone-200 text-[10px] font-bold uppercase px-2.5 py-1 rounded-full">Loss</span>;
             }
           }
 
@@ -401,41 +401,41 @@ export const Matches: React.FC<MatchesProps> = ({
           const playoffStage = getPlayoffStage();
           
           let cardBorderClass = 'border-slate-200 hover:border-slate-300';
-          let cardRingClass = isExpanded ? 'border-amber-500 ring-4 ring-amber-500/5' : '';
+          let cardRingClass = isExpanded ? 'border-toasty-red ring-4 ring-toasty-red/10' : '';
           let headerBgClass = 'bg-slate-50';
           let playoffBadge = null;
 
           if (playoffStage === 'final') {
-            cardBorderClass = 'border-amber-300 hover:border-amber-400';
+            cardBorderClass = 'border-toasty-red hover:border-toasty-red-bright';
             cardRingClass = isExpanded 
-              ? 'border-amber-500 ring-4 ring-amber-500/10 shadow-lg shadow-amber-500/5' 
-              : 'shadow-md shadow-amber-500/5';
-            headerBgClass = 'bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent border-b border-amber-200/50';
+              ? 'border-toasty-red ring-4 ring-toasty-red/15 shadow-lg shadow-toasty-red/10' 
+              : 'shadow-md shadow-toasty-red/5';
+            headerBgClass = 'bg-gradient-to-r from-toasty-red/15 via-toasty-tan/10 to-transparent border-b border-toasty-red/20';
             playoffBadge = (
-              <span className="bg-amber-500 text-white font-mono text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
-                <Trophy size={10} className="shrink-0" /> Cup Final
+              <span className="bg-toasty-red text-white border border-red-500/30 font-mono text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+                <Trophy size={10} className="shrink-0 text-toasty-tan" /> Cup Final
               </span>
             );
           } else if (playoffStage === 'semi') {
-            cardBorderClass = 'border-indigo-300 hover:border-indigo-400';
+            cardBorderClass = 'border-toasty-tan hover:border-toasty-tan-hover';
             cardRingClass = isExpanded 
-              ? 'border-indigo-500 ring-4 ring-indigo-500/10 shadow-lg shadow-indigo-500/5' 
-              : 'shadow-md shadow-indigo-500/5';
-            headerBgClass = 'bg-gradient-to-r from-indigo-500/10 via-purple-500/5 to-transparent border-b border-indigo-200/50';
+              ? 'border-toasty-tan ring-4 ring-toasty-tan/15 shadow-lg shadow-toasty-tan/10' 
+              : 'shadow-md shadow-toasty-tan/5';
+            headerBgClass = 'bg-gradient-to-r from-toasty-tan/20 via-toasty-tan-light/10 to-transparent border-b border-toasty-tan/30';
             playoffBadge = (
-              <span className="bg-indigo-600 text-white font-mono text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
-                <Shield size={10} className="shrink-0" /> Semi Final
+              <span className="bg-toasty-tan text-slate-950 border border-amber-200/50 font-mono text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+                <Shield size={10} className="shrink-0 text-toasty-red" /> Semi Final
               </span>
             );
           } else if (playoffStage === 'quarter') {
-            cardBorderClass = 'border-sky-300 hover:border-sky-400';
+            cardBorderClass = 'border-stone-300 hover:border-stone-400';
             cardRingClass = isExpanded 
-              ? 'border-sky-500 ring-4 ring-sky-500/10 shadow-lg shadow-sky-500/5' 
-              : 'shadow-md shadow-sky-500/5';
-            headerBgClass = 'bg-gradient-to-r from-sky-500/10 via-teal-500/5 to-transparent border-b border-sky-200/50';
+              ? 'border-slate-700 ring-4 ring-slate-400/10 shadow-lg shadow-slate-950/5' 
+              : 'shadow-md shadow-slate-950/5';
+            headerBgClass = 'bg-slate-100/70 border-b border-slate-200';
             playoffBadge = (
-              <span className="bg-sky-600 text-white font-mono text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
-                <Activity size={10} className="shrink-0" /> Quarter Final
+              <span className="bg-slate-800 text-slate-200 font-mono text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+                <Activity size={10} className="shrink-0 text-toasty-tan" /> Quarter Final
               </span>
             );
           }
@@ -469,67 +469,77 @@ export const Matches: React.FC<MatchesProps> = ({
                   {playoffBadge}
                 </div>
                 <div className="flex items-center gap-1.5 text-slate-500 font-medium">
-                  <MapPin size={13} className="text-amber-500 shrink-0" />
+                  <MapPin size={13} className="text-toasty-red shrink-0" />
                   <span>{match.location}</span>
                 </div>
               </div>
 
-              {/* Match Card Main Body - Symmetric Centered Grid Layout */}
+              {/* Match Card Main Body - Balanced Scoreboard Layout */}
               <div 
                 onClick={() => isCompleted && toggleExpand(match.id)}
-                className={`p-6 md:p-8 ${
+                className={`p-4 sm:p-6 md:p-8 ${
                   isCompleted ? 'cursor-pointer hover:bg-slate-50/35' : ''
                 }`}
               >
-                <div className="grid grid-cols-1 md:grid-cols-12 items-center gap-6">
-                  {/* Left Side: Home Team */}
-                  <div className="md:col-span-5 flex items-center justify-center md:justify-start gap-4 md:pl-4 order-1">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center shadow-sm shrink-0">
-                      <Trophy size={20} className="text-amber-500" />
+                <div className="flex flex-row items-center justify-between gap-3 sm:gap-6">
+                  
+                  {/* Left Side: Home Team (Toasty FC) */}
+                  <div className="flex-1 flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left min-w-0">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-950 border border-toasty-tan/30 p-1 flex items-center justify-center shadow-sm shrink-0">
+                      <img 
+                        src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png" 
+                        alt="Toasty FC Logo" 
+                        className="w-full h-full object-contain"
+                        referrerPolicy="no-referrer"
+                      />
                     </div>
-                    <div className="space-y-0.5 text-center md:text-left">
-                      <span className="font-black text-slate-900 block text-base sm:text-lg">Toasty FC</span>
-                      <span className="text-[10px] text-emerald-600 font-extrabold font-mono uppercase tracking-widest block">Home</span>
+                    <div className="min-w-0">
+                      <span className="font-black text-slate-900 block text-xs sm:text-base md:text-lg truncate leading-tight">
+                        Toasty FC
+                      </span>
+                      <span className="text-[9px] sm:text-[10px] text-toasty-red font-black font-mono uppercase tracking-wider">
+                        Home
+                      </span>
                     </div>
                   </div>
 
-                  {/* Center Scoreboard Block (Symmetric and absolute center focus) */}
-                  <div className="md:col-span-2 flex flex-col items-center justify-center gap-2 shrink-0 py-2 order-3 md:order-2">
+                  {/* Center Scoreboard Block (Absolute center focus) */}
+                  <div className="shrink-0 flex flex-col items-center justify-center gap-1.5 py-1 min-w-[70px] sm:min-w-[120px]">
                     {isCompleted ? (
-                      <div className="flex items-center gap-3.5 font-mono">
-                        <span className={`text-2xl sm:text-3xl font-black w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md border ${
+                      <div className="flex items-center gap-1.5 sm:gap-3 font-mono">
+                        <span className={`text-base sm:text-2xl md:text-3xl font-black w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-2xl flex items-center justify-center shadow-sm sm:shadow-md border ${
                           didToastyWin 
-                            ? 'bg-emerald-500 text-white border-emerald-400' 
+                            ? 'bg-toasty-red text-white border-red-500/40' 
                             : 'bg-slate-100 text-slate-800 border-slate-200'
                         }`}>
                           {match.toastyScore}
                         </span>
-                        <span className="text-slate-300 font-bold text-lg sm:text-2xl">-</span>
-                        <span className={`text-2xl sm:text-3xl font-black w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center shadow-md border ${
+                        <span className="text-slate-300 font-bold text-sm sm:text-lg md:text-2xl">-</span>
+                        <span className={`text-base sm:text-2xl md:text-3xl font-black w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 rounded-lg sm:rounded-2xl flex items-center justify-center shadow-sm sm:shadow-md border ${
                           didToastyLose 
-                            ? 'bg-rose-500 text-white border-rose-400' 
+                            ? 'bg-stone-700 text-white border-stone-600' 
                             : 'bg-slate-100 text-slate-800 border-slate-200'
                         }`}>
                           {match.opponentScore}
                         </span>
                       </div>
                     ) : (
-                      <div className="bg-amber-500 text-slate-950 font-black font-mono text-xs sm:text-sm px-5 py-2.5 rounded-2xl flex items-center gap-1.5 shadow-md uppercase tracking-wider border border-amber-400">
-                        <Clock size={14} /> VS
+                      <div className="bg-toasty-red text-white font-black font-mono text-[10px] sm:text-xs md:text-sm px-2.5 py-1.5 sm:px-5 sm:py-2.5 rounded-lg sm:rounded-2xl flex items-center gap-1 sm:gap-1.5 shadow-md uppercase tracking-wider border border-red-500/30">
+                        <Clock className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-toasty-tan" /> VS
                       </div>
                     )}
 
                     {/* Outcome / Info badge beneath the score */}
-                    <div className="mt-1">
+                    <div className="text-center">
                       {isCompleted ? (
                         <div className="flex flex-col items-center gap-1">
                           {outcomeBadge}
-                          <span className="text-[10px] font-mono text-slate-400 font-semibold hover:text-slate-600 transition flex items-center gap-0.5 mt-1">
+                          <span className="text-[8px] sm:text-[10px] font-mono text-slate-400 font-semibold hover:text-slate-600 transition flex items-center gap-0.5">
                             {isExpanded ? 'Hide Details ▲' : 'Show Details ▼'}
                           </span>
                         </div>
                       ) : (
-                        <span className="bg-blue-500/10 text-blue-600 border border-blue-500/20 text-[10px] font-bold uppercase px-3 py-1 rounded-full font-mono tracking-widest uppercase">
+                        <span className="bg-toasty-red/15 text-toasty-red border border-toasty-red/30 text-[8px] sm:text-[10px] font-bold uppercase px-2 py-0.5 sm:px-3 sm:py-1 rounded-full font-mono tracking-wider">
                           Upcoming
                         </span>
                       )}
@@ -537,23 +547,26 @@ export const Matches: React.FC<MatchesProps> = ({
                   </div>
 
                   {/* Right Side: Away Team */}
-                  <div className="md:col-span-5 flex items-center justify-center md:justify-end gap-4 md:pr-4 order-2 md:order-3">
-                    <div className="space-y-0.5 text-center md:text-right order-2 md:order-1">
-                      <span className="font-black text-slate-800 block text-base sm:text-lg">
-                        {match.opponent}
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono uppercase tracking-widest block font-bold">Away</span>
-                    </div>
+                  <div className="flex-1 flex flex-col sm:flex-row-reverse items-center gap-2 sm:gap-4 text-center sm:text-right min-w-0">
                     <div 
-                      className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm shrink-0 order-1 md:order-2"
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm shrink-0"
                       style={{ 
-                        backgroundColor: match.opponentColor ? `${match.opponentColor}15` : '#F8FAFC', 
-                        border: match.opponentColor ? `1px solid ${match.opponentColor}30` : '1px solid #E2E8F0' 
+                        backgroundColor: match.opponentColor ? `${match.opponentColor}15` : '#F5EFE6', 
+                        border: match.opponentColor ? `1px solid ${match.opponentColor}30` : '1px solid #D6C5AD' 
                       }}
                     >
-                      <Shield size={20} style={{ color: match.opponentColor || '#94A3B8' }} />
+                      <Shield size={18} style={{ color: match.opponentColor || '#8C7A6B' }} className="sm:w-5 sm:h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="font-black text-slate-800 block text-xs sm:text-base md:text-lg truncate leading-tight">
+                        {match.opponent}
+                      </span>
+                      <span className="text-[9px] sm:text-[10px] text-slate-400 font-black font-mono uppercase tracking-wider">
+                        Away
+                      </span>
                     </div>
                   </div>
+
                 </div>
               </div>
 
@@ -566,7 +579,7 @@ export const Matches: React.FC<MatchesProps> = ({
                     <div className="lg:col-span-1 space-y-4">
                       <div className="space-y-1">
                         <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 font-mono flex items-center gap-1">
-                          <Sparkles size={12} className="text-amber-500" /> Match Report
+                          <Sparkles size={12} className="text-toasty-red" /> Match Report
                         </h4>
                         <p className="text-slate-600 text-sm leading-relaxed">{match.summary}</p>
                       </div>
@@ -579,18 +592,18 @@ export const Matches: React.FC<MatchesProps> = ({
                             <div className="grid grid-cols-2 gap-4 text-xs">
                               {/* Left side: Toasty FC */}
                               <div className="border-r border-slate-100 pr-2 space-y-1.5 text-left">
-                                <span className="block text-[9px] font-mono font-black text-amber-600 uppercase tracking-widest mb-1.5">Toasty FC</span>
+                                <span className="block text-[9px] font-mono font-black text-toasty-red uppercase tracking-widest mb-1.5">Toasty FC</span>
                                 {match.goalScorersDetails ? (
                                   match.goalScorersDetails.split(',').map((scorer, idx) => (
                                     <div key={idx} className="flex items-center gap-1.5 text-slate-700 font-medium">
-                                      <Target size={12} className="text-amber-500 shrink-0" />
+                                      <Target size={12} className="text-toasty-red shrink-0" />
                                       <span className="truncate">{scorer.trim()}</span>
                                     </div>
                                   ))
                                 ) : (
                                   match.goalsScoredBy?.map((scorer, idx) => (
                                     <div key={idx} className="flex items-center gap-1.5 text-slate-700 font-medium">
-                                      <Target size={12} className="text-amber-500 shrink-0" />
+                                      <Target size={12} className="text-toasty-red shrink-0" />
                                       <span className="truncate">{scorer}</span>
                                     </div>
                                   ))
@@ -602,12 +615,12 @@ export const Matches: React.FC<MatchesProps> = ({
 
                               {/* Right side: Opponent */}
                               <div className="pl-2 space-y-1.5 text-right">
-                                <span className="block text-[9px] font-mono font-black text-rose-500 uppercase tracking-widest mb-1.5 truncate">{match.opponent}</span>
+                                <span className="block text-[9px] font-mono font-black text-stone-600 uppercase tracking-widest mb-1.5 truncate">{match.opponent}</span>
                                 {match.opponentGoalScorersDetails ? (
                                   match.opponentGoalScorersDetails.split(',').map((scorer, idx) => (
                                     <div key={idx} className="flex items-center justify-end gap-1.5 text-slate-700 font-medium">
                                       <span className="truncate">{scorer.trim()}</span>
-                                      <Target size={12} className="text-rose-500 shrink-0" />
+                                      <Target size={12} className="text-stone-500 shrink-0" />
                                     </div>
                                   ))
                                 ) : (
@@ -622,8 +635,8 @@ export const Matches: React.FC<MatchesProps> = ({
                       {/* Player of the Match Award */}
                       {match.playerOfTheMatch && (
                         <div className="pt-4 border-t border-slate-200/60 flex items-center gap-2.5">
-                          <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-500 border border-amber-500/20">
-                            <Award size={14} className="fill-amber-500/15" />
+                          <div className="p-1.5 rounded-lg bg-toasty-red/10 text-toasty-red border border-toasty-red/20">
+                            <Award size={14} className="fill-toasty-red/15" />
                           </div>
                           <div>
                             <span className="block text-[10px] font-mono text-slate-400 uppercase tracking-wider leading-none">Player of the Match</span>
@@ -633,27 +646,31 @@ export const Matches: React.FC<MatchesProps> = ({
                       )}
 
                       {/* YouTube highlights Link */}
-                      {match.youtubeUrl && (
-                        <div className="pt-4 border-t border-slate-200/60">
-                          <a
-                            href={match.youtubeUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs py-2 px-4 rounded-xl shadow-md transition-all duration-200 w-full"
-                          >
-                            <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
-                              <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                            </svg>
-                            Watch Video Highlights
-                          </a>
-                        </div>
-                      )}
+                      {(() => {
+                        const ytUrl = match.youtubeUrl || (match as any).YouTubeurl || (match as any).YouTubeUrl || (match as any).youtube_url || (match as any)['YouTube URL'];
+                        if (!ytUrl || String(ytUrl).trim() === '' || String(ytUrl).toLowerCase() === 'null') return null;
+                        return (
+                          <div className="pt-4 border-t border-slate-200/60">
+                            <a
+                              href={String(ytUrl).trim()}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center justify-center gap-2 bg-toasty-red hover:bg-toasty-red-hover text-white font-semibold text-xs py-2 px-4 rounded-xl shadow-md transition-all duration-200 w-full border border-red-500/30"
+                            >
+                              <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+                                <path d="M23.498 6.163a3.003 3.003 0 0 0-2.11-2.11C19.517 3.545 12 3.545 12 3.545s-7.517 0-9.388.508a3.003 3.003 0 0 0-2.11 2.11C0 8.033 0 12 0 12s0 3.967.502 5.837a3.003 3.003 0 0 0 2.11 2.11c1.871.508 9.388.508 9.388.508s7.517 0 9.388-.508a3.003 3.003 0 0 0 2.11-2.11C24 15.967 24 12 24 12s0-3.967-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                              </svg>
+                              Watch Video Highlights
+                            </a>
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* Statistics Comparison Columns */}
                     <div className="lg:col-span-2 bg-white border border-slate-100 rounded-2xl p-5 space-y-4 shadow-sm">
                       <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 font-mono flex items-center gap-1.5 border-b border-slate-50 pb-2">
-                        <Activity size={12} className="text-indigo-500 shrink-0" /> Full Match Statistics (TFC vs {match.opponent})
+                        <Activity size={12} className="text-toasty-red shrink-0" /> Full Match Statistics (TFC vs {match.opponent})
                       </h4>
                       
                       {match.stats ? (
@@ -683,7 +700,7 @@ export const Matches: React.FC<MatchesProps> = ({
                             return (
                               <div key={statKey} className="space-y-1">
                                 <div className="flex justify-between items-center text-xs font-mono">
-                                  <span className="font-bold text-amber-600 w-12 text-left">{toastyVal}</span>
+                                  <span className="font-bold text-toasty-red w-12 text-left">{toastyVal}</span>
                                   <span className="text-slate-500 font-medium uppercase text-[10px] tracking-wide">
                                     {labels[statKey] || statKey}
                                   </span>
@@ -691,11 +708,11 @@ export const Matches: React.FC<MatchesProps> = ({
                                 </div>
                                 <div className="w-full h-2 bg-slate-100 rounded-full flex overflow-hidden">
                                   <div 
-                                    className="h-full bg-amber-500 transition-all duration-500" 
+                                    className="h-full bg-toasty-red transition-all duration-500" 
                                     style={{ width: `${toastyPercent}%` }}
                                   />
                                   <div 
-                                    className="h-full bg-slate-300 transition-all duration-500" 
+                                    className="h-full bg-toasty-tan transition-all duration-500" 
                                     style={{ width: `${100 - toastyPercent}%` }}
                                   />
                                 </div>
