@@ -11,6 +11,25 @@ export const NewsGallery: React.FC<NewsGalleryProps> = ({ news, gallery }) => {
   const [subTab, setSubTab] = useState<'news' | 'gallery'>('news');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  // Sort news and gallery in descending order by date so the latest items appear at the top
+  const sortedNews = [...news].sort((a, b) => {
+    const timeA = new Date(a.date).getTime();
+    const timeB = new Date(b.date).getTime();
+    if (!isNaN(timeA) && !isNaN(timeB) && timeA !== timeB) {
+      return timeB - timeA;
+    }
+    return (b.date || '').localeCompare(a.date || '');
+  });
+
+  const sortedGallery = [...gallery].sort((a, b) => {
+    const timeA = new Date(a.date).getTime();
+    const timeB = new Date(b.date).getTime();
+    if (!isNaN(timeA) && !isNaN(timeB) && timeA !== timeB) {
+      return timeB - timeA;
+    }
+    return (b.date || '').localeCompare(a.date || '');
+  });
+
   return (
     <div className="space-y-8">
       {/* Tab Switcher & Headers */}
@@ -65,7 +84,7 @@ export const NewsGallery: React.FC<NewsGalleryProps> = ({ news, gallery }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main News Stream */}
           <div className="lg:col-span-2 space-y-8">
-            {news.map((article, index) => (
+            {sortedNews.map((article, index) => (
               <article key={`${article.id}-${index}`} className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition">
                 <div className="h-64 sm:h-80 overflow-hidden relative">
                   <img
@@ -130,7 +149,7 @@ export const NewsGallery: React.FC<NewsGalleryProps> = ({ news, gallery }) => {
         /* Image Gallery masonry style */
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gallery.map((photo, index) => (
+            {sortedGallery.map((photo, index) => (
               <div
                 key={`${photo.id}-${index}`}
                 onClick={() => setSelectedImage(photo.imageUrl)}

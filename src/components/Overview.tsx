@@ -267,8 +267,18 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
       };
     });
 
+  // Sort news in descending order by date so latest items appear at the top
+  const sortedNews = [...news].sort((a, b) => {
+    const timeA = new Date(a.date).getTime();
+    const timeB = new Date(b.date).getTime();
+    if (!isNaN(timeA) && !isNaN(timeB) && timeA !== timeB) {
+      return timeB - timeA;
+    }
+    return (b.date || '').localeCompare(a.date || '');
+  });
+
   // Limit to the latest 4 articles
-  const latestNews = news.slice(0, 4);
+  const latestNews = sortedNews.slice(0, 4);
 
   return (
     <div className="space-y-10">
