@@ -936,19 +936,16 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                 <div className="h-px bg-slate-100 my-4" />
 
                 <div className="text-slate-700 text-sm sm:text-base leading-relaxed space-y-4 font-normal">
-                  <p className="font-bold text-slate-900 bg-slate-50 p-4 rounded-xl border border-slate-100/80 leading-relaxed">
-                    {selectedFullStory.summary}
-                  </p>
-                  {/* Since mockup text is brief, we expand it into polished narrative paragraphs dynamically to look pristine */}
-                  <p>
-                    {selectedFullStory.content || "The season is officially underway, and the training grounds in Bowling Green are buzzing with intense action. Coaching staff have introduced advanced counter-pressing structures designed to utilize our wings while maintaining supreme midfield stability."}
-                  </p>
-                  <p>
-                    "We are treating every single fixture of this campaign as a title decider," head coach commented during yesterday's press debrief. "Austin and Ben are displaying an almost telepathic connection in midfield play, while our defensive line has never looked more compact."
-                  </p>
-                  <p>
-                    Supporters are highly encouraged to secure their admission badges ahead of time. Check the Matches dashboard for game day directions and live statistics. Let's go Toasty!
-                  </p>
+                  {selectedFullStory.summary && selectedFullStory.summary.trim() !== selectedFullStory.content?.trim() && (
+                    <p className="font-bold text-slate-900 bg-slate-50 p-4 rounded-xl border border-slate-100/80 leading-relaxed">
+                      {selectedFullStory.summary}
+                    </p>
+                  )}
+                  {selectedFullStory.content && (
+                    <div className="whitespace-pre-line leading-relaxed text-slate-800">
+                      {selectedFullStory.content}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
