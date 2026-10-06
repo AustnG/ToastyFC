@@ -105,13 +105,20 @@ export const NewsGallery: React.FC<NewsGalleryProps> = ({ news, gallery }) => {
                   <h3 className="text-xl sm:text-2xl font-bold text-slate-900 hover:text-toasty-red transition cursor-pointer">
                     {article.title}
                   </h3>
+                  {article.summary && article.summary.trim() !== article.content?.trim() && (
+                    <p className="text-slate-800 text-sm font-semibold bg-slate-50 p-4 rounded-2xl border border-slate-100 leading-relaxed">
+                      {article.summary}
+                    </p>
+                  )}
                   <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
                     {article.content}
                   </p>
                 </div>
 
                 <div className="p-6 border-t border-slate-50 flex justify-between items-center bg-slate-50 text-xs text-slate-400 font-mono">
-                  <span>Written by: <strong>{article.author}</strong></span>
+                  <span className="flex items-center gap-1.5 text-toasty-red font-bold">
+                    <Sparkles size={12} /> Official Club Bulletin
+                  </span>
                   <span className="flex items-center gap-1"><Heart size={12} className="text-toasty-red fill-toasty-red" /> Toasty Fan Favourite</span>
                 </div>
               </article>

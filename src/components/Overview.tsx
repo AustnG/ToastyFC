@@ -307,8 +307,8 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                     LATEST BULLETIN
                   </span>
                   <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10px] font-mono">
-                    <span className="text-toasty-tan font-bold">
-                      ✍️ {latestNews[0].author}
+                    <span className="text-toasty-tan font-bold flex items-center gap-1">
+                      <Sparkles size={11} /> Official Release
                     </span>
                     <span className="text-slate-300 font-semibold">
                       {latestNews[0].date}
@@ -926,7 +926,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
                     HOT NEWS
                   </span>
                   <span>•</span>
-                  <span>By {selectedFullStory.author}</span>
+                  <span>Club Announcement</span>
                 </div>
 
                 <h2 className="font-extrabold text-slate-950 text-2xl sm:text-3xl leading-tight tracking-tight">
@@ -952,7 +952,7 @@ export const Overview: React.FC<OverviewProps> = ({ players, matches, news, onSe
 
             {/* Modal Footer */}
             <div className="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-400 font-mono shrink-0">
-              <span>Author: {selectedFullStory.author}</span>
+              <span>Published: {selectedFullStory.date}</span>
               <span className="font-bold text-amber-600">Toasty FC Press Office</span>
             </div>
 

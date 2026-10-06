@@ -1,3 +1,16 @@
+export interface Season {
+  id: string;
+  name: string;
+  startDate?: string;
+  endDate?: string;
+  division?: string;
+  playersRostered?: number;
+  perPlayerFee?: number;
+  teamFee?: number;
+  amountPaid?: number;
+  overview?: string;
+}
+
 export interface Player {
   id: string;
   name: string;
@@ -32,9 +45,11 @@ export interface Player {
 
 export interface RosterEntry {
   id: string;
+  seasonId?: string;
+  seasonName?: string;
+  season?: string; // backwards compatibility alias
   playerId: string;
   playerName?: string;
-  season: string;
   number: number;
   imageUrl: string;
   position: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward';
@@ -70,7 +85,9 @@ export interface TeamMatchStats {
 
 export interface Match {
   id: string;
-  season: string; // e.g. "2026 SKY Summer" or "2025 Spring"
+  seasonId?: string;
+  seasonName?: string;
+  season?: string; // backwards compatibility alias (e.g. "2026 SKY Summer")
   date: string;
   time: string;
   opponent: string;
@@ -97,7 +114,7 @@ export interface NewsItem {
   summary: string;
   content: string;
   imageUrl: string;
-  author: string;
+  author?: string; // removed from active sheet; optional for backwards compatibility
 }
 
 export interface GalleryItem {

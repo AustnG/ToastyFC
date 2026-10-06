@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Player, Match, NewsItem, GalleryItem, RosterEntry, MatchStats } from './types';
-import { mockPlayers, mockMatches, mockNews, mockGallery, mockRoster, mockMatchStats } from './mockData';
+import { Player, Match, NewsItem, GalleryItem, RosterEntry, MatchStats, Season } from './types';
+import { mockPlayers, mockMatches, mockNews, mockGallery, mockRoster, mockMatchStats, mockSeasons } from './mockData';
 import { Overview } from './components/Overview';
 import { Roster } from './components/Roster';
 import { Matches } from './components/Matches';
@@ -60,6 +60,10 @@ export default function App() {
   const [playerMatchStats, setPlayerMatchStats] = useState<MatchStats[]>(() => {
     const cached = localStorage.getItem('toasty_fc_player_match_stats');
     return cached ? JSON.parse(cached) : mockMatchStats;
+  });
+  const [seasonsList, setSeasonsList] = useState<Season[]>(() => {
+    const cached = localStorage.getItem('toasty_fc_seasons');
+    return cached ? JSON.parse(cached) : mockSeasons;
   });
 
   // Google Sheets Sync & Auth state
@@ -129,6 +133,10 @@ export default function App() {
         setRoster(dbData.roster);
         localStorage.setItem('toasty_fc_roster', JSON.stringify(dbData.roster));
       }
+      if (dbData.seasons && dbData.seasons.length > 0) {
+        setSeasonsList(dbData.seasons);
+        localStorage.setItem('toasty_fc_seasons', JSON.stringify(dbData.seasons));
+      }
       if (dbData.playerMatchStats && dbData.playerMatchStats.length > 0) {
         setPlayerMatchStats(dbData.playerMatchStats);
         localStorage.setItem('toasty_fc_player_match_stats', JSON.stringify(dbData.playerMatchStats));
@@ -174,6 +182,10 @@ export default function App() {
       if (dbData.roster && dbData.roster.length > 0) {
         setRoster(dbData.roster);
         localStorage.setItem('toasty_fc_roster', JSON.stringify(dbData.roster));
+      }
+      if (dbData.seasons && dbData.seasons.length > 0) {
+        setSeasonsList(dbData.seasons);
+        localStorage.setItem('toasty_fc_seasons', JSON.stringify(dbData.seasons));
       }
       if (dbData.playerMatchStats && dbData.playerMatchStats.length > 0) {
         setPlayerMatchStats(dbData.playerMatchStats);
@@ -289,17 +301,42 @@ export default function App() {
     return year * 10 + phasePriority;
   };
 
-  const sortSeasonsChronologically = (seasonsList: string[]): string[] => {
-    return [...seasonsList].sort((a, b) => getSeasonPriority(b) - getSeasonPriority(a));
+  // Helper to sort seasons chronologically using startDate from Seasons sheet
+  const sortSeasonsChronologically = (seasonsNames: string[]): string[] => {
+    return [...seasonsNames].sort((a, b) => {
+      // Find matching Season object for a and b from seasons sheet
+      const sA = seasonsList.find(s => s.name === a || s.id === a);
+      const sB = seasonsList.find(s => s.name === b || s.id === b);
+
+      const dateA = sA?.startDate ? new Date(sA.startDate).getTime() : 0;
+      const dateB = sB?.startDate ? new Date(sB.startDate).getTime() : 0;
+
+      if (!isNaN(dateA) && !isNaN(dateB) && dateA > 0 && dateB > 0 && dateA !== dateB) {
+        return dateB - dateA; // Newest season startDate first
+      }
+
+      const endA = sA?.endDate ? new Date(sA.endDate).getTime() : 0;
+      const endB = sB?.endDate ? new Date(sB.endDate).getTime() : 0;
+      if (!isNaN(endA) && !isNaN(endB) && endA > 0 && endB > 0 && endA !== endB) {
+        return endB - endA;
+      }
+
+      return getSeasonPriority(b) - getSeasonPriority(a);
+    });
   };
 
-  // Helper to dynamically get unique seasons from both matches and roster entries
+  // Helper to dynamically get unique seasons from both matches, roster entries, and Seasons sheet
   const getDynamicSeasonsList = (): string[] => {
-    const allSeasons = [
-      ...matches.map(m => m.season),
-      ...roster.map(r => r.season)
-    ].filter(Boolean) as string[];
-    return sortSeasonsChronologically(Array.from(new Set(allSeasons)));
+    const sheetSeasonNames = seasonsList.map(s => s.name).filter(Boolean);
+    const matchesSeasonNames = matches.map(m => m.seasonName || m.season).filter(Boolean) as string[];
+    const rosterSeasonNames = roster.map(r => r.seasonName || r.season).filter(Boolean) as string[];
+
+    const allSeasons = Array.from(new Set([
+      ...sheetSeasonNames,
+      ...matchesSeasonNames,
+      ...rosterSeasonNames
+    ]));
+    return sortSeasonsChronologically(allSeasons);
   };
 
   // Dynamically compute seasons list from matches and roster data so it scales automatically!
@@ -307,7 +344,6 @@ export default function App() {
     ...getDynamicSeasonsList(),
     'All Seasons'
   ];
-
 
   // Active Season Filter
   const [activeSeason, setActiveSeason] = useState<string>(() => {
@@ -322,12 +358,30 @@ export default function App() {
     if (dynamicSeasons.length > 0 && !dynamicSeasons.includes(activeSeason) && activeSeason !== 'All Seasons') {
       setActiveSeason(dynamicSeasons[0]);
     }
-  }, [matches, roster]);
+  }, [matches, roster, seasonsList]);
+
+  const activeSeasonObj = seasonsList.find(s => s.name === activeSeason || s.id === activeSeason);
+
+  const matchBelongsToActiveSeason = (m: Match) => {
+    if (activeSeason === 'All Seasons') return true;
+    if (m.seasonName && m.seasonName === activeSeason) return true;
+    if (m.season && m.season === activeSeason) return true;
+    if (activeSeasonObj && m.seasonId && m.seasonId === activeSeasonObj.id) return true;
+    return false;
+  };
+
+  const rosterBelongsToActiveSeason = (r: RosterEntry) => {
+    if (activeSeason === 'All Seasons') return true;
+    if (r.seasonName && r.seasonName === activeSeason) return true;
+    if (r.season && r.season === activeSeason) return true;
+    if (activeSeasonObj && r.seasonId && r.seasonId === activeSeasonObj.id) return true;
+    return false;
+  };
 
   // Filter matches based on selected season
   const filteredMatchesBySeason = activeSeason === 'All Seasons'
     ? matches
-    : matches.filter(m => m.season === activeSeason);
+    : matches.filter(matchBelongsToActiveSeason);
 
   // Compute player stats based on matches for that season to show dynamic leaderboards
   const filteredPlayersBySeason = activeSeason === 'All Seasons'
@@ -415,7 +469,7 @@ export default function App() {
           imageUrl: resolvedImageUrl,
           position: resolvedPosition,
           isCaptain: resolvedIsCaptain,
-          seasons: playerRoster.map(r => r.season),
+          seasons: playerRoster.map(r => r.seasonName || r.season || ''),
           goals,
           assists,
           matchesPlayed,
@@ -433,11 +487,11 @@ export default function App() {
         };
       })
     : players
-        .filter(p => roster.some(r => r.playerId === p.id && r.season === activeSeason))
+        .filter(p => roster.some(r => r.playerId === p.id && rosterBelongsToActiveSeason(r)))
         .map(p => {
           const playerRoster = roster.filter(r => r.playerId === p.id);
           // Resolve Roster Seasonal Attributes (number, imageUrl, position, isCaptain)
-          const rosterEntry = roster.find(r => r.playerId === p.id && r.season === activeSeason);
+          const rosterEntry = roster.find(r => r.playerId === p.id && rosterBelongsToActiveSeason(r));
           const seasonalNumber = rosterEntry ? rosterEntry.number : p.number;
           const seasonalImageUrl = rosterEntry ? rosterEntry.imageUrl : p.imageUrl;
           const seasonalPosition = rosterEntry ? rosterEntry.position : p.position;
@@ -445,7 +499,7 @@ export default function App() {
             ? (rosterEntry.isCaptain === true || String(rosterEntry.isCaptain).toLowerCase() === 'true')
             : p.isCaptain;
 
-          const completedMatches = matches.filter(m => m.season === activeSeason && m.status === 'Completed');
+          const completedMatches = matches.filter(m => matchBelongsToActiveSeason(m) && m.status === 'Completed');
           
           // Find match stats entered for this player in this season's completed matches
           const playerStatsList = playerMatchStats.filter(pms => 
@@ -518,7 +572,7 @@ export default function App() {
             imageUrl: seasonalImageUrl,
             position: seasonalPosition,
             isCaptain: seasonalIsCaptain,
-            seasons: playerRoster.map(r => r.season),
+            seasons: playerRoster.map(r => r.seasonName || r.season || ''),
             goals,
             assists,
             matchesPlayed,

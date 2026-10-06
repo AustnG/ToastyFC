@@ -1,4 +1,67 @@
-import { Player, Match, NewsItem, GalleryItem, RosterEntry, MatchStats } from './types';
+import { Player, Match, NewsItem, GalleryItem, RosterEntry, MatchStats, Season } from './types';
+
+export const mockSeasons: Season[] = [
+  {
+    id: 's-2026-sky-summer',
+    name: '2026 SKY Summer',
+    startDate: '2026-06-01',
+    endDate: '2026-08-15',
+    division: 'SKY Soccer League A-Division',
+    playersRostered: 6,
+    perPlayerFee: 65,
+    teamFee: 390,
+    amountPaid: 390,
+    overview: 'Defending the crest in the premier summer league.'
+  },
+  {
+    id: 's-2026-spring',
+    name: '2026 Spring',
+    startDate: '2026-03-01',
+    endDate: '2026-05-30',
+    division: 'Outdoor League A-Division',
+    playersRostered: 6,
+    perPlayerFee: 60,
+    teamFee: 360,
+    amountPaid: 360,
+    overview: 'High-octane spring campaign.'
+  },
+  {
+    id: 's-2025-winter',
+    name: '2025 Winter',
+    startDate: '2025-11-01',
+    endDate: '2026-02-15',
+    division: 'Indoor Futsal Championship',
+    playersRostered: 4,
+    perPlayerFee: 55,
+    teamFee: 220,
+    amountPaid: 220,
+    overview: 'Indoor fast-paced court action.'
+  },
+  {
+    id: 's-2025-spring',
+    name: '2025 Spring',
+    startDate: '2025-03-01',
+    endDate: '2025-05-25',
+    division: 'B-Division',
+    playersRostered: 5,
+    perPlayerFee: 50,
+    teamFee: 250,
+    amountPaid: 250,
+    overview: 'Silverware campaign resulting in promotion.'
+  },
+  {
+    id: 's-2024-3v3-live',
+    name: '2024 3v3 Live',
+    startDate: '2024-07-01',
+    endDate: '2024-07-25',
+    division: '3v3 Live National Tour',
+    playersRostered: 4,
+    perPlayerFee: 45,
+    teamFee: 180,
+    amountPaid: 180,
+    overview: 'Summer 3v3 shootout showcase.'
+  }
+];
 
 export const mockPlayers: Player[] = [
   {
@@ -112,6 +175,8 @@ export const mockPlayers: Player[] = [
 export const mockMatches: Match[] = [
   {
     id: 'm1',
+    seasonId: 's-2026-sky-summer',
+    seasonName: '2026 SKY Summer',
     season: '2026 SKY Summer',
     date: '2026-07-15',
     time: '19:30',
@@ -123,6 +188,8 @@ export const mockMatches: Match[] = [
   },
   {
     id: 'm2',
+    seasonId: 's-2026-sky-summer',
+    seasonName: '2026 SKY Summer',
     season: '2026 SKY Summer',
     date: '2026-07-04',
     time: '18:00',
@@ -155,6 +222,8 @@ export const mockMatches: Match[] = [
   },
   {
     id: 'm3',
+    seasonId: 's-2026-sky-summer',
+    seasonName: '2026 SKY Summer',
     season: '2026 SKY Summer',
     date: '2026-06-27',
     time: '20:00',
@@ -187,6 +256,8 @@ export const mockMatches: Match[] = [
   },
   {
     id: 'm4',
+    seasonId: 's-2026-spring',
+    seasonName: '2026 Spring',
     season: '2026 Spring',
     date: '2026-05-18',
     time: '17:00',
@@ -218,6 +289,8 @@ export const mockMatches: Match[] = [
   },
   {
     id: 'm5',
+    seasonId: 's-2025-spring',
+    seasonName: '2025 Spring',
     season: '2025 Spring',
     date: '2025-04-12',
     time: '18:30',
@@ -249,6 +322,8 @@ export const mockMatches: Match[] = [
   },
   {
     id: 'm6',
+    seasonId: 's-2025-winter',
+    seasonName: '2025 Winter',
     season: '2025 Winter',
     date: '2025-11-18',
     time: '19:00',
@@ -280,6 +355,8 @@ export const mockMatches: Match[] = [
   },
   {
     id: 'm7',
+    seasonId: 's-2024-3v3-live',
+    seasonName: '2024 3v3 Live',
     season: '2024 3v3 Live',
     date: '2024-07-22',
     time: '16:00',
@@ -318,8 +395,7 @@ export const mockNews: NewsItem[] = [
     title: 'Toasty FC Clinches Major Victory Against Rivals Crispy United',
     summary: 'A stunning 3-1 performance propels Toasty FC to the top of the summer league standings.',
     content: 'On a beautiful Saturday afternoon, Toasty FC put on a masterclass of team chemistry and technical precision. Playing away at Crispy Stadium, our team took command of the possession from the whistle. Austin Greer broke the deadlock in the 14th minute. Crispy United fought back to equalize before halftime, but a spectacular second-half showing with goals from Emily Smith and Ben Toasty ensured three points for the Toasty Boys. We remain undefeated in our last four matches!',
-    imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80',
-    author: 'Coach Miller'
+    imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&auto=format&fit=crop&q=80'
   },
   {
     id: 'n2',
@@ -327,8 +403,7 @@ export const mockNews: NewsItem[] = [
     title: 'New Kit Partnership and Training Grounds Announced',
     summary: 'Toasty FC is proud to announce an exciting partnership and move to state-of-the-art training facilities.',
     content: 'We are thrilled to announce a major partnership with BreadBasket Sports, who will be our official apparel sponsor starting next month. The team will be sporting the brand new gold-and-charcoal gradient kits. Additionally, Toasty FC has secured weekly slots at the premier Toasty Turf training grounds, offering state-of-the-art turf, gym, and tactical discussion rooms to foster our growth.',
-    imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&auto=format&fit=crop&q=80',
-    author: 'Club Board'
+    imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800&auto=format&fit=crop&q=80'
   }
 ];
 
@@ -358,40 +433,40 @@ export const mockGallery: GalleryItem[] = [
 
 export const mockRoster: RosterEntry[] = [
   // Austin Greer (Captain in all seasons)
-  { id: 'r1', playerId: 'p1', season: '2026 SKY Summer', number: 10, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true },
-  { id: 'r2', playerId: 'p1', season: '2026 Spring', number: 10, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true },
-  { id: 'r3', playerId: 'p1', season: '2025 Winter', number: 10, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true },
-  { id: 'r4', playerId: 'p1', season: '2025 Spring', number: 99, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true }, // Historical number change
-  { id: 'r5', playerId: 'p1', season: '2024 3v3 Live', number: 99, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true },
+  { id: 'r1', seasonId: 's-2026-sky-summer', seasonName: '2026 SKY Summer', season: '2026 SKY Summer', playerId: 'p1', playerName: 'Austin Greer', number: 10, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true },
+  { id: 'r2', seasonId: 's-2026-spring', seasonName: '2026 Spring', season: '2026 Spring', playerId: 'p1', playerName: 'Austin Greer', number: 10, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true },
+  { id: 'r3', seasonId: 's-2025-winter', seasonName: '2025 Winter', season: '2025 Winter', playerId: 'p1', playerName: 'Austin Greer', number: 10, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true },
+  { id: 'r4', seasonId: 's-2025-spring', seasonName: '2025 Spring', season: '2025 Spring', playerId: 'p1', playerName: 'Austin Greer', number: 99, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true },
+  { id: 'r5', seasonId: 's-2024-3v3-live', seasonName: '2024 3v3 Live', season: '2024 3v3 Live', playerId: 'p1', playerName: 'Austin Greer', number: 99, imageUrl: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: true },
 
   // Ben Toasty
-  { id: 'r6', playerId: 'p2', season: '2026 SKY Summer', number: 7, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
-  { id: 'r7', playerId: 'p2', season: '2026 Spring', number: 7, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
-  { id: 'r8', playerId: 'p2', season: '2025 Winter', number: 17, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false }, // Historical number change
-  { id: 'r9', playerId: 'p2', season: '2025 Spring', number: 17, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
-  { id: 'r10', playerId: 'p2', season: '2024 3v3 Live', number: 17, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
+  { id: 'r6', seasonId: 's-2026-sky-summer', seasonName: '2026 SKY Summer', season: '2026 SKY Summer', playerId: 'p2', playerName: 'Ben Toasty', number: 7, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
+  { id: 'r7', seasonId: 's-2026-spring', seasonName: '2026 Spring', season: '2026 Spring', playerId: 'p2', playerName: 'Ben Toasty', number: 7, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
+  { id: 'r8', seasonId: 's-2025-winter', seasonName: '2025 Winter', season: '2025 Winter', playerId: 'p2', playerName: 'Ben Toasty', number: 17, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
+  { id: 'r9', seasonId: 's-2025-spring', seasonName: '2025 Spring', season: '2025 Spring', playerId: 'p2', playerName: 'Ben Toasty', number: 17, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
+  { id: 'r10', seasonId: 's-2024-3v3-live', seasonName: '2024 3v3 Live', season: '2024 3v3 Live', playerId: 'p2', playerName: 'Ben Toasty', number: 17, imageUrl: 'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
 
   // Carlos Mendez
-  { id: 'r11', playerId: 'p3', season: '2026 SKY Summer', number: 4, imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=80', position: 'Defender', isCaptain: false },
-  { id: 'r12', playerId: 'p3', season: '2026 Spring', number: 4, imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=80', position: 'Defender', isCaptain: false },
-  { id: 'r13', playerId: 'p3', season: '2025 Winter', number: 4, imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=80', position: 'Defender', isCaptain: false },
-  { id: 'r14', playerId: 'p3', season: '2025 Spring', number: 4, imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=80', position: 'Defender', isCaptain: false },
+  { id: 'r11', seasonId: 's-2026-sky-summer', seasonName: '2026 SKY Summer', season: '2026 SKY Summer', playerId: 'p3', playerName: 'Carlos Mendez', number: 4, imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=80', position: 'Defender', isCaptain: false },
+  { id: 'r12', seasonId: 's-2026-spring', seasonName: '2026 Spring', season: '2026 Spring', playerId: 'p3', playerName: 'Carlos Mendez', number: 4, imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=80', position: 'Defender', isCaptain: false },
+  { id: 'r13', seasonId: 's-2025-winter', seasonName: '2025 Winter', season: '2025 Winter', playerId: 'p3', playerName: 'Carlos Mendez', number: 4, imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=80', position: 'Defender', isCaptain: false },
+  { id: 'r14', seasonId: 's-2025-spring', seasonName: '2025 Spring', season: '2025 Spring', playerId: 'p3', playerName: 'Carlos Mendez', number: 4, imageUrl: 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=500&auto=format&fit=crop&q=80', position: 'Defender', isCaptain: false },
 
   // Danny Ward
-  { id: 'r15', playerId: 'p4', season: '2026 SKY Summer', number: 1, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false },
-  { id: 'r16', playerId: 'p4', season: '2026 Spring', number: 1, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false },
-  { id: 'r17', playerId: 'p4', season: '2025 Winter', number: 12, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false }, // Historical number change
-  { id: 'r18', playerId: 'p4', season: '2025 Spring', number: 12, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false },
-  { id: 'r19', playerId: 'p4', season: '2024 3v3 Live', number: 12, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false },
+  { id: 'r15', seasonId: 's-2026-sky-summer', seasonName: '2026 SKY Summer', season: '2026 SKY Summer', playerId: 'p4', playerName: 'Danny Ward', number: 1, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false },
+  { id: 'r16', seasonId: 's-2026-spring', seasonName: '2026 Spring', season: '2026 Spring', playerId: 'p4', playerName: 'Danny Ward', number: 1, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false },
+  { id: 'r17', seasonId: 's-2025-winter', seasonName: '2025 Winter', season: '2025 Winter', playerId: 'p4', playerName: 'Danny Ward', number: 12, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false },
+  { id: 'r18', seasonId: 's-2025-spring', seasonName: '2025 Spring', season: '2025 Spring', playerId: 'p4', playerName: 'Danny Ward', number: 12, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false },
+  { id: 'r19', seasonId: 's-2024-3v3-live', seasonName: '2024 3v3 Live', season: '2024 3v3 Live', playerId: 'p4', playerName: 'Danny Ward', number: 12, imageUrl: 'https://images.unsplash.com/photo-1518063319789-7217e6706b04?w=500&auto=format&fit=crop&q=80', position: 'Goalkeeper', isCaptain: false },
 
   // Emily Smith
-  { id: 'r20', playerId: 'p5', season: '2026 SKY Summer', number: 11, imageUrl: 'https://images.unsplash.com/photo-1551952237-954a0e68786c?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: false },
-  { id: 'r21', playerId: 'p5', season: '2026 Spring', number: 11, imageUrl: 'https://images.unsplash.com/photo-1551952237-954a0e68786c?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: false },
-  { id: 'r22', playerId: 'p5', season: '2025 Spring', number: 11, imageUrl: 'https://images.unsplash.com/photo-1551952237-954a0e68786c?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: false },
+  { id: 'r20', seasonId: 's-2026-sky-summer', seasonName: '2026 SKY Summer', season: '2026 SKY Summer', playerId: 'p5', playerName: 'Emily Smith', number: 11, imageUrl: 'https://images.unsplash.com/photo-1551952237-954a0e68786c?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: false },
+  { id: 'r21', seasonId: 's-2026-spring', seasonName: '2026 Spring', season: '2026 Spring', playerId: 'p5', playerName: 'Emily Smith', number: 11, imageUrl: 'https://images.unsplash.com/photo-1551952237-954a0e68786c?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: false },
+  { id: 'r22', seasonId: 's-2025-spring', seasonName: '2025 Spring', season: '2025 Spring', playerId: 'p5', playerName: 'Emily Smith', number: 11, imageUrl: 'https://images.unsplash.com/photo-1551952237-954a0e68786c?w=500&auto=format&fit=crop&q=80', position: 'Forward', isCaptain: false },
 
   // Marcus Vance
-  { id: 'r23', playerId: 'p6', season: '2026 SKY Summer', number: 8, imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
-  { id: 'r24', playerId: 'p6', season: '2026 Spring', number: 8, imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
+  { id: 'r23', seasonId: 's-2026-sky-summer', seasonName: '2026 SKY Summer', season: '2026 SKY Summer', playerId: 'p6', playerName: 'Marcus Vance', number: 8, imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
+  { id: 'r24', seasonId: 's-2026-spring', seasonName: '2026 Spring', season: '2026 Spring', playerId: 'p6', playerName: 'Marcus Vance', number: 8, imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&auto=format&fit=crop&q=80', position: 'Midfielder', isCaptain: false },
 ];
 
 export const mockMatchStats: MatchStats[] = [

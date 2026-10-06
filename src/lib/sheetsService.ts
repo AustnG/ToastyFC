@@ -1,5 +1,5 @@
-import { Player, Match, NewsItem, GalleryItem, RosterEntry, MatchStats } from '../types';
-import { mockPlayers, mockMatches, mockNews, mockGallery, mockRoster, mockMatchStats } from '../mockData';
+import { Player, Match, NewsItem, GalleryItem, RosterEntry, MatchStats, Season } from '../types';
+import { mockPlayers, mockMatches, mockNews, mockGallery, mockRoster, mockMatchStats, mockSeasons } from '../mockData';
 
 // Helper to convert an object into nested structures (e.g., stats_goals_toasty -> stats.goals.toasty)
 const setNestedKey = (obj: any, path: string, value: any) => {
@@ -140,6 +140,13 @@ const rowsToObjects = (rows: any[]): any[] => {
       }
     }
 
+    // Normalize seasonName and season for Roster and Matches
+    if (obj.seasonName && !obj.season) {
+      obj.season = obj.seasonName;
+    } else if (obj.season && !obj.seasonName) {
+      obj.seasonName = obj.season;
+    }
+
     // Normalize field aliases for YouTube URL column variations in Google Sheets (e.g. YouTubeurl, YouTubeUrl, youtube_url, YouTube URL)
     const ytVal = obj.youtubeUrl || obj.YouTubeurl || obj.YouTubeUrl || obj.youtube_url || obj['YouTube URL'] || obj['YouTube'] || obj['youtube'];
     if (ytVal && String(ytVal).trim() !== '' && String(ytVal).toLowerCase() !== 'null' && String(ytVal).toLowerCase() !== 'undefined' && String(ytVal).toLowerCase() !== 'none') {
@@ -165,7 +172,7 @@ const objectsToRows = (objects: any[], headers: string[]): any[][] => {
           return '';
         }
       }
-      if (header === 'playerName') {
+      if (header === 'playerName' && headers.includes('matchId')) {
         if (i === 0) {
           const idCol = headers.includes('gameName') ? 'C2:C' : 'B2:B';
           return `=ARRAYFORMULA(IF(${idCol}<>"", VLOOKUP(${idCol}, Players!A:B, 2, FALSE), ""))`;
@@ -173,7 +180,13 @@ const objectsToRows = (objects: any[], headers: string[]): any[][] => {
           return '';
         }
       }
-      const val = flat[header];
+      let val = flat[header];
+      if (header === 'seasonName' && (val === undefined || val === null || val === '')) {
+        val = flat.season;
+      }
+      if (header === 'season' && (val === undefined || val === null || val === '')) {
+        val = flat.seasonName;
+      }
       if (val === undefined || val === null) return '';
       if (Array.isArray(val)) return JSON.stringify(val);
       if (typeof val === 'object') return JSON.stringify(val);
@@ -184,30 +197,45 @@ const objectsToRows = (objects: any[], headers: string[]): any[][] => {
   return rows;
 };
 
-// Database headers definition
+// Database headers definition matching user's exact specifications:
+// 1. "Players" sheet
 const HEADERS_PLAYERS = [
-  'id', 'name', 'bio', 'dateOfBirth', 'height', 'birthplace',
-  'nationality', 'skills_pace', 'skills_shooting', 'skills_passing',
-  'skills_dribbling', 'skills_defending', 'skills_physical'
+  'id', 'name', 'dateOfBirth', 'height', 'birthplace', 'nationality',
+  'skills_pace', 'skills_shooting', 'skills_passing', 'skills_dribbling',
+  'skills_defending', 'skills_physical', 'bio'
 ];
 
+// 2. "Seasons" sheet
+const HEADERS_SEASONS = [
+  'id', 'name', 'startDate', 'endDate', 'division', 'playersRostered',
+  'perPlayerFee', 'teamFee', 'amountPaid', 'overview'
+];
+
+// 3. "Roster" sheet
+const HEADERS_ROSTER = [
+  'id', 'seasonId', 'seasonName', 'playerId', 'playerName', 'number',
+  'isCaptain', 'position', 'imageUrl'
+];
+
+// 4. "Matches" sheet
 const HEADERS_MATCHES = [
-  'id', 'season', 'date', 'time', 'opponent', 'opponentColor', 'type', 'status', 'location', 'toastyScore',
+  'id', 'seasonId', 'seasonName', 'date', 'time', 'opponent', 'opponentColor', 'type', 'status', 'location', 'toastyScore',
   'opponentScore', 'summary', 'goalsScoredBy', 'assistsBy', 'goalScorersDetails', 'opponentGoalScorersDetails',
   'playerOfTheMatch', 'youtubeUrl', 
   'stats_goals_toasty', 'stats_shots_toasty', 'stats_shotsOnTarget_toasty', 'stats_blocks_toasty', 'stats_fouls_toasty', 'stats_yellowCards_toasty', 'stats_redCards_toasty', 'stats_saves_toasty', 'stats_corners_toasty',
   'stats_goals_opponent', 'stats_shots_opponent', 'stats_shotsOnTarget_opponent', 'stats_blocks_opponent', 'stats_fouls_opponent', 'stats_yellowCards_opponent', 'stats_redCards_opponent', 'stats_saves_opponent', 'stats_corners_opponent'
 ];
 
-const HEADERS_NEWS = ['id', 'date', 'title', 'summary', 'content', 'imageUrl', 'author'];
-
-const HEADERS_GALLERY = ['id', 'date', 'eventName', 'imageUrl', 'caption'];
-
-const HEADERS_ROSTER = ['id', 'playerId', 'playerName', 'season', 'number', 'imageUrl', 'position', 'isCaptain'];
-
+// 5. "Match Stats" sheet
 const HEADERS_MATCH_STATS = [
   'matchId', 'gameName', 'playerId', 'playerName', 'goals', 'assists', 'shots', 'shotsOnTarget', 'blocks', 'plusMinus', 'fouls', 'yellows', 'reds', 'potm', 'saves', 'goalsAllowed', 'cleanSheet'
 ];
+
+// 6. "News" sheet (author deleted per user request)
+const HEADERS_NEWS = ['id', 'date', 'title', 'summary', 'content', 'imageUrl'];
+
+// 7. "Gallery" sheet
+const HEADERS_GALLERY = ['id', 'date', 'eventName', 'imageUrl', 'caption'];
 
 export const sheetsService = {
   // Find or create database in user's Google Drive
@@ -243,6 +271,7 @@ export const sheetsService = {
           },
           sheets: [
             { properties: { title: 'Players' } },
+            { properties: { title: 'Seasons' } },
             { properties: { title: 'Roster' } },
             { properties: { title: 'Matches' } },
             { properties: { title: 'MatchStats' } },
@@ -274,6 +303,7 @@ export const sheetsService = {
   // Seed the newly created spreadsheet with mock data
   seedDatabase: async (spreadsheetId: string, token: string): Promise<void> => {
     const playersRows = objectsToRows(mockPlayers, HEADERS_PLAYERS);
+    const seasonsRows = objectsToRows(mockSeasons, HEADERS_SEASONS);
     const matchesRows = objectsToRows(mockMatches, HEADERS_MATCHES);
     const newsRows = objectsToRows(mockNews, HEADERS_NEWS);
     const galleryRows = objectsToRows(mockGallery, HEADERS_GALLERY);
@@ -282,6 +312,7 @@ export const sheetsService = {
 
     const data = [
       { range: 'Players!A1', values: playersRows },
+      { range: 'Seasons!A1', values: seasonsRows },
       { range: 'Matches!A1', values: matchesRows },
       { range: 'News!A1', values: newsRows },
       { range: 'Gallery!A1', values: galleryRows },
@@ -309,13 +340,22 @@ export const sheetsService = {
   // Fetch all data from the database in a single batch request
   fetchDatabaseData: async (spreadsheetId: string, token: string): Promise<{
     players: Player[];
+    seasons: Season[];
     matches: Match[];
     news: NewsItem[];
     gallery: GalleryItem[];
     roster: RosterEntry[];
     playerMatchStats: MatchStats[];
   }> => {
-    const ranges = ['Players!A1:Z100', 'Matches!A1:AK150', 'News!A1:G100', 'Gallery!A1:E100', 'Roster!A1:G200', 'MatchStats!A1:Q300'];
+    const ranges = [
+      'Players!A1:Z100',
+      'Matches!A1:AK150',
+      'News!A1:G100',
+      'Gallery!A1:E100',
+      'Roster!A1:J200',
+      'MatchStats!A1:Q300',
+      'Seasons!A1:J100'
+    ];
     const query = ranges.map(r => `ranges=${encodeURIComponent(r)}`).join('&');
     
     const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values:batchGet?${query}`, {
@@ -335,27 +375,33 @@ export const sheetsService = {
     const gallery = rowsToObjects(valueRanges[3]?.values || []);
     const roster = rowsToObjects(valueRanges[4]?.values || []);
     const playerMatchStats = rowsToObjects(valueRanges[5]?.values || []);
+    const seasons = rowsToObjects(valueRanges[6]?.values || []);
 
-    return { players, matches, news, gallery, roster, playerMatchStats };
+    return { players, seasons, matches, news, gallery, roster, playerMatchStats };
   },
 
   // Fetch all data from the database using public read-only CSV exports (no token required)
   fetchPublicDatabaseData: async (spreadsheetId: string): Promise<{
     players: Player[];
+    seasons: Season[];
     matches: Match[];
     news: NewsItem[];
     gallery: GalleryItem[];
     roster: RosterEntry[];
     playerMatchStats: MatchStats[];
   }> => {
-    const sheets = ['Players', 'Matches', 'News', 'Gallery', 'Roster', 'MatchStats'];
+    const sheets = ['Players', 'Seasons', 'Matches', 'News', 'Gallery', 'Roster', 'MatchStats'];
     const results: any = {};
 
     for (const sheetName of sheets) {
-      const url = `https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-      const res = await fetch(url);
+      let res = await fetch(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`);
+      // If MatchStats not found, try alternative sheet title with space "Match Stats"
+      if (!res.ok && sheetName === 'MatchStats') {
+        const altRes = await fetch(`https://docs.google.com/spreadsheets/d/${spreadsheetId}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('Match Stats')}`);
+        if (altRes.ok) res = altRes;
+      }
       if (!res.ok) {
-        if (sheetName === 'Roster' || sheetName === 'PlayerMatchStats') {
+        if (sheetName === 'Roster' || sheetName === 'MatchStats' || sheetName === 'Seasons') {
           results[sheetName.toLowerCase()] = [];
           continue;
         }
@@ -368,6 +414,7 @@ export const sheetsService = {
 
     return {
       players: results.players || [],
+      seasons: results.seasons || [],
       matches: results.matches || [],
       news: results.news || [],
       gallery: results.gallery || [],
@@ -380,7 +427,7 @@ export const sheetsService = {
   saveDatabaseData: async (
     spreadsheetId: string,
     token: string,
-    type: 'players' | 'matches' | 'news' | 'gallery' | 'roster' | 'playerMatchStats',
+    type: 'players' | 'seasons' | 'matches' | 'news' | 'gallery' | 'roster' | 'playerMatchStats',
     items: any[]
   ): Promise<void> => {
     let range = '';
@@ -389,6 +436,9 @@ export const sheetsService = {
     if (type === 'players') {
       range = 'Players!A1:Z100';
       rows = objectsToRows(items, HEADERS_PLAYERS);
+    } else if (type === 'seasons') {
+      range = 'Seasons!A1:J100';
+      rows = objectsToRows(items, HEADERS_SEASONS);
     } else if (type === 'matches') {
       range = 'Matches!A1:AK150';
       rows = objectsToRows(items, HEADERS_MATCHES);
@@ -399,7 +449,7 @@ export const sheetsService = {
       range = 'Gallery!A1:E100';
       rows = objectsToRows(items, HEADERS_GALLERY);
     } else if (type === 'roster') {
-      range = 'Roster!A1:G200';
+      range = 'Roster!A1:J200';
       rows = objectsToRows(items, HEADERS_ROSTER);
     } else if (type === 'playerMatchStats') {
       range = 'MatchStats!A1:Q300';
@@ -443,7 +493,40 @@ export const sheetsService = {
       const metadata = await metadataRes.json();
       const existingSheetTitles: string[] = metadata.sheets?.map((s: any) => s.properties.title) || [];
 
-      // 2. Add 'Roster' sheet if missing
+      // 2. Add 'Seasons' sheet if missing
+      if (!existingSheetTitles.includes('Seasons')) {
+        console.log("Migrating database: Adding Seasons sheet.");
+        const addSheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            requests: [
+              {
+                addSheet: {
+                  properties: { title: 'Seasons' }
+                }
+              }
+            ]
+          })
+        });
+        if (addSheetRes.ok) {
+          // Seed Seasons sheet
+          const seasonsRows = objectsToRows(mockSeasons, HEADERS_SEASONS);
+          await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Seasons!A1?valueInputOption=USER_ENTERED`, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ values: seasonsRows })
+          });
+        }
+      }
+
+      // 2b. Add 'Roster' sheet if missing
       if (!existingSheetTitles.includes('Roster')) {
         console.log("Migrating database: Adding Roster sheet.");
         const addSheetRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`, {
@@ -476,55 +559,49 @@ export const sheetsService = {
         }
       }
 
-      // 3. Migrate/Rearrange 'Matches' columns if they are not in the new order
-      // Fetch headers of current Matches sheet
-      const headersRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Matches!A1:AZ1`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (headersRes.ok) {
-        const headersData = await headersRes.json();
-        const currentHeaders: string[] = headersData.values?.[0] || [];
-        
-        // We need migration if 'opponentColor' is missing OR if 'assistsBy' is missing OR if 'stats_assists_toasty' is still in the headers
-        const needsMatchesMigration = !currentHeaders.includes('opponentColor') || !currentHeaders.includes('assistsBy') || currentHeaders.includes('stats_assists_toasty');
-        
-        if (needsMatchesMigration) {
-          console.log("Migrating database: Rearranging Matches sheet columns and adding opponentColor.");
-          // Fetch all current matches rows
-          const matchesRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Matches!A1:AZ150`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          if (matchesRes.ok) {
-            const matchesData = await matchesRes.json();
-            const currentRows = matchesData.values || [];
-            if (currentRows.length > 0) {
-              // Convert existing rows to objects using the *old* headers on the sheet
-              const parsedMatches = rowsToObjects(currentRows);
-              
-              // Map/restructure matches to new HEADERS_MATCHES format
-              const newMatchesRows = objectsToRows(parsedMatches, HEADERS_MATCHES);
+      // 3. Migrate/Rearrange 'Matches' columns if missing seasonId/seasonName or having old headers
+      if (existingSheetTitles.includes('Matches')) {
+        const headersRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Matches!A1:AZ1`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (headersRes.ok) {
+          const headersData = await headersRes.json();
+          const currentHeaders: string[] = headersData.values?.[0] || [];
+          
+          const needsMatchesMigration = !currentHeaders.includes('seasonId') || !currentHeaders.includes('seasonName') || currentHeaders.includes('stats_assists_toasty');
+          
+          if (needsMatchesMigration) {
+            console.log("Migrating database: Updating Matches sheet columns with seasonId and seasonName.");
+            const matchesRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Matches!A1:AZ150`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (matchesRes.ok) {
+              const matchesData = await matchesRes.json();
+              const currentRows = matchesData.values || [];
+              if (currentRows.length > 0) {
+                const parsedMatches = rowsToObjects(currentRows);
+                const newMatchesRows = objectsToRows(parsedMatches, HEADERS_MATCHES);
 
-              // Clear the old Matches sheet completely
-              await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Matches!A1:AZ150:clear`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` }
-              });
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Matches!A1:AZ150:clear`, {
+                  method: 'POST',
+                  headers: { Authorization: `Bearer ${token}` }
+                });
 
-              // Write new matches rows with correct column order and removed/added fields
-              await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Matches!A1?valueInputOption=USER_ENTERED`, {
-                method: 'PUT',
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ values: newMatchesRows })
-              });
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Matches!A1?valueInputOption=USER_ENTERED`, {
+                  method: 'PUT',
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ values: newMatchesRows })
+                });
+              }
             }
           }
         }
       }
 
-      // 3b. Migrate 'Players' sheet if any deprecated columns (like 'number' or 'seasons') are still in the headers
+      // 3b. Migrate 'Players' sheet if any deprecated columns are still in headers
       if (existingSheetTitles.includes('Players')) {
         const playersHeadersRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Players!A1:Z1`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -532,8 +609,8 @@ export const sheetsService = {
         if (playersHeadersRes.ok) {
           const playersHeadersData = await playersHeadersRes.json();
           const currentPlayersHeaders: string[] = playersHeadersData.values?.[0] || [];
-          if (currentPlayersHeaders.includes('number') || currentPlayersHeaders.includes('seasons') || currentPlayersHeaders.includes('goals')) {
-            console.log("Migrating database: Removing deprecated columns from Players sheet.");
+          if (currentPlayersHeaders.includes('number') || currentPlayersHeaders.includes('seasons') || currentPlayersHeaders.includes('goals') || currentPlayersHeaders[2] === 'bio') {
+            console.log("Migrating database: Aligning Players sheet columns to latest specification.");
             const playersRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Players!A1:Z100`, {
               headers: { Authorization: `Bearer ${token}` }
             });
@@ -544,13 +621,11 @@ export const sheetsService = {
                 const parsedPlayers = rowsToObjects(currentPlayersRows);
                 const newPlayersRows = objectsToRows(parsedPlayers, HEADERS_PLAYERS);
 
-                // Clear the old Players sheet completely
                 await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Players!A1:Z100:clear`, {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${token}` }
                 });
 
-                // Write the clean, updated columns back to the Players sheet
                 await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Players!A1?valueInputOption=USER_ENTERED`, {
                   method: 'PUT',
                   headers: {
@@ -559,14 +634,13 @@ export const sheetsService = {
                   },
                   body: JSON.stringify({ values: newPlayersRows })
                 });
-                console.log("Migrating database: Players sheet deprecated columns successfully removed.");
               }
             }
           }
         }
       }
 
-      // 4. Migrate 'Roster' sheet if 'isCaptain' or 'playerName' is missing from headers
+      // 4. Migrate 'Roster' sheet if 'seasonId' or 'seasonName' is missing from headers
       if (existingSheetTitles.includes('Roster')) {
         const rosterHeadersRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Roster!A1:Z1`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -574,9 +648,9 @@ export const sheetsService = {
         if (rosterHeadersRes.ok) {
           const rosterHeadersData = await rosterHeadersRes.json();
           const currentRosterHeaders: string[] = rosterHeadersData.values?.[0] || [];
-          if (currentRosterHeaders.length > 0 && (!currentRosterHeaders.includes('isCaptain') || !currentRosterHeaders.includes('playerName'))) {
-            console.log("Migrating database: Adding missing columns to Roster sheet.");
-            const rosterRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Roster!A1:H200`, {
+          if (currentRosterHeaders.length > 0 && (!currentRosterHeaders.includes('seasonId') || !currentRosterHeaders.includes('seasonName'))) {
+            console.log("Migrating database: Adding seasonId and seasonName to Roster sheet.");
+            const rosterRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Roster!A1:J200`, {
               headers: { Authorization: `Bearer ${token}` }
             });
             if (rosterRes.ok) {
@@ -584,20 +658,18 @@ export const sheetsService = {
               const currentRosterRows = rosterData.values || [];
               if (currentRosterRows.length > 0) {
                 const parsedRoster = rowsToObjects(currentRosterRows);
-                // For existing roster rows, default isCaptain based on whether player p1 (Austin Greer) is the player (default captain)
                 const updatedRoster = parsedRoster.map(r => ({
                   ...r,
+                  seasonName: r.seasonName || r.season || '',
                   isCaptain: r.isCaptain !== undefined ? (r.isCaptain === true || String(r.isCaptain).toLowerCase() === 'true') : (r.playerId === 'p1' ? true : false)
                 }));
                 const newRosterRows = objectsToRows(updatedRoster, HEADERS_ROSTER);
 
-                // Clear the old range completely
                 await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Roster!A1:Z200:clear`, {
                   method: 'POST',
                   headers: { Authorization: `Bearer ${token}` }
                 });
 
-                // Write new Roster rows with correct columns
                 await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/Roster!A1?valueInputOption=USER_ENTERED`, {
                   method: 'PUT',
                   headers: {
@@ -605,6 +677,45 @@ export const sheetsService = {
                     'Content-Type': 'application/json'
                   },
                   body: JSON.stringify({ values: newRosterRows })
+                });
+              }
+            }
+          }
+        }
+      }
+
+      // 4b. Migrate 'News' sheet if 'author' column is still present
+      if (existingSheetTitles.includes('News')) {
+        const newsHeadersRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/News!A1:Z1`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (newsHeadersRes.ok) {
+          const newsHeadersData = await newsHeadersRes.json();
+          const currentNewsHeaders: string[] = newsHeadersData.values?.[0] || [];
+          if (currentNewsHeaders.includes('author')) {
+            console.log("Migrating database: Removing author column from News sheet.");
+            const newsRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/News!A1:G100`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (newsRes.ok) {
+              const newsData = await newsRes.json();
+              const currentNewsRows = newsData.values || [];
+              if (currentNewsRows.length > 0) {
+                const parsedNews = rowsToObjects(currentNewsRows);
+                const newNewsRows = objectsToRows(parsedNews, HEADERS_NEWS);
+
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/News!A1:Z100:clear`, {
+                  method: 'POST',
+                  headers: { Authorization: `Bearer ${token}` }
+                });
+
+                await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/News!A1?valueInputOption=USER_ENTERED`, {
+                  method: 'PUT',
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({ values: newNewsRows })
                 });
               }
             }
@@ -784,14 +895,14 @@ export const sheetsService = {
         }
       }
 
-      // 6. Enforce desired sheet order: Players, Roster, Matches, MatchStats, News, Gallery
+      // 6. Enforce desired sheet order: Players, Seasons, Roster, Matches, MatchStats, News, Gallery
       const finalMetadataRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?fields=sheets.properties`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (finalMetadataRes.ok) {
         const finalMetadata = await finalMetadataRes.json();
         const sheetsList = finalMetadata.sheets || [];
-        const DESIRED_ORDER = ['Players', 'Roster', 'Matches', 'MatchStats', 'News', 'Gallery'];
+        const DESIRED_ORDER = ['Players', 'Seasons', 'Roster', 'Matches', 'MatchStats', 'News', 'Gallery'];
         const requests: any[] = [];
         
         sheetsList.forEach((s: any) => {
