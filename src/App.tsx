@@ -914,6 +914,7 @@ export default function App() {
             <Matches 
               matches={filteredMatchesBySeason} 
               seasons={seasons} 
+              seasonsList={seasonsList}
               activeSeason={activeSeason} 
               onSeasonChange={setActiveSeason} 
               playerMatchStats={playerMatchStats}
@@ -932,6 +933,7 @@ export default function App() {
             <Stats 
               players={filteredPlayersBySeason} 
               seasons={seasons} 
+              seasonsList={seasonsList}
               activeSeason={activeSeason} 
               onSeasonChange={setActiveSeason}
               matches={filteredMatchesBySeason}

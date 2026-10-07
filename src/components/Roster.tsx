@@ -278,7 +278,8 @@ export const Roster: React.FC<RosterProps> = ({
         const saves = activeSelectedPlayer.saves ?? 0;
         const goalsAllowed = activeSelectedPlayer.goalsAllowed ?? 0;
 
-        const shotAccuracy = shots > 0 ? Math.round((shotsOnTarget / shots) * 100) : 0;
+        const totalShots = shots + shotsOnTarget;
+        const shotAccuracy = totalShots > 0 ? Math.round((shotsOnTarget / totalShots) * 100) : 0;
         const goalsPerMatch = matchesPlayed > 0 ? (goals / matchesPlayed).toFixed(2) : '0.00';
         const assistsPerMatch = matchesPlayed > 0 ? (assists / matchesPlayed).toFixed(2) : '0.00';
         const contributions = goals + assists;
@@ -529,11 +530,11 @@ export const Roster: React.FC<RosterProps> = ({
                               {contributions} <span className="text-[10px] text-slate-400 font-normal">({contributionsPerMatch}/g)</span>
                             </span>
                           </div>
-                          {shots > 0 && (
+                          {totalShots > 0 && (
                             <div className="pt-1">
                               <div className="flex justify-between text-[10px] text-slate-400 mb-1">
                                 <span>Shot Accuracy</span>
-                                <span>{shotAccuracy}% ({shotsOnTarget}/{shots} SOT)</span>
+                                <span>{shotAccuracy}% ({shotsOnTarget}/{totalShots} SOT)</span>
                               </div>
                               <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
                                 <div className="bg-toasty-red h-full rounded-full transition-all duration-300" style={{ width: `${shotAccuracy}%` }} />

@@ -250,35 +250,35 @@ export const Matches: React.FC<MatchesProps> = ({
       </div>
 
       {/* Season Overview Segment */}
-      <div className="flex overflow-x-auto pb-4 gap-4 snap-x snap-mandatory scrollbar-none sm:grid sm:grid-cols-2 lg:grid-cols-4 -mx-4 px-4 sm:mx-0 sm:px-0" id="matches-season-overview">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4" id="matches-season-overview">
         {/* Record Card */}
-        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200 min-w-[280px] sm:min-w-0 shrink-0 snap-start">
+        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-3.5 sm:p-5 shadow-md flex items-center justify-between transition-all duration-200">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Campaign Record</span>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-black text-white font-mono">
+            <div className="flex items-baseline gap-1.5 sm:gap-2">
+              <span className="text-xl sm:text-2xl font-black text-white font-mono">
                 {wins}-{draws}-{losses}
               </span>
-              <span className="text-xs text-slate-400 font-medium font-sans">W-D-L</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-medium font-sans">W-D-L</span>
             </div>
-            <span className="text-[11px] text-slate-400 block font-medium">
+            <span className="text-[10px] sm:text-[11px] text-slate-400 block font-medium">
               {completedCount} of {totalMatchesCount} games played
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-toasty-tan/15 border border-toasty-tan/30 flex items-center justify-center text-toasty-tan shrink-0">
-            <Trophy size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-toasty-tan/15 border border-toasty-tan/30 flex items-center justify-center text-toasty-tan shrink-0">
+            <Trophy size={18} />
           </div>
         </div>
 
         {/* Goals Card */}
-        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200 min-w-[280px] sm:min-w-0 shrink-0 snap-start">
+        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-3.5 sm:p-5 shadow-md flex items-center justify-between transition-all duration-200">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Goals & GD</span>
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-black text-white font-mono">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <span className="text-xl sm:text-2xl font-black text-white font-mono">
                 {goalsScored}:{goalsConceded}
               </span>
-              <span className={`text-xs font-mono font-bold px-1.5 py-0.5 rounded border ${
+              <span className={`text-[10px] sm:text-xs font-mono font-bold px-1.5 py-0.5 rounded border ${
                 goalDiff > 0 
                   ? 'bg-toasty-red/20 text-red-300 border-toasty-red/40' 
                   : goalDiff < 0 
@@ -288,50 +288,50 @@ export const Matches: React.FC<MatchesProps> = ({
                 {goalDiff > 0 ? `+${goalDiff}` : goalDiff} GD
               </span>
             </div>
-            <span className="text-[11px] text-slate-400 block font-medium">
+            <span className="text-[10px] sm:text-[11px] text-slate-400 block font-medium">
               Avg. {completedCount > 0 ? (goalsScored / completedCount).toFixed(1) : 0} goals/game
             </span>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-toasty-red/20 border border-toasty-red/40 flex items-center justify-center text-red-300 shrink-0">
-            <Target size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-toasty-red/20 border border-toasty-red/40 flex items-center justify-center text-red-300 shrink-0">
+            <Target size={18} />
           </div>
         </div>
 
         {/* Win Rate Card */}
-        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200 min-w-[280px] sm:min-w-0 shrink-0 snap-start">
+        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-3.5 sm:p-5 shadow-md flex items-center justify-between transition-all duration-200">
           <div className="space-y-1">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Win Percentage</span>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-2xl font-black text-white font-mono">
+              <span className="text-xl sm:text-2xl font-black text-white font-mono">
                 {winRate}%
               </span>
-              <span className="text-xs text-slate-400 font-semibold uppercase font-mono">Rate</span>
+              <span className="text-[10px] sm:text-xs text-slate-400 font-semibold uppercase font-mono">Rate</span>
             </div>
             {/* simple micro progress bar */}
-            <div className="w-24 h-1.5 bg-slate-900 rounded-full overflow-hidden mt-1 border border-slate-800">
+            <div className="w-16 sm:w-24 h-1.5 bg-slate-900 rounded-full overflow-hidden mt-1 border border-slate-800">
               <div 
                 className="h-full bg-toasty-red rounded-full animate-pulse" 
                 style={{ width: `${winRate}%` }}
               />
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-toasty-tan/15 border border-toasty-tan/30 flex items-center justify-center text-toasty-tan shrink-0">
-            <TrendingUp size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-toasty-tan/15 border border-toasty-tan/30 flex items-center justify-center text-toasty-tan shrink-0">
+            <TrendingUp size={18} />
           </div>
         </div>
 
         {/* Form Guide Card */}
-        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-5 shadow-md flex items-center justify-between transition-all duration-200 min-w-[280px] sm:min-w-0 shrink-0 snap-start">
+        <div className="bg-slate-950 border border-slate-900 rounded-2xl p-3.5 sm:p-5 shadow-md flex items-center justify-between transition-all duration-200">
           <div className="space-y-1.5 w-full">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Recent Form</span>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
               {formGuide.length === 0 ? (
-                <span className="text-xs text-slate-400 italic">No games played yet</span>
+                <span className="text-[10px] sm:text-xs text-slate-400 italic">No games yet</span>
               ) : (
                 formGuide.map((game, i) => (
                   <div 
                     key={i} 
-                    className={`w-7 h-7 rounded-full flex items-center justify-center font-mono text-xs font-black select-none ${game.bg} cursor-help shadow-sm`}
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center font-mono text-[10px] sm:text-xs font-black select-none ${game.bg} cursor-help shadow-sm`}
                     title={game.label}
                   >
                     {game.result}
@@ -340,13 +340,13 @@ export const Matches: React.FC<MatchesProps> = ({
               )}
             </div>
             {formGuide.length > 0 && (
-              <span className="text-[9px] text-slate-400 block font-medium">
-                Newest matches on the right
+              <span className="text-[8px] sm:text-[9px] text-slate-400 block font-medium">
+                Newest on right
               </span>
             )}
           </div>
-          <div className="w-10 h-10 rounded-xl bg-toasty-red/20 border border-toasty-red/40 flex items-center justify-center text-red-300 shrink-0 self-start">
-            <Activity size={20} />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-toasty-red/20 border border-toasty-red/40 flex items-center justify-center text-red-300 shrink-0 self-start">
+            <Activity size={18} />
           </div>
         </div>
       </div>
@@ -775,8 +775,11 @@ export const Matches: React.FC<MatchesProps> = ({
                                   const playerObj = players.find(p => p.id === stat.playerId);
                                   const number = playerObj?.number;
                                   const isGK = playerObj?.position === 'Goalkeeper';
-                                  const shotAccuracy = stat.shots > 0 ? Math.round((stat.shotsOnTarget / stat.shots) * 100) : 0;
-                                  const conversionRate = stat.shotsOnTarget > 0 ? Math.round((stat.goals / stat.shotsOnTarget) * 100) : 0;
+                                  const rawShots = Number(stat.shots || 0);
+                                  const rawSOT = Number(stat.shotsOnTarget || 0);
+                                  const totalShots = rawShots + rawSOT;
+                                  const shotAccuracy = totalShots > 0 ? Math.round((rawSOT / totalShots) * 100) : 0;
+                                  const conversionRate = rawSOT > 0 ? Math.round((stat.goals / rawSOT) * 100) : 0;
 
                                   return (
                                     <tr key={stat.id} className="hover:bg-slate-50/50 transition">
@@ -798,10 +801,10 @@ export const Matches: React.FC<MatchesProps> = ({
                                         {stat.assists > 0 ? stat.assists : '—'}
                                       </td>
                                       <td className="px-4 py-3 text-center text-slate-700 font-mono">
-                                        {stat.shots > 0 ? `${stat.shots} (${stat.shotsOnTarget})` : '—'}
+                                        {totalShots > 0 ? `${totalShots} (${rawSOT})` : '—'}
                                       </td>
                                       <td className="px-4 py-3 text-center font-mono text-slate-500 text-[10px]">
-                                        {stat.shotsOnTarget > 0 ? `${shotAccuracy}% s.acc` : '—'}
+                                        {totalShots > 0 ? `${shotAccuracy}% s.acc` : '—'}
                                       </td>
                                       <td className="px-4 py-3 text-center text-indigo-600 font-bold">
                                         {stat.blocks > 0 ? stat.blocks : '—'}
