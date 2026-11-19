@@ -1,416 +1,402 @@
 import React from 'react';
-import { 
-  Info, 
-  Users, 
-  Sparkles, 
-  Shield, 
-  Award, 
-  Flame, 
-  Calendar, 
-  TrendingUp,
-  Clock,
-  Palette,
-  Camera,
-  Shirt,
-  BarChart2,
-  Smile,
-  Heart
-} from 'lucide-react';
+import { Award, BarChart2, Flame, Users, Shield } from 'lucide-react';
+
+const CLUB_LOGO_URL =
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png';
+
+const PALETTE_SWATCHES = [
+  {
+    name: 'Bread Tan',
+    hex: '#CABBA2',
+    role: 'Primary Kit',
+    description:
+      'Inspired by toasted bread. An unmistakable kit tone that ensures zero color clashes across every league.',
+    bgStyle: '#CABBA2',
+    textClass: 'text-zinc-900',
+    borderClass: 'border-black/10'
+  },
+  {
+    name: 'Founding Crimson',
+    hex: '#AA0000',
+    role: 'Secondary Kit',
+    description:
+      'The inaugural color of the 2022 squad. Serves today as our away kit and matchday accent.',
+    bgStyle: '#AA0000',
+    textClass: 'text-white',
+    borderClass: 'border-black/10'
+  },
+  {
+    name: 'Crisp White',
+    hex: '#FFFFFF',
+    role: 'Tertiary & Trim',
+    description: 'Clean jersey numbering, collar trim, and alternate detailing across kit generations.',
+    bgStyle: '#FFFFFF',
+    textClass: 'text-zinc-900',
+    borderClass: 'border-zinc-300'
+  },
+  {
+    name: 'Obsidian Black',
+    hex: '#0D0D0F',
+    role: 'Outlines & Contrast',
+    description: 'Provides structural contrast, crest framing, and legibility under court lighting.',
+    bgStyle: '#0D0D0F',
+    textClass: 'text-white',
+    borderClass: 'border-zinc-800'
+  }
+];
+
+const MILESTONES = [
+  {
+    year: '2022',
+    tag: 'The Kickoff',
+    title: 'Founding & Inaugural Crimson Kit',
+    description:
+      'Austin Greer and Goran Omerdic founded Toasty FC in Bowling Green, KY. The squad debuted in dark crimson (#AA0000) uniforms.',
+    dotClass: 'border-toasty-red'
+  },
+  {
+    year: '2023',
+    tag: 'Silverware & Film',
+    title: 'Spring B-Division Champions',
+    description:
+      'Toasty FC lifted its first major trophy in the BG Futsal B-Division Spring Championship and introduced Mevo goal cameras for match highlights.',
+    dotClass: 'border-toasty-tan'
+  },
+  {
+    year: '2024',
+    tag: 'Kit Evolution',
+    title: 'The Signature Bread Tan Kit',
+    description:
+      'Transitioned to the iconic Bread Tan (#CABBA2) home jerseys, establishing Toasty FC as the most recognizable club in Bowling Green.',
+    dotClass: 'border-toasty-tan'
+  },
+  {
+    year: '2026',
+    tag: 'Multi-League Era',
+    title: 'Citywide Expansion & 3rd Gen Kit',
+    description:
+      'Expanded into multiple indoor and outdoor leagues across Bowling Green alongside the 3rd-generation kit and full club analytics hub.',
+    dotClass: 'border-emerald-400'
+  }
+];
 
 export const About: React.FC = () => {
-  const logoUrl = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png";
-
   return (
-    <div className="space-y-12 animate-fade-in" id="about-page-root">
-      {/* Editorial Header Banner */}
-      <div className="bg-slate-950 text-white rounded-3xl p-8 md:p-12 border border-slate-900 relative overflow-hidden shadow-xl">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-toasty-red/15 blur-3xl rounded-full" />
-        <div className="absolute -bottom-10 -left-10 w-64 h-64 bg-toasty-tan/10 blur-2xl rounded-full" />
-        
-        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="space-y-4 max-w-2xl text-center md:text-left">
-            <span className="bg-toasty-red/20 text-red-300 border border-toasty-red/40 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full font-mono inline-block">
-              Bowling Green, KY • Established 2022
+    <div className="space-y-10 animate-fade-in" id="about-page-root">
+      {/* Editorial Obsidian Club Banner */}
+      <section className="bg-toasty-obsidian text-white rounded-xl p-8 md:p-10 border border-toasty-obsidian-border">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-3 max-w-2xl text-center md:text-left">
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.14em] text-toasty-tan block">
+              Bowling Green, KY · Established 2022
             </span>
-            <h2 className="text-3xl md:text-5xl font-display font-black tracking-tight leading-tight">
-              ABOUT <span className="text-toasty-tan">TOASTY FC</span>
-            </h2>
-            <p className="text-sm md:text-base text-slate-300 leading-relaxed">
-              From local futsal roots to Bowling Green's favorite cult-classic team. Discover our history, unique bread-tan & founding red branding, tactical philosophy, and why experience beats pure running.
+            <h1 className="font-display font-extrabold text-4xl sm:text-5xl uppercase tracking-tight leading-[0.95]">
+              About <span className="text-toasty-tan">Toasty FC</span>
+            </h1>
+            <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
+              From local futsal roots to Bowling Green&apos;s cult-classic side. Explore our club
+              history, Bread Tan &amp; Founding Crimson identity, and tactical philosophy.
             </p>
           </div>
 
-          {/* Club Badge Showcase */}
           <div className="shrink-0 flex flex-col items-center">
-            <div className="w-28 h-28 md:w-32 md:h-32 rounded-3xl bg-slate-900/90 border-2 border-toasty-tan/40 p-4 flex items-center justify-center shadow-2xl shadow-toasty-tan/10 relative group hover:scale-105 transition-transform duration-300">
-              <img 
-                src={logoUrl} 
-                alt="Toasty FC Logo" 
-                className="w-full h-full object-contain drop-shadow-md"
+            <div className="w-24 h-24 md:w-28 md:h-28 rounded-xl bg-toasty-obsidian-card border border-toasty-obsidian-border p-3.5 flex items-center justify-center">
+              <img
+                src={CLUB_LOGO_URL}
+                alt="Toasty FC Official Crest"
+                className="w-full h-full object-contain"
                 referrerPolicy="no-referrer"
               />
             </div>
-            <span className="text-[10px] font-mono font-bold text-toasty-tan uppercase tracking-widest mt-3">
+            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-zinc-500 mt-2.5">
               Official Crest
             </span>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Backstory & Facts */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* Left Column: The Journey Narrative */}
-        <div className="lg:col-span-8 bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
-          <div className="flex items-center gap-3 border-b border-slate-100 pb-4">
-            <div className="w-12 h-12 rounded-2xl bg-red-50 border border-red-200 flex items-center justify-center text-2xl shadow-sm text-toasty-red">
-              <Award size={24} />
-            </div>
-            <div>
-              <span className="text-[10px] font-mono font-bold text-toasty-red uppercase tracking-widest">Origins & Evolution</span>
-              <h3 className="text-2xl font-black text-slate-900">The Story of Toasty FC</h3>
-            </div>
-          </div>
-
-          <div className="space-y-5 text-sm sm:text-base text-slate-600 leading-relaxed font-sans">
-            <p>
-              Toasty FC was co-founded in Bowling Green, KY by <strong className="text-slate-900 font-bold">Austin Greer</strong> and <strong className="text-slate-900 font-bold">Goran Omerdic</strong>. What started as a quest to assemble a fun, competitive squad in the <strong className="text-slate-900 font-bold">BG Futsal B-Division</strong> quickly grew into a local cult-classic club known across multiple leagues in the city.
-            </p>
-            <p>
-              In <strong className="text-toasty-red font-extrabold">Spring 2023</strong>, Toasty FC achieved its crowning early glory by winning the <strong className="text-slate-900 font-bold">BG Futsal B-Division Spring Championship</strong>! Since then, the club has expanded beyond a single venue, taking on various indoor and outdoor leagues across Bowling Green with the same signature blend of tactical IQ, camaraderie, and good humor.
-            </p>
-            <p>
-              Most of our roster consists of former high school and college players, now mostly in their 20s and 30s. As the squad often jokes: <em className="text-slate-800 font-medium">"Our minds move faster than our bodies do these days!"</em> But on smaller fields, tactical IQ, tight passing, and years of shared chemistry routinely triumph over younger, hyper-athletic opponents.
-            </p>
-            <p>
-              We pride ourselves on being an inviting, welcoming squad that doesn't take itself too seriously — frequently playing co-ed lineups even against all-male competition.
-            </p>
-          </div>
-
-          {/* Austin's Stat Audit Running Joke */}
-          <div className="bg-gradient-to-r from-toasty-red/10 via-toasty-tan/10 to-transparent border-l-4 border-toasty-red rounded-r-2xl p-5 relative overflow-hidden">
-            <div className="absolute right-3 bottom-1 text-6xl opacity-10 pointer-events-none">📊</div>
-            <h4 className="font-mono text-xs font-black text-toasty-red uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-              <BarChart2 size={14} className="text-toasty-red" /> The Locker Room Inside Joke: "Austin's Stat Audit"
-            </h4>
-            <p className="text-xs sm:text-sm text-slate-800 leading-relaxed">
-              Co-founder <strong className="text-slate-900">Austin Greer</strong> consistently leads the team in goals and assists... but he is <em>also</em> the webmaster and stat keeper! The squad loves to tease: <span className="italic font-semibold text-toasty-red">"Is Austin really that clinical in front of goal, or does he just fluff his stats because he owns the spreadsheet?"</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Right Column: Key Details Sidebar */}
-        <div className="lg:col-span-4 flex flex-col gap-6 justify-between">
-          <div className="bg-gradient-to-br from-slate-950 to-slate-900 border border-slate-900 rounded-3xl p-6 text-white shadow-md flex-1 flex flex-col justify-between space-y-6">
-            <div className="space-y-2">
-              <h4 className="text-xs font-bold text-toasty-tan uppercase tracking-widest font-mono">Club At A Glance</h4>
-              <p className="text-[11px] text-slate-400">Key facts representing Toasty FC.</p>
-            </div>
-
-            <div className="divide-y divide-slate-800/80 text-xs font-medium space-y-1">
-              <div className="py-2.5 flex items-center justify-between">
-                <span className="text-slate-400 flex items-center gap-1.5"><Calendar size={13} className="text-toasty-tan" /> Established</span>
-                <span className="font-bold text-slate-100 font-mono">Winter 2022</span>
-              </div>
-              <div className="py-2.5 flex items-center justify-between">
-                <span className="text-slate-400 flex items-center gap-1.5"><Users size={13} className="text-toasty-tan" /> Co-Founders</span>
-                <span className="font-bold text-slate-100">Austin G. & Goran O.</span>
-              </div>
-              <div className="py-2.5 flex items-center justify-between">
-                <span className="text-slate-400 flex items-center gap-1.5"><TrendingUp size={13} className="text-toasty-tan" /> Home City</span>
-                <span className="font-bold text-toasty-tan font-mono text-[10px] uppercase tracking-wider bg-toasty-tan/10 border border-toasty-tan/20 px-2 py-0.5 rounded">Bowling Green, KY</span>
-              </div>
-              <div className="py-2.5 flex items-center justify-between">
-                <span className="text-slate-400 flex items-center gap-1.5"><Award size={13} className="text-toasty-tan" /> Major Trophy</span>
-                <span className="font-bold text-emerald-400">2023 Spring B-Champs</span>
-              </div>
-              <div className="py-2.5 flex items-center justify-between">
-                <span className="text-slate-400 flex items-center gap-1.5"><Clock size={13} className="text-toasty-tan" /> Squad Age Profile</span>
-                <span className="font-bold text-slate-100 font-mono">20s & 30s (Alumni)</span>
-              </div>
-            </div>
-
-            <div className="p-3.5 bg-slate-900 border border-slate-800 rounded-2xl flex items-center gap-3">
-              <img src={logoUrl} alt="Toasty FC Logo" className="w-9 h-9 rounded-xl object-contain shrink-0" referrerPolicy="no-referrer" />
-              <div className="min-w-0">
-                <span className="block text-[9px] uppercase font-bold text-slate-400 font-mono tracking-widest">League Circuit</span>
-                <span className="text-xs text-slate-200 truncate block">BG Futsal & Local Leagues</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Quote */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h5 className="font-black text-xs text-slate-400 uppercase tracking-widest font-mono">Squad Motto</h5>
-              <p className="text-xs text-slate-800 leading-normal italic font-medium">
-                "Experience over extra running. Stay Toasty."
-              </p>
-            </div>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-2xl shrink-0 shadow-sm">
-              🍞
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      {/* Official Colors & Kit Identity Section */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-10 shadow-sm space-y-6" id="about-colors-section">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-6">
-          <div>
-            <span className="bg-amber-500/10 text-amber-700 border border-amber-500/20 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-              Kit & Visual Identity
+      {/* Main Story + Club Ledger */}
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-8 bg-toasty-surface border border-toasty-border rounded-xl p-6 sm:p-8 space-y-6">
+          <div className="border-b border-toasty-border pb-4">
+            <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-toasty-red font-semibold block">
+              Origins &amp; Evolution
             </span>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight mt-2">
+            <h2 className="font-display font-extrabold text-3xl uppercase tracking-tight text-zinc-900 mt-1 leading-none">
+              The Story of Toasty FC
+            </h2>
+          </div>
+
+          <div className="space-y-4 text-sm sm:text-base text-zinc-600 leading-relaxed">
+            <p>
+              Toasty FC was co-founded in Bowling Green, KY by{' '}
+              <strong className="text-zinc-900 font-semibold">Austin Greer</strong> and{' '}
+              <strong className="text-zinc-900 font-semibold">Goran Omerdic</strong>. What began as
+              a casual effort to field a competitive squad in the{' '}
+              <strong className="text-zinc-900 font-semibold">BG Futsal B-Division</strong> quickly
+              grew into a fixture across multiple leagues in the city.
+            </p>
+            <p>
+              In <strong className="text-toasty-red font-semibold">Spring 2023</strong>, Toasty FC
+              captured its first major silverware by winning the{' '}
+              <strong className="text-zinc-900 font-semibold">
+                BG Futsal B-Division Spring Championship
+              </strong>
+              . Since then, the club has expanded across indoor and outdoor competitions with the
+              same mix of tactical poise, camaraderie, and humor.
+            </p>
+            <p>
+              Most of the squad consists of former high school and college players now in their 20s
+              and 30s. As the roster likes to say:{' '}
+              <em className="text-zinc-900 font-medium">
+                &ldquo;Our minds move faster than our bodies do these days.&rdquo;
+              </em>{' '}
+              On tight courts, positioning, quick wall-passes, and shared chemistry routinely outplay
+              younger, faster opposition.
+            </p>
+            <p>
+              Above all, Toasty FC is an inviting, inclusive squad that never takes itself too
+              seriously — proudly fielding co-ed lineups even against all-male divisions.
+            </p>
+          </div>
+
+          {/* Locker Room Inside Joke Callout (Flat Hairline Frame, No border-l-4, No Emoji) */}
+          <div className="bg-toasty-subtle border border-toasty-border rounded-lg p-5 space-y-2">
+            <h3 className="font-mono text-xs font-bold text-toasty-red uppercase tracking-wider flex items-center gap-2">
+              <BarChart2 size={14} /> Locker Room Lore · &ldquo;Austin&apos;s Stat Audit&rdquo;
+            </h3>
+            <p className="text-xs sm:text-sm text-zinc-700 leading-relaxed">
+              Co-founder <strong className="text-zinc-900">Austin Greer</strong> consistently leads
+              the squad in goals and assists — and just so happens to be the webmaster and official
+              stat keeper. The locker room refrain remains eternal:{' '}
+              <em className="text-toasty-red font-medium">
+                &ldquo;Is Austin really that clinical in front of goal, or does he just own the
+                spreadsheet?&rdquo;
+              </em>
+            </p>
+          </div>
+        </div>
+
+        {/* Right Sidebar: Club Ledger & Motto */}
+        <aside className="lg:col-span-4 space-y-6">
+          <div className="bg-toasty-obsidian text-white border border-toasty-obsidian-border rounded-xl p-6 space-y-5">
+            <div>
+              <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-toasty-tan font-semibold block">
+                Club Ledger
+              </span>
+              <h3 className="font-display font-extrabold text-2xl uppercase tracking-tight text-white mt-1 leading-none">
+                At a Glance
+              </h3>
+            </div>
+
+            <div className="divide-y divide-toasty-obsidian-border text-xs">
+              <div className="py-3 flex items-center justify-between gap-3">
+                <span className="text-zinc-400 font-mono uppercase tracking-wider text-[10px]">
+                  Established
+                </span>
+                <span className="font-mono font-semibold text-white">Winter 2022</span>
+              </div>
+              <div className="py-3 flex items-center justify-between gap-3">
+                <span className="text-zinc-400 font-mono uppercase tracking-wider text-[10px]">
+                  Co-Founders
+                </span>
+                <span className="font-semibold text-white">Austin G. &amp; Goran O.</span>
+              </div>
+              <div className="py-3 flex items-center justify-between gap-3">
+                <span className="text-zinc-400 font-mono uppercase tracking-wider text-[10px]">
+                  Home City
+                </span>
+                <span className="font-mono font-semibold text-toasty-tan">Bowling Green, KY</span>
+              </div>
+              <div className="py-3 flex items-center justify-between gap-3">
+                <span className="text-zinc-400 font-mono uppercase tracking-wider text-[10px]">
+                  Honors
+                </span>
+                <span className="font-semibold text-emerald-400">2023 Spring B-Champs</span>
+              </div>
+              <div className="py-3 flex items-center justify-between gap-3">
+                <span className="text-zinc-400 font-mono uppercase tracking-wider text-[10px]">
+                  Circuit
+                </span>
+                <span className="font-semibold text-zinc-200">BG Futsal &amp; Local Leagues</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-toasty-surface border border-toasty-border rounded-xl p-6 space-y-2">
+            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-toasty-tan-dark font-semibold block">
+              Squad Motto
+            </span>
+            <p className="font-display font-bold text-2xl uppercase tracking-tight text-zinc-900 leading-tight">
+              &ldquo;Experience over extra running. Stay Toasty.&rdquo;
+            </p>
+          </div>
+        </aside>
+      </section>
+
+      {/* Official Colors & Kit Identity */}
+      <section
+        id="about-colors-section"
+        className="bg-toasty-surface border border-toasty-border rounded-xl p-6 sm:p-8 space-y-6"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-toasty-border pb-5">
+          <div>
+            <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-toasty-tan-dark font-semibold block">
+              Kit &amp; Visual Identity
+            </span>
+            <h2 className="font-display font-extrabold text-3xl uppercase tracking-tight text-zinc-900 mt-1 leading-none">
               The Bread Tan Palette
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-zinc-500 max-w-md">
+            A club color palette unlike anyone else in the league — unmistakable on every court.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {PALETTE_SWATCHES.map(swatch => (
+            <div key={swatch.hex} className="space-y-3">
+              <div
+                className={`h-20 rounded-lg border ${swatch.borderClass} flex flex-col justify-between p-3`}
+                style={{ backgroundColor: swatch.bgStyle }}
+              >
+                <span className={`text-[10px] font-mono uppercase tracking-widest opacity-80 ${swatch.textClass}`}>
+                  {swatch.role}
+                </span>
+                <span className={`font-mono font-bold text-xs ${swatch.textClass}`}>
+                  {swatch.hex}
+                </span>
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-display font-bold text-lg uppercase tracking-wide text-zinc-900 leading-none">
+                  {swatch.name}
+                </h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">{swatch.description}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Milestones & Kit Evolutions Timeline */}
+      <section
+        id="about-timeline-section"
+        className="bg-toasty-obsidian text-white rounded-xl p-6 sm:p-10 border border-toasty-obsidian-border space-y-8"
+      >
+        <div className="border-b border-toasty-obsidian-border pb-5 flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+          <div>
+            <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-toasty-tan font-semibold block">
+              Club Timeline
+            </span>
+            <h2 className="font-display font-extrabold text-3xl uppercase tracking-tight text-white mt-1 leading-none">
+              Milestones &amp; <span className="text-toasty-tan">Kit Evolutions</span>
+            </h2>
+          </div>
+          <p className="text-xs sm:text-sm text-zinc-400">
+            Key chapters since our founding kickoff in Winter 2022.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {MILESTONES.map(m => (
+            <div
+              key={m.year}
+              className="bg-toasty-obsidian-card border border-toasty-obsidian-border rounded-lg p-5 space-y-3"
+            >
+              <div className="flex items-center justify-between gap-2 pb-3 border-b border-toasty-obsidian-border">
+                <span className="font-display font-extrabold text-3xl text-white tabular-nums leading-none">
+                  {m.year}
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-wider text-toasty-tan">
+                  {m.tag}
+                </span>
+              </div>
+              <h3 className="font-display font-bold text-lg uppercase tracking-wide text-white leading-snug">
+                {m.title}
+              </h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">{m.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Tactical Philosophy, Club Pillars & Behind the Name */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-toasty-surface border border-toasty-border rounded-xl p-6 space-y-4">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-toasty-border">
+            <Shield size={16} className="text-toasty-red shrink-0" />
+            <h3 className="font-display font-extrabold text-xl uppercase tracking-wide text-zinc-900 leading-none">
+              Tactical Philosophy
             </h3>
           </div>
-          <p className="text-xs sm:text-sm text-slate-500 max-w-md">
-            Toasty FC chose a color palette unlike any other club in the league. Why look like everyone else when you can wear bread?
-          </p>
+          <ul className="space-y-3 text-xs sm:text-sm text-zinc-600 leading-relaxed">
+            <li>
+              <strong className="text-zinc-900">Small-Court Intelligence:</strong> Crisp short
+              passes, wall-plays, and spacing over aimless sprinting.
+            </li>
+            <li>
+              <strong className="text-zinc-900">Experience Beats Youth:</strong> Leveraging years of
+              chemistry to control tempo against younger athletic squads.
+            </li>
+            <li>
+              <strong className="text-zinc-900">Welcoming &amp; Co-Ed:</strong> Competitive yet
+              inclusive football for every skilled player on the bench.
+            </li>
+          </ul>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Bread Tan */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-slate-800 uppercase tracking-wider font-mono">Bread Tan</span>
-              <span className="text-[10px] font-mono font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">#CABBA2</span>
+        <div className="bg-toasty-surface border border-toasty-border rounded-xl p-6 space-y-4">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-toasty-border">
+            <Users size={16} className="text-toasty-tan-dark shrink-0" />
+            <h3 className="font-display font-extrabold text-xl uppercase tracking-wide text-zinc-900 leading-none">
+              Club Pillars
+            </h3>
+          </div>
+          <div className="space-y-3 text-xs sm:text-sm text-zinc-600 leading-relaxed">
+            <div>
+              <span className="text-[10px] font-mono font-bold text-toasty-red uppercase tracking-wider block">
+                Have Fun
+              </span>
+              <p>Celebrate great goals, compete hard, and keep locker room banter sharp.</p>
             </div>
-            <div className="h-16 rounded-xl shadow-inner border border-black/10 flex items-center justify-center text-slate-800 font-mono text-xs font-black" style={{ backgroundColor: '#cabba2' }}>
-              PRIMARY KIT
+            <div>
+              <span className="text-[10px] font-mono font-bold text-toasty-red uppercase tracking-wider block">
+                Play Forever
+              </span>
+              <p>Keep the love for the game alive season after season.</p>
             </div>
-            <p className="text-[11px] text-slate-500 leading-tight">
-              Chosen to mimic toasted bread. It's an unconventional color that ensures no opponent ever clashes with our kit.
+            <div>
+              <span className="text-[10px] font-mono font-bold text-toasty-red uppercase tracking-wider block">
+                Tell Stories Through Stats
+              </span>
+              <p>Log every goal, assist, block, and fixture into a lasting club archive.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-toasty-obsidian text-white border border-toasty-obsidian-border rounded-xl p-6 space-y-4">
+          <div className="flex items-center gap-2.5 pb-3 border-b border-toasty-obsidian-border">
+            <Flame size={16} className="text-toasty-tan shrink-0" />
+            <h3 className="font-display font-extrabold text-xl uppercase tracking-wide text-toasty-tan leading-none">
+              Behind The Name
+            </h3>
+          </div>
+          <div className="space-y-3 text-xs sm:text-sm text-zinc-300 leading-relaxed">
+            <p className="text-zinc-400">
+              Where did the name &ldquo;Toasty FC&rdquo; come from?
+            </p>
+            <p className="font-display font-bold text-xl uppercase tracking-wide text-white">
+              Mortal Kombat.
+            </p>
+            <p>
+              While registering the squad for BG Futsal, Austin needed a club name on the spot. A
+              nod to Dan Forden&apos;s classic{' '}
+              <strong className="text-toasty-tan">&ldquo;TOASTY!&rdquo;</strong> easter egg became
+              an instant Bowling Green icon.
             </p>
           </div>
-
-          {/* Original Red */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-slate-800 uppercase tracking-wider font-mono">Original Red</span>
-              <span className="text-[10px] font-mono font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">#AA0000</span>
-            </div>
-            <div className="h-16 rounded-xl shadow-inner border border-black/10 flex items-center justify-center text-white font-mono text-xs font-black" style={{ backgroundColor: '#aa0000' }}>
-              SECONDARY KIT
-            </div>
-            <p className="text-[11px] text-slate-500 leading-tight">
-              The original founding color of the 2022 squad. Now serves as our bold secondary/away kit color.
-            </p>
-          </div>
-
-          {/* Crisp White */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-slate-800 uppercase tracking-wider font-mono">Crisp White</span>
-              <span className="text-[10px] font-mono font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">#FFFFFF</span>
-            </div>
-            <div className="h-16 rounded-xl shadow-inner border border-slate-300 flex items-center justify-center text-slate-800 font-mono text-xs font-black bg-white">
-              TERTIARY & ACCENTS
-            </div>
-            <p className="text-[11px] text-slate-500 leading-tight">
-              Provides crisp accents, numbers, and alternate kit trim across all club generations.
-            </p>
-          </div>
-
-          {/* Deep Black */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col justify-between space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-slate-800 uppercase tracking-wider font-mono">Deep Black</span>
-              <span className="text-[10px] font-mono font-bold text-slate-500 bg-white px-2 py-0.5 rounded border border-slate-200">#000000</span>
-            </div>
-            <div className="h-16 rounded-xl shadow-inner border border-black flex items-center justify-center text-white font-mono text-xs font-black bg-black">
-              OUTLINES & TRIM
-            </div>
-            <p className="text-[11px] text-slate-500 leading-tight">
-              Gives structure, sharp contrast, and high visibility to numbers and logo borders.
-            </p>
-          </div>
         </div>
-      </div>
-
-
-      {/* Modern Interactive Timeline */}
-      <div className="bg-slate-950 text-white rounded-3xl p-6 sm:p-10 border border-slate-900 relative overflow-hidden shadow-xl" id="about-timeline-section">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/5 blur-3xl rounded-full" />
-        <div className="absolute -bottom-10 -left-10 w-96 h-96 bg-red-500/5 blur-3xl rounded-full" />
-
-        <div className="relative z-10 space-y-2 mb-12 text-center max-w-2xl mx-auto">
-          <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-full">
-            Club Timeline
-          </span>
-          <h3 className="text-2xl sm:text-3xl font-display font-black tracking-tight text-white uppercase">
-            Milestones & <span className="text-amber-400">Kit Evolutions</span>
-          </h3>
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-            The key chapters in Toasty FC's history since our founding kickoff in 2022.
-          </p>
-        </div>
-
-        {/* Timeline Path Tree */}
-        <div className="relative max-w-4xl mx-auto z-10">
-          {/* Vertical center track line */}
-          <div className="absolute left-4 sm:left-1/2 top-2 bottom-2 w-0.5 bg-gradient-to-b from-amber-500 via-amber-400 to-red-500 opacity-20 transform -translate-x-1/2 hidden sm:block" />
-          <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-gradient-to-b from-amber-500 via-amber-400 to-red-500 opacity-20 sm:hidden" />
-
-          <div className="space-y-12 sm:space-y-16">
-            
-            {/* Timeline Node 2022 */}
-            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group">
-              <div className="absolute left-4 sm:left-1/2 w-4 h-4 rounded-full bg-slate-950 border-4 border-red-600 shadow-md transform -translate-x-1/2 z-20 transition-all duration-300 group-hover:scale-125" />
-              
-              <div className="w-full sm:w-[45%] pl-10 sm:pl-0 sm:text-right space-y-2 order-2 sm:order-1">
-                <span className="inline-block bg-red-600/15 text-red-400 border border-red-500/30 text-xs font-mono font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg">
-                  2022 • The Kickoff
-                </span>
-                <h4 className="font-extrabold text-base text-slate-100 tracking-tight leading-snug">Founding & First Red Kit</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Austin Greer and Goran Omerdic founded Toasty FC in Bowling Green, KY. The squad took the pitch wearing the inaugural dark red (#aa0000) uniforms.
-                </p>
-              </div>
-              <div className="hidden sm:block w-[45%] order-2" />
-            </div>
-
-            {/* Timeline Node 2023 */}
-            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group">
-              <div className="absolute left-4 sm:left-1/2 w-4 h-4 rounded-full bg-slate-950 border-4 border-amber-400 shadow-md transform -translate-x-1/2 z-20 transition-all duration-300 group-hover:scale-125" />
-              
-              <div className="hidden sm:block w-[45%] text-right order-1" />
-              <div className="w-full sm:w-[45%] pl-10 sm:pl-10 text-left space-y-2 order-2">
-                <span className="inline-block bg-amber-400/10 text-amber-400 border border-amber-400/20 text-xs font-mono font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg">
-                  2023 • Championship & Mevo Cams
-                </span>
-                <h4 className="font-extrabold text-base text-slate-100 tracking-tight leading-snug">Spring B-Division Champions</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Toasty FC claimed its first major silverware by winning the BG Futsal B-Division Spring Championship! Introduced Mevo goal cameras to capture match highlights.
-                </p>
-              </div>
-            </div>
-
-            {/* Timeline Node 2024 */}
-            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group">
-              <div className="absolute left-4 sm:left-1/2 w-4 h-4 rounded-full bg-slate-950 border-4 border-amber-500 shadow-md transform -translate-x-1/2 z-20 transition-all duration-300 group-hover:scale-125" />
-              
-              <div className="w-full sm:w-[45%] pl-10 sm:pl-0 sm:text-right space-y-2 order-2 sm:order-1">
-                <span className="inline-block bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-mono font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg">
-                  2024 • Tan Kit Evolution
-                </span>
-                <h4 className="font-extrabold text-base text-slate-100 tracking-tight leading-snug">The Signature Bread Tan Kit</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Transitioned to our iconic Bread Tan (#cabba2) jerseys — an immediate hit that solidified Toasty FC as the most visually distinct team in Bowling Green.
-                </p>
-              </div>
-              <div className="hidden sm:block w-[45%] order-2" />
-            </div>
-
-            {/* Timeline Node 2026 */}
-            <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 group">
-              <div className="absolute left-4 sm:left-1/2 w-4 h-4 rounded-full bg-slate-950 border-4 border-emerald-400 shadow-md transform -translate-x-1/2 z-20 transition-all duration-300 group-hover:scale-125" />
-              
-              <div className="hidden sm:block w-[45%] text-right order-1" />
-              <div className="w-full sm:w-[45%] pl-10 sm:pl-10 text-left space-y-2 order-2">
-                <span className="inline-block bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-mono font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg">
-                  2026 • Multi-League Expansion
-                </span>
-                <h4 className="font-extrabold text-base text-slate-100 tracking-tight leading-snug">Citywide Campaign & 3rd Gen Kit</h4>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Expanded play into multiple leagues across Bowling Green, debuting our 3rd generation kit and modern team analytics platform.
-                </p>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      {/* Grid: Mission, Tactical Style & Behind the Name */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        
-        {/* Card 1: Our Philosophy */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between h-full space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-toasty-red">
-                <Info size={18} />
-              </div>
-              <h4 className="font-extrabold text-lg text-slate-900 tracking-tight">Tactical Philosophy</h4>
-            </div>
-
-            <ul className="space-y-3.5">
-              <li className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                <span className="w-1.5 h-1.5 rounded-full bg-toasty-red mt-2 shrink-0" />
-                <span><strong>Small Pitch Intelligence:</strong> Maximizing short passes, quick wall-plays, and positioning over long sprints.</span>
-              </li>
-              <li className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                <span className="w-1.5 h-1.5 rounded-full bg-toasty-red mt-2 shrink-0" />
-                <span><strong>Experience Beats Youth:</strong> Using years of soccer chemistry to outsmart younger, hyper-athletic teams.</span>
-              </li>
-              <li className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-600 leading-relaxed">
-                <span className="w-1.5 h-1.5 rounded-full bg-toasty-red mt-2 shrink-0" />
-                <span><strong>Welcoming & Inclusive:</strong> Proudly co-ed friendly, creating an inviting environment for all skilled players.</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Card 2: Club Pillars */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm flex flex-col justify-between h-full space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center text-toasty-red">
-                <Users size={18} />
-              </div>
-              <h4 className="font-extrabold text-lg text-slate-900 tracking-tight">Club Pillars</h4>
-            </div>
-
-            <div className="space-y-3.5">
-              <div>
-                <span className="text-[10px] font-mono font-bold text-toasty-red uppercase tracking-wider block">Have Fun</span>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">Enjoy every match, celebrate great plays, and keep locker room banter lighthearted.</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-mono font-bold text-toasty-red uppercase tracking-wider block">Play Forever</span>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">Compete for as long as possible, keeping the passion for soccer alive through every stage of life.</p>
-              </div>
-              <div>
-                <span className="text-[10px] font-mono font-bold text-toasty-red uppercase tracking-wider block">Tell Stories Through Stats</span>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">Log every goal, assist, and match result to build a lasting archive for the team.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Card 3: Behind The Name */}
-        <div className="bg-slate-950 border border-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-md flex flex-col justify-between h-full space-y-6 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-toasty-red/10 blur-2xl rounded-full" />
-          
-          <div className="space-y-4 relative z-10">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-toasty-red/20 border border-toasty-red/40 flex items-center justify-center text-red-300">
-                <Flame size={18} />
-              </div>
-              <h4 className="font-extrabold text-lg text-toasty-tan tracking-tight">Behind The Name</h4>
-            </div>
-
-            <div className="space-y-3 text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
-              <p>
-                People often ask: <em className="text-toasty-tan font-medium">"Where did the name 'Toasty FC' come from?"</em>
-              </p>
-              <p className="font-bold text-white text-base">
-                The answer: Mortal Kombat!
-              </p>
-              <p>
-                When registering the squad for the BG Futsal league, Austin needed a team name instantly. As a fan of the Mortal Kombat franchise and Dan Forden's iconic <strong className="text-toasty-tan">"TOASTY!"</strong> easter egg, it was the first thing that popped into his head.
-              </p>
-              <p className="text-slate-400">
-                Today, the toast logo, bread tan & founding crimson red kits have made Toasty FC an unforgettable icon in Bowling Green! 🔥
-              </p>
-            </div>
-          </div>
-        </div>
-
-      </div>
+      </section>
     </div>
   );
 };

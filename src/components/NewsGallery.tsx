@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { NewsItem, GalleryItem } from '../types';
-import { Sparkles, Image as ImageIcon, BookOpen, Clock, Heart, Users } from 'lucide-react';
+import { X } from 'lucide-react';
+import { compareDatesDesc, formatDateDisplay } from '../lib/dateUtils';
+
+const CLUB_LOGO_URL =
+  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpr_-jtzGa9qA4MOAbwPfBKXsXw5PdEbejZINByEzJLOjUrf-T0RvqBKaqcR7mJH5IfHY6okFTBalO-EAvvT_IqZNpvT8DEKsHkgB75tZ5GeAUriRR0WNYXohCcbnkWwD8qyBT3R3aLGpwIWIApdBB-IVqgfcnOibDUUEpqEBuCZjM2DIWICY1ojvPCwU/s98/2025_Logo_rounded.png';
 
 interface NewsGalleryProps {
   news: NewsItem[];
@@ -9,71 +13,50 @@ interface NewsGalleryProps {
 
 export const NewsGallery: React.FC<NewsGalleryProps> = ({ news, gallery }) => {
   const [subTab, setSubTab] = useState<'news' | 'gallery'>('news');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<GalleryItem | null>(null);
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
-  // Sort news and gallery in descending order by date so the latest items appear at the top
-  const sortedNews = [...news].sort((a, b) => {
-    const timeA = new Date(a.date).getTime();
-    const timeB = new Date(b.date).getTime();
-    if (!isNaN(timeA) && !isNaN(timeB) && timeA !== timeB) {
-      return timeB - timeA;
-    }
-    return (b.date || '').localeCompare(a.date || '');
-  });
-
-  const sortedGallery = [...gallery].sort((a, b) => {
-    const timeA = new Date(a.date).getTime();
-    const timeB = new Date(b.date).getTime();
-    if (!isNaN(timeA) && !isNaN(timeB) && timeA !== timeB) {
-      return timeB - timeA;
-    }
-    return (b.date || '').localeCompare(a.date || '');
-  });
+  const sortedNews = [...news].sort((a, b) => compareDatesDesc(a.date, b.date));
+  const sortedGallery = [...gallery].sort((a, b) => compareDatesDesc(a.date, b.date));
 
   return (
-    <div className="space-y-8">
-      {/* Tab Switcher & Headers */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-8 animate-fade-in">
+      {/* Header & Sub-tab Switcher */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-toasty-border pb-5">
         <div>
-          <h2 className="text-2xl font-display font-black text-slate-900 tracking-tight flex items-center gap-2">
-            {subTab === 'news' ? (
-              <>
-                <BookOpen className="text-toasty-red" size={24} /> News & Club History
-              </>
-            ) : (
-              <>
-                <ImageIcon className="text-toasty-red" size={24} /> Fan & Event Gallery
-              </>
-            )}
-          </h2>
-          <p className="text-slate-500 text-sm">
-            {subTab === 'news' 
-              ? 'Stay updated with the latest club match briefings, news, and our rich history.' 
-              : 'Memorable snapshots captured live from our games, training, and gatherings.'}
+          <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-toasty-red font-semibold block">
+            {subTab === 'news' ? 'Club Press Office' : 'Matchday Archive'}
+          </span>
+          <h1 className="font-display font-extrabold text-3xl sm:text-4xl uppercase tracking-tight text-zinc-900 leading-none mt-1">
+            {subTab === 'news' ? 'News & Bulletins' : 'Photo Gallery'}
+          </h1>
+          <p className="text-sm text-zinc-500 mt-1.5">
+            {subTab === 'news'
+              ? 'Official matchday announcements, campaign dispatches, and club history.'
+              : 'Matchday snapshots captured from league nights, tournaments, and club events.'}
           </p>
         </div>
 
-        {/* Toggle Switch */}
-        <div className="bg-slate-150 p-1 rounded-xl inline-flex self-stretch sm:self-auto text-center border border-slate-200">
+        <div className="bg-toasty-subtle border border-toasty-border p-1 rounded-lg inline-flex self-stretch sm:self-auto">
           <button
             onClick={() => setSubTab('news')}
-            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
-              subTab === 'news' 
-                ? 'bg-toasty-red text-white shadow-md border border-red-500/30' 
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
             id="subtab-toggle-news"
+            className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+              subTab === 'news'
+                ? 'bg-toasty-obsidian text-white'
+                : 'text-zinc-600 hover:text-zinc-900'
+            }`}
           >
             News & History
           </button>
           <button
             onClick={() => setSubTab('gallery')}
-            className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition cursor-pointer ${
-              subTab === 'gallery' 
-                ? 'bg-toasty-red text-white shadow-md border border-red-500/30' 
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
             id="subtab-toggle-gallery"
+            className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+              subTab === 'gallery'
+                ? 'bg-toasty-obsidian text-white'
+                : 'text-zinc-600 hover:text-zinc-900'
+            }`}
           >
             Photo Gallery
           </button>
@@ -81,129 +64,225 @@ export const NewsGallery: React.FC<NewsGalleryProps> = ({ news, gallery }) => {
       </div>
 
       {subTab === 'news' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main News Stream */}
-          <div className="lg:col-span-2 space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Editorial Article Stream */}
+          <div className="lg:col-span-8 space-y-8">
             {sortedNews.map((article, index) => (
-              <article key={`${article.id}-${index}`} className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition">
-                <div className="h-64 sm:h-80 overflow-hidden relative">
-                  <img
-                    src={article.imageUrl || null}
-                    alt={article.title}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute top-6 left-6 bg-slate-950/80 backdrop-blur text-white text-xs px-3 py-1.5 rounded-full font-mono font-medium border border-slate-800">
-                    {article.date}
-                  </div>
+              <article
+                key={`${article.id}-${index}`}
+                className="bg-toasty-surface border border-toasty-border rounded-xl overflow-hidden"
+              >
+                <div className="aspect-[16/9] max-h-[360px] w-full overflow-hidden bg-toasty-obsidian relative">
+                  {article.imageUrl && !imageErrors[`news-${article.id}`] ? (
+                    <img
+                      src={article.imageUrl}
+                      alt={article.title}
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                      onError={() =>
+                        setImageErrors(prev => ({ ...prev, [`news-${article.id}`]: true }))
+                      }
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-zinc-500">
+                      <img
+                        src={CLUB_LOGO_URL}
+                        alt="Toasty FC"
+                        className="w-12 h-12 object-contain opacity-60"
+                        referrerPolicy="no-referrer"
+                      />
+                      <span className="text-[11px] font-mono uppercase tracking-widest text-toasty-tan">
+                        Club Bulletin
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="p-6 sm:p-8 space-y-4">
-                  <div className="flex items-center gap-1.5 text-xs text-toasty-red font-bold uppercase tracking-wider font-mono">
-                    <Clock size={12} /> Club Announcement
+                  <div className="text-xs font-mono uppercase tracking-wider text-zinc-500 flex items-center gap-2 tabular-nums">
+                    <span className="text-toasty-red font-semibold">Official Release</span>
+                    <span>·</span>
+                    <span>
+                      {formatDateDisplay(article.date, {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-bold text-slate-900 hover:text-toasty-red transition cursor-pointer">
+
+                  <h2 className="font-display font-extrabold text-2xl sm:text-3xl uppercase tracking-tight text-zinc-900 leading-tight">
                     {article.title}
-                  </h3>
+                  </h2>
+
                   {article.summary && article.summary.trim() !== article.content?.trim() && (
-                    <p className="text-slate-800 text-sm font-semibold bg-slate-50 p-4 rounded-2xl border border-slate-100 leading-relaxed">
+                    <p className="text-zinc-900 text-sm font-semibold bg-toasty-subtle p-4 rounded-lg border border-toasty-border leading-relaxed">
                       {article.summary}
                     </p>
                   )}
-                  <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-line">
-                    {article.content}
-                  </p>
+
+                  {article.content && (
+                    <p className="text-zinc-700 text-sm sm:text-base leading-relaxed whitespace-pre-line">
+                      {article.content}
+                    </p>
+                  )}
                 </div>
 
-                <div className="p-6 border-t border-slate-50 flex justify-between items-center bg-slate-50 text-xs text-slate-400 font-mono">
-                  <span className="flex items-center gap-1.5 text-toasty-red font-bold">
-                    <Sparkles size={12} /> Official Club Bulletin
+                <div className="px-6 sm:px-8 py-3.5 border-t border-toasty-border bg-toasty-subtle/50 flex justify-between items-center text-[11px] text-zinc-500 font-mono">
+                  <span className="uppercase tracking-wider">Toasty FC Press Office</span>
+                  <span className="tabular-nums">
+                    {formatDateDisplay(article.date, {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
                   </span>
-                  <span className="flex items-center gap-1"><Heart size={12} className="text-toasty-red fill-toasty-red" /> Toasty Fan Favourite</span>
                 </div>
               </article>
             ))}
+
+            {sortedNews.length === 0 && (
+              <div className="text-center py-12 border border-dashed border-toasty-border rounded-xl bg-white">
+                <p className="text-zinc-500 text-sm">No club bulletins published yet.</p>
+              </div>
+            )}
           </div>
 
-          {/* Club History & Mission Column */}
-          <div className="space-y-6">
-            <div className="bg-slate-950 text-white rounded-3xl p-8 border border-slate-900 space-y-6 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-44 h-44 bg-toasty-red/10 blur-3xl rounded-full" />
-              <div className="inline-flex items-center gap-1.5 bg-toasty-red/20 text-red-300 border border-toasty-red/40 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider font-mono">
-                <Users size={12} /> Our Legacy
-              </div>
-              <h3 className="text-2xl font-bold tracking-tight">The Toasty FC Story</h3>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Founded in Winter 2022, Toasty FC began as a casual weekend futsal run organized by Austin Greer and Goran Omerdic. Fast forward to 2023, and the team earned its first major silverware with the B-Division Championship, ultimately earning promotion to the top-tier A-Division in Winter 2024.
+          {/* Club Heritage Sidebar (Obsidian Editorial Callout) */}
+          <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-24">
+            <div className="bg-toasty-obsidian text-white rounded-xl p-6 sm:p-8 border border-toasty-obsidian-border space-y-5">
+              <span className="text-[11px] font-mono uppercase tracking-[0.14em] text-toasty-tan font-semibold block">
+                Club Heritage
+              </span>
+              <h3 className="font-display font-extrabold text-2xl uppercase tracking-tight text-white leading-none">
+                The Toasty FC Story
+              </h3>
+              <p className="text-zinc-300 text-sm leading-relaxed">
+                Founded in Winter 2022, Toasty FC began as a local futsal side organized by Austin
+                Greer and Goran Omerdic. By Spring 2023, the club claimed its first major silverware
+                with the B-Division Championship before advancing to top-tier competition.
               </p>
-              <p className="text-slate-300 text-sm leading-relaxed">
-                Today, Toasty FC represents camaraderie, competitive edge, and high-production sports coverage. We wear our signature bread tan and founding crimson red with absolute pride, treating every battle on the court with equal humor and commitment.
+              <p className="text-zinc-400 text-sm leading-relaxed">
+                Wearing signature bread tan and founding crimson red, Toasty FC blends tactical
+                experience, matchday film production, and unmistakable Bowling Green camaraderie.
               </p>
-              <div className="pt-6 border-t border-slate-800/80 grid grid-cols-2 gap-4 text-center">
+              <div className="pt-5 border-t border-toasty-obsidian-border grid grid-cols-2 gap-4">
                 <div>
-                  <span className="block text-[10px] text-slate-400 font-mono uppercase tracking-wider">Est.</span>
-                  <strong className="text-lg text-toasty-tan font-mono font-bold">2022</strong>
+                  <span className="block text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
+                    Established
+                  </span>
+                  <strong className="font-display font-extrabold text-2xl text-toasty-tan tabular-nums">
+                    2022
+                  </strong>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-slate-400 font-mono uppercase tracking-wider">Home Field</span>
-                  <strong className="text-sm text-toasty-tan font-mono block truncate font-bold">Futsal Court</strong>
+                  <span className="block text-[10px] text-zinc-500 font-mono uppercase tracking-wider">
+                    Home City
+                  </span>
+                  <strong className="font-display font-bold text-xl text-white uppercase tracking-wide">
+                    Bowling Green
+                  </strong>
                 </div>
               </div>
             </div>
-          </div>
+          </aside>
         </div>
       ) : (
-        /* Image Gallery masonry style */
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedGallery.map((photo, index) => (
               <div
                 key={`${photo.id}-${index}`}
-                onClick={() => setSelectedImage(photo.imageUrl)}
-                className="group relative bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer"
+                onClick={() => setSelectedImage(photo)}
                 id={`gallery-photo-${photo.id}`}
+                className="group relative bg-toasty-obsidian border border-toasty-border rounded-xl overflow-hidden cursor-pointer"
               >
-                <div className="h-64 overflow-hidden relative">
-                  <img
-                    src={photo.imageUrl || null}
-                    alt={photo.eventName}
-                    className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
-                  
+                <div className="aspect-[4/3] overflow-hidden relative">
+                  {photo.imageUrl && !imageErrors[`gal-${photo.id}`] ? (
+                    <img
+                      src={photo.imageUrl}
+                      alt={photo.eventName}
+                      className="w-full h-full object-cover transition duration-300 group-hover:scale-[1.03]"
+                      referrerPolicy="no-referrer"
+                      onError={() =>
+                        setImageErrors(prev => ({ ...prev, [`gal-${photo.id}`]: true }))
+                      }
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-toasty-obsidian text-zinc-500 text-xs font-mono">
+                      Image unavailable
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
                   <div className="absolute bottom-4 left-4 right-4 text-white space-y-1">
-                    <span className="text-[10px] bg-toasty-red text-white border border-red-500/30 px-2.5 py-0.5 rounded font-mono font-bold uppercase tracking-wider">
-                      {photo.date}
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-toasty-tan tabular-nums block">
+                      {formatDateDisplay(photo.date, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
                     </span>
-                    <h4 className="font-bold text-sm leading-tight line-clamp-1">{photo.eventName}</h4>
-                    <p className="text-xs text-slate-300 line-clamp-1 leading-normal font-medium">{photo.caption}</p>
+                    <h4 className="font-display font-bold text-lg uppercase tracking-wide leading-tight line-clamp-1">
+                      {photo.eventName}
+                    </h4>
+                    {photo.caption && (
+                      <p className="text-xs text-zinc-300 line-clamp-1">{photo.caption}</p>
+                    )}
                   </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Expanded Lightbox Modal */}
+          {sortedGallery.length === 0 && (
+            <div className="text-center py-12 border border-dashed border-toasty-border rounded-xl bg-white">
+              <p className="text-zinc-500 text-sm">No gallery photos uploaded yet.</p>
+            </div>
+          )}
+
+          {/* Lightbox Modal */}
           {selectedImage && (
-            <div 
+            <div
               onClick={() => setSelectedImage(null)}
-              className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 cursor-pointer"
               id="gallery-lightbox"
+              className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xs flex items-center justify-center p-4 cursor-pointer animate-fade-in"
             >
-              <div className="relative max-w-4xl w-full max-h-[85vh] overflow-hidden rounded-2xl">
-                <img
-                  src={selectedImage || null}
-                  alt="Expanded view"
-                  className="w-full h-full object-contain mx-auto"
-                  referrerPolicy="no-referrer"
-                />
-                <button
-                  onClick={() => setSelectedImage(null)}
-                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-950/60 text-white font-bold text-lg flex items-center justify-center hover:bg-slate-950/80 transition"
-                >
-                  &times;
-                </button>
+              <div
+                onClick={e => e.stopPropagation()}
+                className="relative max-w-4xl w-full bg-toasty-obsidian border border-toasty-obsidian-border rounded-xl overflow-hidden cursor-default"
+              >
+                <div className="max-h-[75vh] overflow-hidden bg-black flex items-center justify-center">
+                  <img
+                    src={selectedImage.imageUrl}
+                    alt={selectedImage.eventName}
+                    className="max-h-[75vh] w-auto object-contain"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="p-4 sm:p-5 flex items-center justify-between gap-4 border-t border-toasty-obsidian-border text-white">
+                  <div className="min-w-0">
+                    <span className="text-[11px] font-mono text-toasty-tan tabular-nums block">
+                      {formatDateDisplay(selectedImage.date, {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric'
+                      })}
+                    </span>
+                    <h4 className="font-display font-bold text-xl uppercase tracking-wide truncate">
+                      {selectedImage.eventName}
+                    </h4>
+                    {selectedImage.caption && (
+                      <p className="text-xs text-zinc-400 mt-0.5">{selectedImage.caption}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setSelectedImage(null)}
+                    aria-label="Close lightbox"
+                    className="w-9 h-9 rounded-lg bg-toasty-obsidian-card border border-toasty-obsidian-border text-zinc-300 hover:text-white flex items-center justify-center shrink-0 cursor-pointer"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
             </div>
           )}

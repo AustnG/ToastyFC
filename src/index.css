@@ -1,110 +1,87 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-}
-
-/* Toasty FC Team Colors & Kit Permanent Theme (Derby Hybrid: Bread Tan + Founding Red + Crisp White + Deep Obsidian) */
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Barlow Condensed", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
-  /* Toasty FC Derby Hybrid Palette */
+  /* Toasty FC Matchday Editorial Palette */
+  --color-toasty-canvas: #faf9f6;
+  --color-toasty-surface: #ffffff;
+  --color-toasty-subtle: #f3f1ec;
+  --color-toasty-border: #e5e2db;
+
+  --color-toasty-obsidian: #0d0d0f;
+  --color-toasty-obsidian-card: #16161a;
+  --color-toasty-obsidian-border: #26262c;
+
   --color-toasty-tan: #cabba2;
-  --color-toasty-tan-hover: #d6c5ad;
-  --color-toasty-tan-light: #e8dbca;
-  --color-toasty-tan-dark: #a8977e;
+  --color-toasty-tan-hover: #d8cbb6;
+  --color-toasty-tan-light: #efe8dc;
+  --color-toasty-tan-dark: #7a674a;
+
   --color-toasty-red: #aa0000;
-  --color-toasty-red-bright: #dc2626;
-  --color-toasty-red-hover: #cc0000;
-  --color-toasty-dark: #0f0c0e;
-  --color-toasty-dark-card: #171317;
-  --color-toasty-dark-border: #2c242c;
-  --color-toasty-cream: #faf7f2;
-  --color-toasty-cream-card: #f4eee3;
+  --color-toasty-red-bright: #c81010;
+  --color-toasty-red-hover: #8f0000;
+
+  /* Legacy alias tokens preserved for compatibility */
+  --color-toasty-dark: #0d0d0f;
+  --color-toasty-dark-card: #16161a;
+  --color-toasty-dark-border: #26262c;
+  --color-toasty-cream: #faf9f6;
+  --color-toasty-cream-card: #f3f1ec;
 }
 
 :root {
-  --theme-primary: #cabba2;
-  --theme-primary-hover: #d6c5ad;
-  --theme-secondary: #aa0000;
-  --theme-secondary-hover: #cc0000;
-  --theme-bg-glow-1: rgba(202, 186, 162, 0.2);
-  --theme-bg-glow-2: rgba(170, 0, 0, 0.2);
-  --theme-badge-bg: rgba(170, 0, 0, 0.22);
-  --theme-badge-border: rgba(202, 186, 162, 0.4);
-  --theme-badge-text: #fca5a5;
-  --theme-card-border: rgba(202, 186, 162, 0.3);
-  --theme-brand-title: #cabba2;
-  --theme-btn-bg: #aa0000;
-  --theme-btn-text: #ffffff;
-  --theme-btn-hover: #cc0000;
-  --theme-active-nav-border: #aa0000;
-  --theme-active-nav-bg: rgba(170, 0, 0, 0.22);
+  --bg-canvas: #faf9f6;
+  --surface-card: #ffffff;
+  --surface-obsidian: #0d0d0f;
+  --accent-crimson: #aa0000;
+  --accent-tan: #cabba2;
 }
 
-/* Custom reusable Derby Hybrid UI utility classes */
-.badge-toasty-tan {
-  background-color: rgba(202, 186, 162, 0.15);
-  color: #cabba2;
-  border: 1px solid rgba(202, 186, 162, 0.35);
+@layer base {
+  html {
+    background-color: var(--bg-canvas);
+    color: #111113;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3 {
+    text-wrap: balance;
+  }
 }
 
-.badge-toasty-red {
-  background-color: rgba(170, 0, 0, 0.2);
-  color: #fca5a5;
-  border: 1px solid rgba(220, 38, 38, 0.4);
+/* Tabular figures helper for scores, stats, and dates */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
-.btn-toasty-primary {
-  background-color: #aa0000;
-  color: #ffffff;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-  box-shadow: 0 4px 12px rgba(170, 0, 0, 0.3);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.btn-toasty-primary:hover {
-  background-color: #cc0000;
-  box-shadow: 0 6px 16px rgba(170, 0, 0, 0.45);
-}
-
-.btn-toasty-tan {
-  background-color: #cabba2;
-  color: #0f172a;
-  border: 1px solid rgba(245, 230, 210, 0.5);
-  transition: all 0.2s ease;
-}
-
-.btn-toasty-tan:hover {
-  background-color: #d6c5ad;
-}
-
-/* Custom fade-in and slide-up animations to make transitions feel organic */
-
+/* Subtle motion budget (<= 200ms, compositor-only) */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.animate-scale-in {
-  animation: scaleIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in {
+    animation: none;
+  }
 }
 
-/* Custom premium scrollbar styling */
+/* Clean minimal scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -115,10 +92,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.25);
+  background: rgba(17, 17, 19, 0.16);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.45);
+  background: rgba(17, 17, 19, 0.32);
 }
