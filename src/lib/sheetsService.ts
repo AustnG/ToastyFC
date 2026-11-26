@@ -348,13 +348,13 @@ export const sheetsService = {
     playerMatchStats: MatchStats[];
   }> => {
     const ranges = [
-      'Players!A1:Z100',
-      'Matches!A1:AK150',
-      'News!A1:G100',
-      'Gallery!A1:E100',
-      'Roster!A1:J200',
-      'MatchStats!A1:Q300',
-      'Seasons!A1:J100'
+      'Players!A:Z',
+      'Matches!A:AZ',
+      'News!A:Z',
+      'Gallery!A:Z',
+      'Roster!A:Z',
+      'MatchStats!A:Z',
+      'Seasons!A:Z'
     ];
     const query = ranges.map(r => `ranges=${encodeURIComponent(r)}`).join('&');
     

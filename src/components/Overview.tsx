@@ -187,7 +187,9 @@ export const Overview: React.FC<OverviewProps> = ({
       : null;
 
   const spotlightOvr = activeSpotlightPlayer ? getOverallRating(activeSpotlightPlayer) : null;
-  const spotlightAge = activeSpotlightPlayer ? calculateAge(activeSpotlightPlayer.dateOfBirth) : null;
+  const spotlightAge = activeSpotlightPlayer
+    ? (activeSpotlightPlayer.age ?? calculateAge(activeSpotlightPlayer.dateOfBirth))
+    : null;
 
   return (
     <div className="space-y-10 animate-fade-in">

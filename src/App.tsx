@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Player, Match, NewsItem, GalleryItem, RosterEntry, MatchStats, Season } from './types';
-import { mockPlayers, mockMatches, mockNews, mockGallery, mockRoster, mockMatchStats, mockSeasons } from './mockData';
 import { Overview } from './components/Overview';
 import { Roster } from './components/Roster';
 import { Matches } from './components/Matches';
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react';
 import { initAuth, googleSignIn, logout, getAccessToken } from './lib/firebase';
 import { sheetsService } from './lib/sheetsService';
+import { dataService } from './lib/dataService';
 import { parseLocalDate } from './lib/dateUtils';
 
 export default function App() {
@@ -37,35 +37,36 @@ export default function App() {
     }
   }, [showDiscordToast]);
 
-  // Core App states populated with default mock data, caching fallback for persistence
+  // Core App states (hydrated from build-time static snapshot public/data/toasty-data.json)
   const [players, setPlayers] = useState<Player[]>(() => {
     const cached = localStorage.getItem('toasty_fc_players');
-    return cached ? JSON.parse(cached) : mockPlayers;
+    return cached ? JSON.parse(cached) : [];
   });
   const [matches, setMatches] = useState<Match[]>(() => {
     const cached = localStorage.getItem('toasty_fc_matches');
-    return cached ? JSON.parse(cached) : mockMatches;
+    return cached ? JSON.parse(cached) : [];
   });
   const [news, setNews] = useState<NewsItem[]>(() => {
     const cached = localStorage.getItem('toasty_fc_news');
-    return cached ? JSON.parse(cached) : mockNews;
+    return cached ? JSON.parse(cached) : [];
   });
   const [gallery, setGallery] = useState<GalleryItem[]>(() => {
     const cached = localStorage.getItem('toasty_fc_gallery');
-    return cached ? JSON.parse(cached) : mockGallery;
+    return cached ? JSON.parse(cached) : [];
   });
   const [roster, setRoster] = useState<RosterEntry[]>(() => {
     const cached = localStorage.getItem('toasty_fc_roster');
-    return cached ? JSON.parse(cached) : mockRoster;
+    return cached ? JSON.parse(cached) : [];
   });
   const [playerMatchStats, setPlayerMatchStats] = useState<MatchStats[]>(() => {
     const cached = localStorage.getItem('toasty_fc_player_match_stats');
-    return cached ? JSON.parse(cached) : mockMatchStats;
+    return cached ? JSON.parse(cached) : [];
   });
   const [seasonsList, setSeasonsList] = useState<Season[]>(() => {
     const cached = localStorage.getItem('toasty_fc_seasons');
-    return cached ? JSON.parse(cached) : mockSeasons;
+    return cached ? JSON.parse(cached) : [];
   });
+  const [dataGeneratedAt, setDataGeneratedAt] = useState<string | null>(null);
 
   // Google Sheets Sync & Auth state
   const DEFAULT_SPREADSHEET_ID = '1194eXv6isWkB-UYZejnki6I3J25FguxVMJZS26PgdeM';
@@ -80,7 +81,7 @@ export default function App() {
   const [isNewSheetCreated, setIsNewSheetCreated] = useState<boolean>(false);
   const [showSyncPanel, setShowSyncPanel] = useState<boolean>(true);
 
-  // Admin Mode state (hidden by default, unlocked via double-clicking soccer emoji in footer, URL parameter ?admin=true, or localStorage flag)
+  // Admin Mode state (hidden by default, unlocked via double-clicking crest in footer, URL parameter ?admin=true, or localStorage flag)
   const [isAdminUnlocked, setIsAdminUnlocked] = useState<boolean>(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -106,45 +107,46 @@ export default function App() {
 
   const showAdminControls = isAdminUnlocked || !!user;
 
-  // Helper to fetch public data without authentication
-  const loadPublicData = async (sheetId: string) => {
+  // Load build-time static JSON snapshot (Option B: private Sheets -> GitHub Actions -> static CDN)
+  const loadPublicData = async (_sheetId?: string, bustCache = false) => {
     setIsSyncing(true);
     setSyncError(null);
     try {
-      const dbData = await sheetsService.fetchPublicDatabaseData(sheetId);
-      
-      // Update states and local storage fallback cache
-      if (dbData.players && dbData.players.length > 0) {
+      const dbData = await dataService.fetchStaticSnapshot(bustCache);
+
+      if (Array.isArray(dbData.players)) {
         setPlayers(dbData.players);
         localStorage.setItem('toasty_fc_players', JSON.stringify(dbData.players));
       }
-      if (dbData.matches && dbData.matches.length > 0) {
+      if (Array.isArray(dbData.matches)) {
         setMatches(dbData.matches);
         localStorage.setItem('toasty_fc_matches', JSON.stringify(dbData.matches));
       }
-      if (dbData.news && dbData.news.length > 0) {
+      if (Array.isArray(dbData.news)) {
         setNews(dbData.news);
         localStorage.setItem('toasty_fc_news', JSON.stringify(dbData.news));
       }
-      if (dbData.gallery && dbData.gallery.length > 0) {
+      if (Array.isArray(dbData.gallery)) {
         setGallery(dbData.gallery);
         localStorage.setItem('toasty_fc_gallery', JSON.stringify(dbData.gallery));
       }
-      if (dbData.roster && dbData.roster.length > 0) {
+      if (Array.isArray(dbData.roster)) {
         setRoster(dbData.roster);
         localStorage.setItem('toasty_fc_roster', JSON.stringify(dbData.roster));
       }
-      if (dbData.seasons && dbData.seasons.length > 0) {
+      if (Array.isArray(dbData.seasons)) {
         setSeasonsList(dbData.seasons);
         localStorage.setItem('toasty_fc_seasons', JSON.stringify(dbData.seasons));
       }
-      if (dbData.playerMatchStats && dbData.playerMatchStats.length > 0) {
+      if (Array.isArray(dbData.playerMatchStats)) {
         setPlayerMatchStats(dbData.playerMatchStats);
         localStorage.setItem('toasty_fc_player_match_stats', JSON.stringify(dbData.playerMatchStats));
       }
+      if (dbData.generatedAt) {
+        setDataGeneratedAt(dbData.generatedAt);
+      }
     } catch (err: any) {
-      console.warn('Public fetch failed (using local cached/mock data instead):', err);
-      // Fallback is already loaded in useState initializers, so keep syncError null to avoid disruptive warning badges
+      console.warn('Static snapshot fetch failed (using local cache if available):', err);
       setSyncError(null);
     } finally {
       setIsSyncing(false);
@@ -277,8 +279,7 @@ export default function App() {
     if (activeToken) {
       await syncData(activeToken);
     } else {
-      // Allow guests/anonymous users to pull down the latest public live updates!
-      await loadPublicData(spreadsheetId || DEFAULT_SPREADSHEET_ID);
+      await loadPublicData(spreadsheetId || DEFAULT_SPREADSHEET_ID, true);
     }
   };
 
@@ -428,43 +429,22 @@ export default function App() {
         if (playerStatsList.length > 0) {
           goals = playerStatsList.reduce((sum, s) => sum + Number(s.goals || 0), 0);
           assists = playerStatsList.reduce((sum, s) => sum + Number(s.assists || 0), 0);
-          shots = playerStatsList.reduce((sum, s) => sum + Number(s.shots || 0), 0);
+          shots = playerStatsList.reduce((sum, s) => sum + Number(s.shotsOffTarget ?? s.shots ?? 0), 0);
           shotsOnTarget = playerStatsList.reduce((sum, s) => sum + Number(s.shotsOnTarget || 0), 0);
           blocks = playerStatsList.reduce((sum, s) => sum + Number(s.blocks || 0), 0);
           plusMinus = playerStatsList.reduce((sum, s) => sum + Number(s.plusMinus || 0), 0);
           fouls = playerStatsList.reduce((sum, s) => sum + Number(s.fouls || 0), 0);
           yellows = playerStatsList.reduce((sum, s) => sum + Number(s.yellows || 0), 0);
           reds = playerStatsList.reduce((sum, s) => sum + Number(s.reds || 0), 0);
-          potm = playerStatsList.filter(s => s.potm === true || s.potm === 'true').length;
-          cleanSheets = playerStatsList.filter(s => s.cleanSheet === true || s.cleanSheet === 'true').length;
+          potm = playerStatsList.filter(s => s.potm === true || String(s.potm).toLowerCase() === 'true').length;
+          cleanSheets = playerStatsList.filter(s => s.cleanSheet === true || String(s.cleanSheet).toLowerCase() === 'true').length;
           matchesPlayed = playerStatsList.length;
           if (resolvedPosition === 'Goalkeeper') {
             saves = playerStatsList.reduce((sum, s) => sum + Number(s.saves || 0), 0);
             goalsAllowed = playerStatsList.reduce((sum, s) => sum + Number(s.goalsAllowed || 0), 0);
           }
         } else {
-          // Fallback to legacy arrays
-          goals = completedMatches.reduce((sum, m) => {
-            const count = m.goalsScoredBy?.filter(name => name === p.name).length ?? 0;
-            return sum + count;
-          }, 0);
-
-          assists = completedMatches.reduce((sum, m) => {
-            const count = m.assistsBy?.filter(name => name === p.name).length ?? 0;
-            return sum + count;
-          }, 0);
-
-          matchesPlayed = completedMatches.length || (p.name === 'Marcus Vance' ? 0 : 1);
-
-          if (resolvedPosition === 'Goalkeeper') {
-            cleanSheets = completedMatches.filter(m => (m.opponentScore ?? 0) === 0).length;
-            saves = completedMatches.reduce((sum, m) => sum + (m.stats?.saves.toasty ?? 4), 0);
-            goalsAllowed = completedMatches.reduce((sum, m) => sum + (m.opponentScore ?? 0), 0);
-          }
-          plusMinus = goals * 3 + assists * 2 - (resolvedPosition === 'Defender' ? 1 : 3);
-          fouls = Math.round((p.skills?.physical ?? 50) * 0.15 + (resolvedPosition === 'Defender' ? 5 : resolvedPosition === 'Midfielder' ? 3 : 1));
-          yellows = Math.max(0, Math.floor(fouls / 4));
-          reds = 0;
+          // No MatchStats rows yet for this player (e.g., unfilmed or upcoming season)
           potm = completedMatches.filter(m => m.playerOfTheMatch === p.name).length;
         }
 
@@ -487,7 +467,9 @@ export default function App() {
           reds,
           potm,
           shots,
+          shotsOffTarget: shots,
           shotsOnTarget,
+          totalShots: shots + shotsOnTarget,
           blocks
         };
       })
@@ -531,43 +513,22 @@ export default function App() {
           if (playerStatsList.length > 0) {
             goals = playerStatsList.reduce((sum, s) => sum + Number(s.goals || 0), 0);
             assists = playerStatsList.reduce((sum, s) => sum + Number(s.assists || 0), 0);
-            shots = playerStatsList.reduce((sum, s) => sum + Number(s.shots || 0), 0);
+            shots = playerStatsList.reduce((sum, s) => sum + Number(s.shotsOffTarget ?? s.shots ?? 0), 0);
             shotsOnTarget = playerStatsList.reduce((sum, s) => sum + Number(s.shotsOnTarget || 0), 0);
             blocks = playerStatsList.reduce((sum, s) => sum + Number(s.blocks || 0), 0);
             plusMinus = playerStatsList.reduce((sum, s) => sum + Number(s.plusMinus || 0), 0);
             fouls = playerStatsList.reduce((sum, s) => sum + Number(s.fouls || 0), 0);
             yellows = playerStatsList.reduce((sum, s) => sum + Number(s.yellows || 0), 0);
             reds = playerStatsList.reduce((sum, s) => sum + Number(s.reds || 0), 0);
-            potm = playerStatsList.filter(s => s.potm === true || s.potm === 'true').length;
-            cleanSheets = playerStatsList.filter(s => s.cleanSheet === true || s.cleanSheet === 'true').length;
+            potm = playerStatsList.filter(s => s.potm === true || String(s.potm).toLowerCase() === 'true').length;
+            cleanSheets = playerStatsList.filter(s => s.cleanSheet === true || String(s.cleanSheet).toLowerCase() === 'true').length;
             matchesPlayed = playerStatsList.length;
             if (seasonalPosition === 'Goalkeeper') {
               saves = playerStatsList.reduce((sum, s) => sum + Number(s.saves || 0), 0);
               goalsAllowed = playerStatsList.reduce((sum, s) => sum + Number(s.goalsAllowed || 0), 0);
             }
           } else {
-            // Fallback to legacy arrays
-            goals = completedMatches.reduce((sum, m) => {
-              const count = m.goalsScoredBy?.filter(name => name === p.name).length ?? 0;
-              return sum + count;
-            }, 0);
-
-            assists = completedMatches.reduce((sum, m) => {
-              const count = m.assistsBy?.filter(name => name === p.name).length ?? 0;
-              return sum + count;
-            }, 0);
-
-            matchesPlayed = completedMatches.length || (p.name === 'Marcus Vance' && activeSeason === '2026 Spring' ? 0 : 1);
-
-            if (seasonalPosition === 'Goalkeeper') {
-              cleanSheets = completedMatches.filter(m => (m.opponentScore ?? 0) === 0).length;
-              saves = completedMatches.reduce((sum, m) => sum + (m.stats?.saves.toasty ?? 4), 0);
-              goalsAllowed = completedMatches.reduce((sum, m) => sum + (m.opponentScore ?? 0), 0);
-            }
-            plusMinus = goals * 3 + assists * 2 - (seasonalPosition === 'Defender' ? 1 : 3);
-            fouls = Math.round((p.skills?.physical ?? 50) * 0.15 + (seasonalPosition === 'Defender' ? 5 : seasonalPosition === 'Midfielder' ? 3 : 1));
-            yellows = Math.max(0, Math.floor(fouls / 4));
-            reds = 0;
+            // No MatchStats rows yet for this player in this season
             potm = completedMatches.filter(m => m.playerOfTheMatch === p.name).length;
           }
 
@@ -590,7 +551,9 @@ export default function App() {
             reds,
             potm,
             shots,
+            shotsOffTarget: shots,
             shotsOnTarget,
+            totalShots: shots + shotsOnTarget,
             blocks
           };
         });
@@ -968,6 +931,14 @@ export default function App() {
               <p className="text-xs text-neutral-500">
                 © {new Date().getFullYear()} Toasty FC
               </p>
+              {dataGeneratedAt && (
+                <>
+                  <span className="hidden sm:inline text-neutral-700" aria-hidden="true">·</span>
+                  <span className="text-[11px] font-mono text-neutral-500">
+                    Synced {new Date(dataGeneratedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                </>
+              )}
             </div>
 
             {/* Links & Admin Controls */}

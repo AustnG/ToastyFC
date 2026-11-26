@@ -186,7 +186,8 @@ export function computePlayerEfficiencySplits(
       const contributions = goals + assists;
       const gaPerGame = mp > 0 ? Number((contributions / mp).toFixed(2)) : 0;
       const sot = p.shotsOnTarget ?? 0;
-      const totalShots = (p.shots ?? 0) + sot;
+      const offTarget = p.shotsOffTarget ?? p.shots ?? 0;
+      const totalShots = offTarget + sot;
       const shotAccuracy = totalShots > 0 ? Math.round((sot / totalShots) * 100) : null;
       const conversionRate = sot > 0 ? Math.round((goals / sot) * 100) : null;
       const attendancePct =

@@ -490,6 +490,24 @@ export const Matches: React.FC<MatchesProps> = ({
                       </span>
                     </>
                   )}
+                  {match.statsStatus && match.statsStatus !== 'Scheduled' && (
+                    <>
+                      <span className="text-zinc-300">·</span>
+                      <span
+                        className={`px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${
+                          match.statsStatus === 'Full Stats'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : match.statsStatus === 'Video Only'
+                              ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                              : match.statsStatus === 'Forfeit'
+                                ? 'bg-zinc-200 text-zinc-700'
+                                : 'bg-zinc-100 text-zinc-500 border border-zinc-200'
+                        }`}
+                      >
+                        {match.statsStatus}
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 {match.location && (
@@ -714,37 +732,96 @@ export const Matches: React.FC<MatchesProps> = ({
 
                       {match.stats ? (
                         <div className="space-y-3.5">
-                          {Object.entries(match.stats)
-                            .filter(([statKey]) => statKey !== 'goals')
-                            .map(([statKey, values]) => {
-                              const toastyVal = Number((values as { toasty: number }).toasty || 0);
-                              const oppVal = Number((values as { opponent: number }).opponent || 0);
-                              const total = toastyVal + oppVal || 1;
-                              const toastyPercent = (toastyVal / total) * 100;
+                          {(() => {
+                            const offT = Number(
+                              match.stats.shotsOffTarget?.toasty ?? match.stats.shots?.toasty ?? 0
+                            );
+                            const offO = Number(
+                              match.stats.shotsOffTarget?.opponent ??
+                                match.stats.shots?.opponent ??
+                                0
+                            );
+                            const sotT = Number(match.stats.shotsOnTarget?.toasty ?? 0);
+                            const sotO = Number(match.stats.shotsOnTarget?.opponent ?? 0);
+                            const totalShotsT = Number(
+                              match.stats.totalShots?.toasty ?? offT + sotT
+                            );
+                            const totalShotsO = Number(
+                              match.stats.totalShots?.opponent ?? offO + sotO
+                            );
 
-                              const labels: Record<string, string> = {
-                                assists: 'Assists',
-                                shots: 'Total Shots',
-                                shotsOnTarget: 'Shots on Target',
-                                blocks: 'Blocks',
-                                fouls: 'Fouls',
-                                redCards: 'Red Cards',
-                                yellowCards: 'Yellow Cards',
-                                saves: 'Goalkeeper Saves',
-                                corners: 'Corners'
-                              };
+                            const rows: Array<{
+                              key: string;
+                              label: string;
+                              toasty: number;
+                              opponent: number;
+                            }> = [
+                              {
+                                key: 'totalShots',
+                                label: 'Total Shots',
+                                toasty: totalShotsT,
+                                opponent: totalShotsO
+                              },
+                              {
+                                key: 'shotsOnTarget',
+                                label: 'Shots on Target',
+                                toasty: sotT,
+                                opponent: sotO
+                              },
+                              {
+                                key: 'saves',
+                                label: 'Goalkeeper Saves',
+                                toasty: Number(match.stats.saves?.toasty ?? 0),
+                                opponent: Number(match.stats.saves?.opponent ?? 0)
+                              },
+                              {
+                                key: 'corners',
+                                label: 'Corners',
+                                toasty: Number(match.stats.corners?.toasty ?? 0),
+                                opponent: Number(match.stats.corners?.opponent ?? 0)
+                              },
+                              {
+                                key: 'blocks',
+                                label: 'Blocks',
+                                toasty: Number(match.stats.blocks?.toasty ?? 0),
+                                opponent: Number(match.stats.blocks?.opponent ?? 0)
+                              },
+                              {
+                                key: 'fouls',
+                                label: 'Fouls',
+                                toasty: Number(match.stats.fouls?.toasty ?? 0),
+                                opponent: Number(match.stats.fouls?.opponent ?? 0)
+                              },
+                              {
+                                key: 'yellowCards',
+                                label: 'Yellow Cards',
+                                toasty: Number(match.stats.yellowCards?.toasty ?? 0),
+                                opponent: Number(match.stats.yellowCards?.opponent ?? 0)
+                              },
+                              {
+                                key: 'redCards',
+                                label: 'Red Cards',
+                                toasty: Number(match.stats.redCards?.toasty ?? 0),
+                                opponent: Number(match.stats.redCards?.opponent ?? 0)
+                              }
+                            ];
+
+                            return rows.map(row => {
+                              const total = row.toasty + row.opponent || 1;
+                              const toastyPercent =
+                                row.toasty + row.opponent === 0 ? 50 : (row.toasty / total) * 100;
 
                               return (
-                                <div key={statKey} className="space-y-1">
+                                <div key={row.key} className="space-y-1">
                                   <div className="flex justify-between items-center text-xs font-mono tabular-nums">
                                     <span className="font-bold text-toasty-red w-10 text-left">
-                                      {toastyVal}
+                                      {row.toasty}
                                     </span>
                                     <span className="text-zinc-500 uppercase text-[10px] tracking-wider">
-                                      {labels[statKey] || statKey}
+                                      {row.label}
                                     </span>
                                     <span className="font-bold text-zinc-700 w-10 text-right">
-                                      {oppVal}
+                                      {row.opponent}
                                     </span>
                                   </div>
                                   <div className="w-full h-1.5 bg-zinc-100 rounded-full flex overflow-hidden">
@@ -759,11 +836,14 @@ export const Matches: React.FC<MatchesProps> = ({
                                   </div>
                                 </div>
                               );
-                            })}
+                            });
+                          })()}
                         </div>
                       ) : (
                         <p className="text-center py-6 text-xs text-zinc-400">
-                          Team statistics have not been logged for this fixture.
+                          {match.statsStatus === 'Forfeit'
+                            ? 'Match decided by forfeit — no team statistics recorded.'
+                            : 'Team statistics have not been logged for this fixture.'}
                         </p>
                       )}
                     </div>
@@ -818,7 +898,7 @@ export const Matches: React.FC<MatchesProps> = ({
                                 const playerObj = players.find(p => p.id === stat.playerId);
                                 const number = playerObj?.number;
                                 const isGK = playerObj?.position === 'Goalkeeper';
-                                const rawShots = Number(stat.shots || 0);
+                                const rawShots = Number(stat.shotsOffTarget ?? stat.shots ?? 0);
                                 const rawSOT = Number(stat.shotsOnTarget || 0);
                                 const totalShots = rawShots + rawSOT;
                                 const shotAccuracy =

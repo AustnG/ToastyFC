@@ -1,4 +1,4 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Build & deploy ToastyFC.com (static JSON snapshot from Google Sheets -> GitHub Pages)
 name: Deploy to GitHub Pages
 
 on:
@@ -6,23 +6,23 @@ on:
   push:
     branches: ["main"]
 
-  # Allows you to run this workflow manually from the Actions tab
+  # Automatic nightly data refresh (08:00 UTC / ~2:00 AM Central)
+  schedule:
+    - cron: "0 8 * * *"
+
+  # Allows manual trigger from GitHub Actions tab or 1-click Publish button in Google Sheets
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job, since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -40,6 +40,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci || npm install
+
+      - name: Sync Toasty FC Database snapshot
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SKIP_IF_NO_CREDS: "1"
+        run: node scripts/sync-sheets.mjs
+
+      - name: Type check
+        run: npm run lint
 
       - name: Build
         run: npm run build
