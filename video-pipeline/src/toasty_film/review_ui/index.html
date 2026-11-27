@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toasty FC Film Room — AI Review UI</title>
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --card: #18181c;
+      --border: #2c2c34;
+      --tan: #cabba2;
+      --red: #b91c1c;
+      --green: #15803d;
+      --amber: #b45309;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    header { display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid var(--border); background: #111114; }
+    header h1 { margin: 0; font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; }
+    header h1 span { color: var(--tan); }
+    select, input, button { font-family: inherit; font-size: 13px; border-radius: 6px; }
+    select, input[type="text"], input[type="number"] { background: #101014; color: var(--text); border: 1px solid var(--border); padding: 6px 8px; }
+    button { border: none; padding: 7px 12px; cursor: pointer; font-weight: 600; background: #27272f; color: var(--text); }
+    button:hover { filter: brightness(1.12); }
+    button.primary { background: var(--red); color: #fff; }
+    button.tan { background: var(--tan); color: #111; }
+    button.green { background: var(--green); color: #fff; }
+    .layout { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; padding: 16px 20px; max-width: 1560px; margin: 0 auto; }
+    .panel { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    video { width: 100%; border-radius: 8px; background: #000; max-height: 430px; }
+    .warnings { background: rgba(180, 83, 9, 0.18); border: 1px solid #92400e; color: #fde68a; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; font-size: 12px; }
+    .tabs { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .tab.active { background: var(--tan); color: #111; }
+    .event-list { display: flex; flex-direction: column; gap: 10px; max-height: 70vh; overflow-y: auto; padding-right: 4px; }
+    .ev-card { background: #111115; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+    .ev-card.flagged { border-left: 4px solid #f59e0b; }
+    .ev-card.verified { border-left: 4px solid #22c55e; }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+    .badge { font-size: 11px; padding: 2px 7px; border-radius: 999px; font-weight: 600; background: #27272f; color: var(--tan); }
+    .badge.warn { background: #78350f; color: #fde68a; }
+    .badge.ok { background: #14532d; color: #bbf7d0; }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+    .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; background: #1f1f26; border: 1px solid var(--border); padding: 4px 7px; border-radius: 6px; cursor: pointer; }
+    .chip.on { border-color: var(--tan); background: rgba(202, 187, 162, 0.16); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 8px; }
+    th, td { padding: 5px 6px; border-bottom: 1px solid var(--border); text-align: center; }
+    th:first-child, td:first-child { text-align: left; }
+    .muted { color: var(--muted); font-size: 12px; }
+    pre { background: #0b0b0e; border: 1px solid var(--border); padding: 10px; border-radius: 6px; overflow: auto; max-height: 200px; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>TOASTY FC <span>FILM ROOM</span> · AI Review &amp; Highlight Studio</h1>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select id="matchSelect"></select>
+      <button onclick="previewApprove()">Dry-Run Sheets Diff</button>
+      <button class="green" onclick="approveAndPush()">Approve &amp; Push to Sheets</button>
+      <button class="primary" onclick="renderHighlights()">Render 1080p + DaVinci FCPXML</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- Left: Video Player + Live Calculated Stats -->
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="panel">
+        <div id="matchMeta" class="muted" style="margin-bottom:8px;">Select a match draft...</div>
+        <video id="player" controls preload="metadata"></video>
+        <div id="statusBox" class="muted" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>Both Teams — Live Team Stats (Matches + Outro Card)</strong>
+          <span class="muted">shotsOffTarget + shotsOnTarget = Total Shots</span>
+        </div>
+        <table id="teamTable"></table>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>Toasty FC Player Box Score (Auto +/- from Goal Checkboxes)</strong>
+          <label class="muted">POTM: <select id="potmSelect"></select></label>
+        </div>
+        <table id="playerTable"></table>
+      </div>
+
+      <div class="panel" id="outputPanel" style="display:none;">
+        <strong>Action Output</strong>
+        <pre id="outputPre"></pre>
+      </div>
+    </div>
+
+    <!-- Right: Review Queue -->
+    <div class="panel">
+      <div id="warningsBox" class="warnings" style="display:none;"></div>
+      <div class="tabs">
+        <button class="tab active" data-filter="flagged" onclick="setFilter('flagged', this)">Needs Review</button>
+        <button class="tab" data-filter="goals" onclick="setFilter('goals', this)">Goals Only</button>
+        <button class="tab" data-filter="all" onclick="setFilter('all', this)">All Events</button>
+        <button class="tab" data-filter="shorts" onclick="setFilter('shorts', this)">Starred for Shorts</button>
+      </div>
+      <div id="eventList" class="event-list"></div>
+    </div>
+  </div>
+
+  <script>
+    const EVENT_TYPES = [
+      'goal','own_goal','shot_on_target','shot_off_target','save','block',
+      'foul','yellow_card','red_card','corner','highlight_chance','halftime','kickoff'
+    ];
+    let currentMatchId = null;
+    let draft = null;
+    let activeFilter = 'flagged';
+
+    async function init() {
+      const matches = await fetch('/api/matches').then(r => r.json());
+      const sel = document.getElementById('matchSelect');
+      sel.innerHTML = '';
+      if (!matches.length) {
+        document.getElementById('matchMeta').textContent = 'No analyzed draft_review.json files found yet.';
+        return;
+      }
+      matches.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.match_id;
+        opt.textContent = `${m.match_id} · ${m.date} vs ${m.opponent} (${m.score}) — ${m.events_flagged} flagged`;
+        sel.appendChild(opt);
+      });
+      sel.onchange = () => loadMatch(sel.value);
+      loadMatch(matches[0].match_id);
+    }
+
+    async function loadMatch(matchId) {
+      currentMatchId = matchId;
+      draft = await fetch(`/api/matches/${matchId}`).then(r => r.json());
+      renderAll();
+    }
+
+    function setFilter(f, btn) {
+      activeFilter = f;
+      document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderEvents();
+    }
+
+    function playClip(sourceVideo, startSec) {
+      const video = document.getElementById('player');
+      const file = sourceVideo || (draft.config.primary_videos[0] || '');
+      const src = `/api/video/${currentMatchId}?file=${encodeURIComponent(file)}`;
+      if (!video.src.endsWith(src)) {
+        video.src = src;
+        video.onloadedmetadata = () => { video.currentTime = Math.max(0, startSec); video.play(); };
+      } else {
+        video.currentTime = Math.max(0, startSec);
+        video.play();
+      }
+    }
+
+    function renderAll() {
+      const ctx = draft.context;
+      document.getElementById('matchMeta').innerHTML =
+        `<strong>${ctx.match_id}</strong> · ${ctx.date} · <span style="color:var(--tan)">${ctx.toasty_code}</span> vs <strong>${ctx.opponent} (${ctx.opponent_code})</strong> · Sheet Score: ${ctx.toasty_score ?? '?'} - ${ctx.opponent_score ?? '?'} · Status: <span class="badge">${draft.status}</span>`;
+
+      const potmSel = document.getElementById('potmSelect');
+      potmSel.innerHTML = '<option value="">-- Select POTM --</option>' +
+        ctx.attendees.map(p => `<option value="${p.name}" ${ctx.player_of_the_match === p.name ? 'selected' : ''}>${p.name}</option>`).join('');
+
+      const wb = document.getElementById('warningsBox');
+      if (draft.warnings && draft.warnings.length) {
+        wb.style.display = 'block';
+        wb.innerHTML = '<strong>Consistency Checks:</strong><br/>' + draft.warnings.map(w => `• ${w}`).join('<br/>');
+      } else {
+        wb.style.display = 'none';
+      }
+
+      renderTeamTable();
+      renderPlayerTable();
+      renderEvents();
+    }
+
+    function renderTeamTable() {
+      const t = draft.team_stats_toasty, o = draft.team_stats_opponent;
+      const rows = [
+        ['Goals', t.goals, o.goals],
+        ['Total Shots (Off + SOT)', t.shots_off_target + t.shots_on_target, o.shots_off_target + o.shots_on_target],
+        ['Shots on Target', t.shots_on_target, o.shots_on_target],
+        ['Saves', t.saves, o.saves],
+        ['Corners', t.corners, o.corners],
+        ['Blocks', t.blocks, o.blocks],
+        ['Fouls', t.fouls, o.fouls],
+        ['Cards (Y / R)', `${t.yellow_cards} / ${t.red_cards}`, `${o.yellow_cards} / ${o.red_cards}`],
+      ];
+      document.getElementById('teamTable').innerHTML =
+        `<tr><th>Stat</th><th style="color:var(--tan)">${draft.context.toasty_code}</th><th>${draft.context.opponent_code}</th></tr>` +
+        rows.map(([k, tv, ov]) => `<tr><td>${k}</td><td><strong>${tv}</strong></td><td>${ov}</td></tr>`).join('');
+    }
+
+    function renderPlayerTable() {
+      const rows = draft.player_stats || [];
+      document.getElementById('playerTable').innerHTML =
+        '<tr><th>Player</th><th>G</th><th>A</th><th>Off/SOT</th><th>Blk</th><th>Sv/GA</th><th>+/-</th><th>F</th></tr>' +
+        rows.map(p => `<tr><td>${p.player_name}</td><td>${p.goals}</td><td>${p.assists}</td><td>${p.shots_off_target}/${p.shots_on_target}</td><td>${p.blocks}</td><td>${p.saves}/${p.goals_allowed}</td><td><strong>${p.plus_minus >= 0 ? '+' : ''}${p.plus_minus}</strong></td><td>${p.fouls}</td></tr>`).join('');
+    }
+
+    function renderEvents() {
+      const list = document.getElementById('eventList');
+      const filtered = draft.events.filter(e => {
+        if (activeFilter === 'flagged') return e.needs_review || e.event_type === 'goal' || e.event_type === 'own_goal';
+        if (activeFilter === 'goals') return e.event_type === 'goal' || e.event_type === 'own_goal';
+        if (activeFilter === 'shorts') return e.star_for_shorts;
+        return true;
+      });
+      if (!filtered.length) {
+        list.innerHTML = '<div class="muted" style="padding:12px;">No events in this filter! Switch to All Events or click Approve.</div>';
+        return;
+      }
+
+      const attendees = draft.context.attendees || [];
+      list.innerHTML = '';
+      filtered.forEach(ev => {
+        const card = document.createElement('div');
+        card.className = 'ev-card ' + (ev.verified ? 'verified' : (ev.needs_review ? 'flagged' : ''));
+        const isGoal = ev.event_type === 'goal' || ev.event_type === 'own_goal';
+        const playerOpts = '<option value="">-- Player --</option>' + attendees.map(p =>
+          `<option value="${p.player_id}" ${ev.player_id === p.player_id ? 'selected' : ''}>#${p.number ?? '?'} ${p.name}</option>`
+        ).join('');
+        const assistOpts = '<option value="">-- Assist --</option>' + attendees.map(p =>
+          `<option value="${p.player_id}" ${ev.assist_player_id === p.player_id ? 'selected' : ''}>#${p.number ?? '?'} ${p.name}</option>`
+        ).join('');
+
+        const onCourtHtml = isGoal ? `
+          <div style="margin-top:8px;">
+            <span class="muted">On-court Toasty players (5) for automatic +/- (${ev.team === 'toasty' ? '+1' : '-1'}):</span>
+            <div class="chips">
+              ${attendees.map(p => {
+                const checked = (ev.on_court_ids || []).includes(p.player_id);
+                return `<label class="chip ${checked ? 'on' : ''}">
+                  <input type="checkbox" data-oncourt="${p.player_id}" ${checked ? 'checked' : ''} />
+                  #${p.number ?? '?'} ${p.name.split(' ')[0]}
+                </label>`;
+              }).join('')}
+            </div>
+          </div>` : '';
+
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+            <div>
+              <strong>${ev.event_id}</strong> · H${ev.half} · ${Math.round(ev.video_time_sec)}s
+              <span class="badge ${ev.verified ? 'ok' : (ev.needs_review ? 'warn' : '')}">${ev.verified ? 'Verified' : Math.round(ev.confidence * 100) + '% conf'}</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="tan" onclick="playClip('${ev.source_video}', ${ev.clip_start_sec})">▶ Play Clip</button>
+              <button onclick="deleteEv('${ev.event_id}')">✕</button>
+            </div>
+          </div>
+          ${ev.review_reason ? `<div class="muted" style="color:#fde68a;margin-top:4px;">Flag: ${ev.review_reason}</div>` : ''}
+          <div class="row">
+            <select data-field="event_type">${EVENT_TYPES.map(t => `<option value="${t}" ${ev.event_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+            <select data-field="team">
+              <option value="toasty" ${ev.team === 'toasty' ? 'selected' : ''}>${draft.context.toasty_code}</option>
+              <option value="opponent" ${ev.team === 'opponent' ? 'selected' : ''}>${draft.context.opponent_code}</option>
+            </select>
+            <select data-field="player_id">${playerOpts}</select>
+            <select data-field="assist_player_id">${assistOpts}</select>
+            <input type="number" data-field="match_minute" value="${ev.match_minute ?? ''}" placeholder="Min" style="width:62px;" />
+          </div>
+          <div class="row">
+            <span class="muted">Clip:</span>
+            <input type="number" step="0.5" data-field="clip_start_sec" value="${ev.clip_start_sec}" style="width:74px;" />
+            <span class="muted">to</span>
+            <input type="number" step="0.5" data-field="clip_end_sec" value="${ev.clip_end_sec}" style="width:74px;" />
+            <label class="muted"><input type="checkbox" data-field="keep_in_highlight" ${ev.keep_in_highlight ? 'checked' : ''} /> Highlight</label>
+            <label class="muted"><input type="checkbox" data-field="star_for_shorts" ${ev.star_for_shorts ? 'checked' : ''} /> Shorts</label>
+            <button class="green" style="margin-left:auto;" data-save="1">Verify &amp; Save</button>
+          </div>
+          ${onCourtHtml}
+        `;
+
+        card.querySelector('[data-save="1"]').onclick = async () => {
+          const payload = { ...ev, verified: true };
+          card.querySelectorAll('[data-field]').forEach(el => {
+            const f = el.dataset.field;
+            if (el.type === 'checkbox') payload[f] = el.checked;
+            else if (el.type === 'number') payload[f] = el.value === '' ? null : Number(el.value);
+            else payload[f] = el.value || null;
+          });
+          if (isGoal) {
+            payload.on_court_ids = Array.from(card.querySelectorAll('[data-oncourt]:checked')).map(c => c.dataset.oncourt);
+          }
+          draft = await fetch(`/api/matches/${currentMatchId}/events/${ev.event_id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          }).then(r => r.json());
+          renderAll();
+        };
+        list.appendChild(card);
+      });
+    }
+
+    async function deleteEv(eventId) {
+      draft = await fetch(`/api/matches/${currentMatchId}/events/${eventId}`, { method: 'DELETE' }).then(r => r.json());
+      renderAll();
+    }
+
+    function showOutput(obj) {
+      document.getElementById('outputPanel').style.display = 'block';
+      document.getElementById('outputPre').textContent = JSON.stringify(obj, null, 2);
+    }
+
+    async function previewApprove() {
+      const potm = document.getElementById('potmSelect').value;
+      const res = await fetch(`/api/matches/${currentMatchId}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dry_run: true, player_of_the_match: potm }),
+      }).then(r => r.json());
+      showOutput(res.sheets_result);
+    }
+
+    async function approveAndPush() {
+      if (!confirm('Push verified Matches, MatchStats, and MatchEvents to Toasty FC Database?')) return;
+      const potm = document.getElementById('potmSelect').value;
+      const res = await fetch(`/api/matches/${currentMatchId}/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dry_run: false, player_of_the_match: potm }),
+      }).then(r => r.json());
+      draft = res.draft;
+      renderAll();
+      showOutput(res.sheets_result);
+    }
+
+    async function renderHighlights() {
+      document.getElementById('statusBox').textContent = 'Rendering 1080p highlight reel + DaVinci FCPXML...';
+      const res = await fetch(`/api/matches/${currentMatchId}/render`, { method: 'POST' }).then(r => r.json());
+      document.getElementById('statusBox').textContent = 'Render complete!';
+      showOutput(res);
+    }
+
+    init();
+  </script>
+</body>
+</html>

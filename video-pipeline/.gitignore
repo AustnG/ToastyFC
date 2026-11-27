@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+calibration/player_refs/*.jpg
+calibration/player_refs/*.png
+scratch/
+*.mp4
+*.mov
+*.mkv
