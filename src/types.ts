@@ -5,6 +5,7 @@ export interface Season {
   endDate?: string;
   division?: string;
   playersRostered?: number;
+  // Private admin-only fields (stripped from public toasty-data.json)
   perPlayerFee?: number;
   teamFee?: number;
   amountPaid?: number;
@@ -15,7 +16,7 @@ export interface Player {
   id: string;
   name: string;
   number?: number;
-  position?: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward';
+  position?: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward' | string;
   imageUrl?: string;
   bio: string;
   goals?: number;
@@ -25,8 +26,9 @@ export interface Player {
   saves?: number;       // Goalkeeper saves
   goalsAllowed?: number;// Goalkeeper goals conceded
   isCaptain?: boolean;
-  // Extended fields requested by user:
-  dateOfBirth?: string;
+  // Extended fields:
+  age?: number;         // Public computed age (raw dateOfBirth stripped from public JSON)
+  dateOfBirth?: string; // Private admin-only field
   height?: string;
   birthplace?: string;
   nationality?: string;
@@ -38,8 +40,10 @@ export interface Player {
   yellows?: number;
   reds?: number;
   potm?: number;
-  shots?: number;
-  shotsOnTarget?: number;
+  shots?: number;          // Legacy alias for shotsOffTarget
+  shotsOffTarget?: number; // Shots off target
+  shotsOnTarget?: number;  // Shots on target
+  totalShots?: number;     // shotsOffTarget + shotsOnTarget
   blocks?: number;
 }
 
@@ -52,7 +56,7 @@ export interface RosterEntry {
   playerName?: string;
   number: number;
   imageUrl: string;
-  position: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward';
+  position: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward' | string;
   isCaptain?: boolean;
 }
 
@@ -72,9 +76,11 @@ export interface StatMetric {
 
 export interface TeamMatchStats {
   goals: StatMetric;
-  assists: StatMetric;
-  shots: StatMetric;
-  shotsOnTarget: StatMetric;
+  assists?: StatMetric;
+  shots: StatMetric;           // Legacy alias for shotsOffTarget
+  shotsOffTarget?: StatMetric; // Shots off target
+  shotsOnTarget: StatMetric;   // Shots on target
+  totalShots?: StatMetric;     // shotsOffTarget + shotsOnTarget
   blocks: StatMetric;
   fouls: StatMetric;
   redCards: StatMetric;
@@ -82,6 +88,13 @@ export interface TeamMatchStats {
   saves: StatMetric;
   corners?: StatMetric; // Corners tracked for both teams
 }
+
+export type MatchStatsStatus =
+  | 'Scheduled'
+  | 'Result Only'
+  | 'Video Only'
+  | 'Full Stats'
+  | 'Forfeit';
 
 export interface Match {
   id: string;
@@ -92,19 +105,48 @@ export interface Match {
   time: string;
   opponent: string;
   opponentColor?: string;
-  type: 'League' | 'Cup' | 'Friendly';
-  status: 'Upcoming' | 'Completed' | 'Canceled';
+  type:
+    | 'Season'
+    | 'Quarter-Final'
+    | 'Semi-Final'
+    | 'Final'
+    | 'Tournament'
+    | 'Consolation'
+    | 'League'
+    | 'Cup'
+    | 'Friendly'
+    | string;
+  status: 'Upcoming' | 'Completed' | 'Canceled' | string;
+  statsStatus?: MatchStatsStatus;
+  ownGoalsFor?: number;
+  notes?: string;
   location: string;
   toastyScore?: number;
   opponentScore?: number;
   summary?: string;
   goalsScoredBy?: string[]; // Basic array of scorer names
   assistsBy?: string[]; // Basic array of playmaker names who assisted
-  goalScorersDetails?: string; // Comma-separated with minutes for spreadsheet manual entry: "Austin Greer (14', 45'), Emily Smith (62')"
-  opponentGoalScorersDetails?: string; // Comma-separated with minutes for opponent: "Opponent Scorer (33'), Goal (55')"
+  goalScorersDetails?: string;
+  opponentGoalScorersDetails?: string;
   playerOfTheMatch?: string; // MOTM player name
   youtubeUrl?: string; // Link to YouTube highlights
   stats?: TeamMatchStats; // Detailed match statistics
+}
+
+export interface MatchEvent {
+  eventId: string;
+  matchId: string;
+  half: string;
+  videoTime: string;
+  matchMinute?: number;
+  eventType: string;
+  team: 'toasty' | 'opponent' | string;
+  playerId?: string;
+  assistPlayerId?: string;
+  onCourtIds?: string[];
+  keepInHighlight: boolean;
+  starForShorts: boolean;
+  notes?: string;
 }
 
 export interface NewsItem {
@@ -140,8 +182,10 @@ export interface MatchStats {
   present?: boolean; // optional: true if player is present in this match
   goals: number;
   assists: number;
-  shots: number;
+  shots: number;           // Legacy alias for shotsOffTarget
+  shotsOffTarget?: number; // Shots off target
   shotsOnTarget: number;
+  totalShots?: number;     // shotsOffTarget + shotsOnTarget
   blocks: number;
   saves?: number; // Goalkeepers
   goalsAllowed?: number; // Goalkeepers
@@ -153,3 +197,15 @@ export interface MatchStats {
   cleanSheet: boolean;
 }
 
+export interface ToastyDataset {
+  schemaVersion: number;
+  generatedAt: string;
+  players: Player[];
+  seasons: Season[];
+  roster: RosterEntry[];
+  matches: Match[];
+  playerMatchStats: MatchStats[];
+  matchEvents?: MatchEvent[];
+  news: NewsItem[];
+  gallery: GalleryItem[];
+}

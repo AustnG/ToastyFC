@@ -346,7 +346,7 @@ export const Roster: React.FC<RosterProps> = ({
             activeSelectedPlayer.number !== undefined &&
             activeSelectedPlayer.number !== null &&
             activeSelectedPlayer.number > 0;
-          const age = calculateAge(activeSelectedPlayer.dateOfBirth);
+          const age = activeSelectedPlayer.age ?? calculateAge(activeSelectedPlayer.dateOfBirth);
 
           return (
             <div
@@ -459,7 +459,7 @@ export const Roster: React.FC<RosterProps> = ({
                     )}
 
                     {/* Personal Identity */}
-                    {(activeSelectedPlayer.dateOfBirth ||
+                    {(age !== null ||
                       activeSelectedPlayer.height ||
                       activeSelectedPlayer.birthplace ||
                       activeSelectedPlayer.nationality) && (
@@ -468,14 +468,13 @@ export const Roster: React.FC<RosterProps> = ({
                           Personal Details
                         </h4>
                         <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs">
-                          {activeSelectedPlayer.dateOfBirth && (
+                          {age !== null && (
                             <div>
                               <span className="block text-zinc-400 font-mono text-[10px] uppercase tracking-wider">
-                                Date of Birth
+                                Age
                               </span>
                               <strong className="text-zinc-900 font-semibold tabular-nums">
-                                {activeSelectedPlayer.dateOfBirth}
-                                {age !== null && <> ({age} yrs)</>}
+                                {age} yrs
                               </strong>
                             </div>
                           )}
